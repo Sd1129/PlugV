@@ -1,22 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Inter, Sora } from "next/font/google";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const sora = Sora({
-  subsets: ["latin"],
-  variable: "--font-sora",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
-  title: "PlugV | EV Vehicles & Charging Stations",
-  description: "PlugV is an Indian EV platform for vehicles, upcoming launches, charging stations, and comparisons.",
+  title: "PlugV 2.0",
+  description: "India's premium EV decision platform.",
 };
 
 export default function RootLayout({
@@ -25,8 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${sora.variable}`}>
-      <body>{children}</body>
+    <html lang="en">
+      <body className="bg-slate-950 text-white antialiased">{children}</body>
     </html>
   );
 }

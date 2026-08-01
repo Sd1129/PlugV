@@ -1,14 +1,14 @@
-import React from "react";
+import type { ReactNode } from "react";
 
-type PageContainerProps = {
-  children: React.ReactNode;
+type PageShellProps = {
+  children: ReactNode;
   className?: string;
 };
 
-export default function PageContainer({
+export default function PageShell({
   children,
   className = "",
-}: PageContainerProps) {
+}: PageShellProps) {
   return (
     <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 ${className}`}>
       {children}

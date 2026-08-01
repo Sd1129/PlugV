@@ -1,179 +1,356 @@
 import Link from "next/link";
-import { ArrowRight, Globe2, Leaf, MapPinned, ShieldCheck, Sparkles } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import {
+  ArrowRight,
+  BatteryCharging,
+  CheckCircle2,
+  Gauge,
+  MapPinned,
+  Sparkles,
+  ShieldCheck,
+  Zap,
+} from "lucide-react";
+import SiteHeader from "@/components/Home/SiteHeader";
+import SiteFooter from "@/components/Home/SiteFooter";
+
+const pillars = [
+  {
+    title: "Explore EVs",
+    desc: "Browse launched EVs with a premium discovery experience built for serious buyers.",
+    icon: <Sparkles className="h-4 w-4" />,
+  },
+  {
+    title: "Compare EVs",
+    desc: "Help users compare range, charging, pricing, and fit with calm, clear decision surfaces.",
+    icon: <Gauge className="h-4 w-4" />,
+  },
+  {
+    title: "Charging intelligence",
+    desc: "Make charging discovery feel trustworthy, useful, and easy to plan around.",
+    icon: <BatteryCharging className="h-4 w-4" />,
+  },
+  {
+    title: "Upcoming launches",
+    desc: "Give buyers a premium way to track what is coming next and plan ahead.",
+    icon: <Zap className="h-4 w-4" />,
+  },
+  {
+    title: "Decision support",
+    desc: "Turn information into action with clearer next steps and more confidence.",
+    icon: <CheckCircle2 className="h-4 w-4" />,
+  },
+  {
+    title: "India-first trust",
+    desc: "Build a platform people across India can rely on for EV research and planning.",
+    icon: <ShieldCheck className="h-4 w-4" />,
+  },
+];
+
+const roadmap = [
+  {
+    step: "1",
+    title: "Premium homepage",
+    desc: "A polished front door that feels like a real EV company, not a simple website.",
+  },
+  {
+    step: "2",
+    title: "Core research pages",
+    desc: "Explore, compare, charging, and upcoming launches with the same visual language.",
+  },
+  {
+    step: "3",
+    title: "Decision tools",
+    desc: "Add calculators, recommendations, saved items, and smarter search experiences.",
+  },
+  {
+    step: "4",
+    title: "Company growth",
+    desc: "Expand into partnerships, trust content, and a full product ecosystem for EV buyers.",
+  },
+];
+
+const principles = [
+  "Premium, calm, and commercial",
+  "Clear information hierarchy",
+  "Trust first, then conversion",
+  "Built for India",
+  "Fast, responsive, and accessible",
+  "Scales into a real product company",
+];
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen text-slate-950">
-      <Navbar />
+    <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
+      <SiteHeader />
 
-      <section className="border-b border-emerald-200 bg-[radial-gradient(circle_at_top,#f4fbf4_0%,#e4f0e1_50%,#d9ead4_100%)]">
-        <div className="mx-auto max-w-7xl px-6 py-16">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.18),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.14),transparent_30%)]" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),transparent_20%,transparent_82%,rgba(255,255,255,0.02))]" />
+
+        <div className="mx-auto grid w-full max-w-7xl gap-14 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm">
-              <Leaf className="h-4 w-4" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200">
               About PlugV
             </div>
 
-            <h1 className="mt-6 text-5xl font-black leading-[1.05] tracking-tight text-emerald-950 sm:text-6xl lg:text-7xl">
-              Built for India’s electric future
+            <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-[4.35rem]">
+              PlugV is India&apos;s EV Intelligence Platform.
             </h1>
 
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-700">
-              PlugV is a premium EV platform for exploring launched vehicles, upcoming launches, charging stations, and side-by-side comparisons.
+            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+              We are building a premium EV product company that helps people across India explore launched EVs, compare vehicles, discover charging, and track upcoming launches with confidence.
             </p>
 
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
                 href="/vehicles"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-700 px-7 py-3 text-base font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-800"
+                className="inline-flex items-center justify-center rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
               >
-                Explore vehicles
-                <ArrowRight className="h-4 w-4" />
+                Explore EVs
               </Link>
-
               <Link
                 href="/compare"
-                className="inline-flex items-center justify-center rounded-full border border-emerald-300 bg-white px-7 py-3 text-base font-semibold text-emerald-800 transition hover:bg-emerald-50"
+                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
               >
                 Compare EVs
               </Link>
             </div>
+
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              {[
+                { value: "India-first", label: "Built for Indian EV shoppers" },
+                { value: "Premium", label: "Designed to feel commercial" },
+                { value: "Scalable", label: "Built to grow into a company" },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/10 backdrop-blur"
+                >
+                  <p className="text-2xl font-semibold text-white">{item.value}</p>
+                  <p className="mt-1 text-sm text-slate-400">{item.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            <AboutStat
-              icon={<Sparkles className="h-4 w-4" />}
-              title="Discover"
-              text="Find EVs with clean browsing and premium cards."
-            />
-            <AboutStat
-              icon={<MapPinned className="h-4 w-4" />}
-              title="Locate"
-              text="Browse charging stations by city and availability."
-            />
-            <AboutStat
-              icon={<ShieldCheck className="h-4 w-4" />}
-              title="Compare"
-              text="Use PlugV Compare for smarter buying decisions."
-            />
+          <div className="relative">
+            <div className="absolute -inset-8 -z-10 rounded-[2.5rem] bg-sky-400/10 blur-3xl" />
+
+            <div className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 shadow-2xl shadow-black/30 backdrop-blur">
+              <div className="border-b border-white/10 px-6 py-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-200/80">
+                  Company vision
+                </p>
+                <h2 className="mt-3 text-2xl font-semibold text-white">
+                  A product company, not a content site.
+                </h2>
+                <p className="mt-1 text-sm text-slate-400">
+                  Premium design, useful information, and a clear path to decision-making.
+                </p>
+              </div>
+
+              <div className="grid gap-4 p-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                      Mission
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-slate-300">
+                      Help EV shoppers make better decisions through premium design, accurate information, and clear product experiences.
+                    </p>
+                  </div>
+                  <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                      Audience
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-slate-300">
+                      Buyers, researchers, early adopters, families, and anyone in India looking for a trusted EV decision platform.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                        What PlugV stands for
+                      </p>
+                      <h3 className="mt-2 text-xl font-semibold text-white">
+                        Trust, clarity, and premium product thinking.
+                      </h3>
+                    </div>
+                    <div className="rounded-full border border-sky-400/15 bg-sky-400/10 px-3 py-1 text-xs font-medium text-sky-200">
+                      PlugV
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                    {["Explore", "Compare", "Charge"].map((item) => (
+                      <div
+                        key={item}
+                        className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-sm text-slate-200"
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="border-b border-emerald-200 bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-16">
-          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="rounded-[32px] border border-emerald-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fcf7_100%)] p-8 shadow-sm">
-              <div className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-700">
-                Our mission
-              </div>
-              <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">
-                Make EV discovery feel clear, premium, and simple
-              </h2>
-              <p className="mt-4 text-lg leading-8 text-slate-600">
-                PlugV brings together vehicles, upcoming launches, charging networks, and comparisons in one polished place so users can make better electric mobility decisions.
-              </p>
-
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <MiniCard title="Clean design" text="White space, green accents, and modern layout." />
-                <MiniCard title="India first" text="Built for Indian EV users and city coverage." />
-                <MiniCard title="Scalable" text="Ready for maps, filters, and more data later." />
-                <MiniCard title="Commercial feel" text="Looks like a real platform, not a demo." />
-              </div>
+      <section className="border-y border-white/10 bg-white/[0.02] py-16 sm:py-20">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">
+              Product pillars
             </div>
-
-            <div className="space-y-4">
-              <InfoPanel title="What PlugV does">
-                <ul className="space-y-3 text-slate-600">
-                  <li>• Helps users explore launched EVs with details and specs.</li>
-                  <li>• Shows upcoming EVs with launch timing and summaries.</li>
-                  <li>• Surfaces charging stations by city for Indian users.</li>
-                  <li>• Lets buyers compare vehicles side by side with confidence.</li>
-                </ul>
-              </InfoPanel>
-
-              <InfoPanel title="Why it feels premium">
-                <ul className="space-y-3 text-slate-600">
-                  <li>• Consistent spacing, typography, and card styling.</li>
-                  <li>• Soft shadows and rounded surfaces throughout.</li>
-                  <li>• Shared mint-green and white visual language.</li>
-                  <li>• Clear buyer-focused structure across pages.</li>
-                </ul>
-              </InfoPanel>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-emerald-200 bg-[#d9ead4]">
-        <div className="mx-auto max-w-7xl px-6 py-16">
-          <div className="rounded-[32px] border border-emerald-100 bg-white p-8 shadow-sm">
-            <div className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-700">
-              The PlugV experience
-            </div>
-            <h2 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">
-              Explore. Compare. Charge. Decide.
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Everything PlugV does should answer one question.
             </h2>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-              Everything is designed to feel connected, consistent, and easy to use across the website.
+            <p className="mt-4 text-base leading-7 text-slate-400">
+              Can this help someone make a better EV decision? If yes, it belongs in PlugV.
             </p>
           </div>
+
+          <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {pillars.map((item) => (
+              <article
+                key={item.title}
+                className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-sky-400/20 hover:bg-white/[0.07]"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/70 text-sky-200">
+                  {item.icon}
+                </div>
+                <h3 className="mt-5 text-xl font-semibold text-white">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-300">{item.desc}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
-      <Footer />
+      <section className="py-20 sm:py-24">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300/80">
+                Design principles
+              </p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white">
+                The look should feel premium, commercial, and calm.
+              </h2>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                {principles.map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-white/10 bg-slate-950/70 p-4"
+                  >
+                    <p className="text-sm font-semibold text-white">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300/80">
+                Roadmap
+              </p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white">
+                How PlugV grows into a real company.
+              </h2>
+
+              <div className="mt-6 grid gap-4">
+                {roadmap.map((item) => (
+                  <div
+                    key={item.step}
+                    className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5"
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                      Phase {item.step}
+                    </p>
+                    <h3 className="mt-2 text-xl font-semibold text-white">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-slate-300">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-white/[0.02] py-16 sm:py-20">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              {
+                title: "A real EV platform",
+                desc: "PlugV is being built as a product company that serves buyers, researchers, and future partners.",
+              },
+              {
+                title: "Designed to scale",
+                desc: "The structure supports more pages, more tools, and more premium experiences without losing consistency.",
+              },
+              {
+                title: "Made for India",
+                desc: "Every experience should serve the Indian EV market with confidence and trust.",
+              },
+            ].map((item) => (
+              <article
+                key={item.title}
+                className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300/80">
+                  Company note
+                </p>
+                <h3 className="mt-3 text-xl font-semibold text-white">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-300">{item.desc}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden py-24 sm:py-28">
+        <div className="absolute inset-0 -z-10 bg-slate-950" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.16),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.12),transparent_28%)]" />
+
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 px-8 py-14 shadow-2xl shadow-black/30 backdrop-blur sm:px-10 sm:py-16 lg:px-16 lg:py-20">
+            <div className="mx-auto max-w-4xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200">
+                Start your journey
+              </div>
+
+              <h2 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Ready to build PlugV like a real company?
+              </h2>
+
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+                The product foundation is in place. The next step is to keep expanding the platform with the same premium standard across every page.
+              </p>
+
+              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link
+                  href="/vehicles"
+                  className="inline-flex items-center justify-center rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                >
+                  Explore EVs
+                </Link>
+                <Link
+                  href="/compare"
+                  className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Compare EVs
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <SiteFooter />
     </main>
-  );
-}
-
-function AboutStat({
-  icon,
-  title,
-  text,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  text: string;
-}) {
-  return (
-    <div className="rounded-[28px] border border-emerald-100 bg-white p-6 shadow-sm">
-      <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">
-        {icon}
-        {title}
-      </div>
-      <p className="mt-3 leading-7 text-slate-600">{text}</p>
-    </div>
-  );
-}
-
-function MiniCard({
-  title,
-  text,
-}: {
-  title: string;
-  text: string;
-}) {
-  return (
-    <div className="rounded-[24px] bg-slate-50 p-4">
-      <div className="text-sm font-bold text-slate-950">{title}</div>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
-    </div>
-  );
-}
-
-function InfoPanel({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-[32px] border border-emerald-100 bg-white p-6 shadow-sm">
-      <h3 className="text-xl font-bold text-slate-950">{title}</h3>
-      <div className="mt-4">{children}</div>
-    </div>
   );
 }
