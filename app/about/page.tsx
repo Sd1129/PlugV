@@ -9,8 +9,8 @@ import {
   ShieldCheck,
   Zap,
 } from "lucide-react";
-import SiteHeader from "@/components/Home/SiteHeader";
-import SiteFooter from "@/components/Home/SiteFooter";
+import SiteHeader from "@/components/home/SiteHeader";
+import SiteFooter from "@/components/home/SiteFooter";
 
 const pillars = [
   {

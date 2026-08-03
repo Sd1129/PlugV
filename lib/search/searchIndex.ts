@@ -32,10 +32,10 @@ export const searchIndex: SearchItem[] = [
   ...upcomingEVs.map((item) => ({
     id: item.name.toLowerCase().replace(/\s+/g, "-"),
     title: item.name,
-    subtitle: `${item.brand} • ${item.launch}`,
+    subtitle: item.launch || item.note || "Upcoming EV",
     category: "upcoming" as const,
     href: "/upcoming",
-    keywords: [item.name, item.brand, item.launch, item.note, item.segment],
+    keywords: [item.name, item.launch ?? "", item.note ?? ""],
   })),
   {
     id: "charging",

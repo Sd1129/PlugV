@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 type StatCardProps = {
   label: string;
   value: string;
+  description?: string;
   icon?: ReactNode;
   className?: string;
 };
@@ -10,6 +11,7 @@ type StatCardProps = {
 export default function StatCard({
   label,
   value,
+  description,
   icon,
   className = "",
 }: StatCardProps) {
@@ -26,9 +28,16 @@ export default function StatCard({
           {label}
         </p>
       </div>
+
       <p className="mt-3 text-2xl font-semibold tracking-tight text-white">
         {value}
       </p>
+
+      {description && (
+        <p className="mt-2 text-sm leading-6 text-slate-400">
+          {description}
+        </p>
+      )}
     </div>
   );
 }
