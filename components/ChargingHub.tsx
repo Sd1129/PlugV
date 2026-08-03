@@ -15,7 +15,7 @@ import {
 import { stations } from "@/data/stations";
 import PageContainer from "@/components/ui/PageContainer";
 import SectionTitle from "@/components/ui/SectionTitle";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import StatCard from "@/components/ui/StatCard";
 
 type Station = (typeof stations)[number];
