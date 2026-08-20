@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { ArrowRight, Filter, Search } from "lucide-react";
+
+import Hero from "@/components/home/Hero";
 import UniversalSearch from "@/components/ui/UniversalSearch";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import { vehicles } from "@/data/vehicles";
-
-type Vehicle = (typeof vehicles)[number];
 
 const sortOptions = [
   { value: "recommended", label: "Recommended" },
@@ -16,14 +16,6 @@ const sortOptions = [
   { value: "price-asc", label: "Price (low to high)" },
   { value: "name-asc", label: "Name (A–Z)" },
 ] as const;
-
-const ACCENTS = [
-  "from-sky-400/25 via-cyan-400/10 to-transparent",
-  "from-fuchsia-400/25 via-rose-400/10 to-transparent",
-  "from-emerald-400/25 via-teal-400/10 to-transparent",
-  "from-amber-300/25 via-orange-400/10 to-transparent",
-  "from-violet-400/25 via-indigo-400/10 to-transparent",
-];
 
 function parseNumeric(value?: string) {
   if (!value) return 0;
@@ -33,10 +25,19 @@ function parseNumeric(value?: string) {
 }
 
 function accentFor(seed: string) {
+  const ACCENTS = [
+    "from-sky-400/25 via-cyan-400/10 to-transparent",
+    "from-fuchsia-400/25 via-rose-400/10 to-transparent",
+    "from-emerald-400/25 via-teal-400/10 to-transparent",
+    "from-amber-300/25 via-orange-400/10 to-transparent",
+    "from-violet-400/25 via-indigo-400/10 to-transparent",
+  ];
+
   let hash = 0;
   for (let i = 0; i < seed.length; i += 1) {
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
   }
+
   return ACCENTS[hash % ACCENTS.length];
 }
 
@@ -99,7 +100,7 @@ function Pill({
   return <span className={classes}>{children}</span>;
 }
 
-export default function VehiclesPage() {
+export default function HomePage() {
   const launchedVehicles = useMemo(
     () => vehicles.filter((vehicle) => vehicle.launched),
     []
@@ -191,188 +192,80 @@ export default function VehiclesPage() {
 
   const featuredTypes = types.slice(1, 5);
 
+  const heroVisualTitle = spotlightVehicle?.name ?? "Mahindra BE 6";
+  const heroVisualSubtitle = spotlightVehicle
+    ? `${spotlightVehicle.brand} • ${spotlightVehicle.type} • ${spotlightVehicle.status}`
+    : "Premium electric SUV built for long-distance confidence and everyday intelligence.";
+  const heroVisualScore = "92";
+  const heroVisualRange = spotlightVehicle?.range ?? "682 km";
+  const heroVisualCharging = spotlightVehicle?.charging ?? "175 kW DC";
+  const heroVisualAvailability =
+    spotlightVehicle?.status === "Launched"
+      ? "Available"
+      : spotlightVehicle?.status ?? "Available";
+  const heroVisualCtaHref = spotlightVehicle
+    ? `/vehicles/${spotlightVehicle.slug}`
+    : "/vehicles";
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
       <SiteHeader />
 
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.16),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.12),transparent_28%)]" />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),transparent_18%,transparent_82%,rgba(255,255,255,0.02))]" />
-
-        <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200">
-              Explore EVs
-            </div>
-
-            <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-[4.2rem]">
-              Discover the EV that fits your life.
-            </h1>
-
-            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-              Search launched EVs across India, compare the key details first,
-              and move from browsing to confidence with a premium discovery
-              experience.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href="/#compare"
-                className="inline-flex items-center justify-center rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-              >
-                Compare on PlugV
-              </Link>
-              <Link
-                href="/#upcoming"
-                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Browse upcoming EVs
-              </Link>
-            </div>
-
-            <div className="mt-8 max-w-3xl">
-              <UniversalSearch />
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              {["Premium discovery", "Sharper comparison", "Better EV decisions"].map(
-                (item) => (
-                  <span
-                    key={item}
-                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium tracking-wide text-slate-300"
-                  >
-                    {item}
-                  </span>
-                )
-              )}
-            </div>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-4">
-              <StatCard
-                value={`${launchedVehicles.length}+`}
-                label="Launched EVs"
-              />
-              <StatCard value={`${brands.length - 1}+`} label="Brands" />
-              <StatCard
-                value={`${averageRange}${averageRangeUnit ? ` ${averageRangeUnit}` : ""}`}
-                label="Average range"
-              />
-              <StatCard value={`${types.length - 1}+`} label="Body styles" />
-            </div>
-          </div>
-
-          <div className="relative">
-            <div className="absolute -inset-8 -z-10 rounded-[2.5rem] bg-sky-400/10 blur-3xl" />
-
-            <div className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 shadow-2xl shadow-black/30 backdrop-blur">
-              <div
-                className={`relative h-[340px] overflow-hidden bg-gradient-to-br ${
-                  spotlightVehicle
-                    ? accentFor(`${spotlightVehicle.brand}-${spotlightVehicle.name}`)
-                    : ACCENTS[0]
-                }`}
-              >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
-                <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(225deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:26px_26px] opacity-15" />
-
-                <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200 backdrop-blur">
-                  Featured today
-                </div>
-
-                <div className="absolute inset-x-0 bottom-6 px-6">
-                  <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-300/80">
-                      Spotlight vehicle
-                    </p>
-                    <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">
-                      {spotlightVehicle?.name ?? "Featured EV"}
-                    </h2>
-                    <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">
-                      {spotlightVehicle
-                        ? `${spotlightVehicle.brand} • ${spotlightVehicle.type} • ${spotlightVehicle.status}`
-                        : "A premium EV discovery surface for India."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-4 p-6">
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <MiniStat label="Range" value={spotlightVehicle?.range ?? "—"} />
-                  <MiniStat
-                    label="Charging"
-                    value={spotlightVehicle?.charging ?? "—"}
-                  />
-                  <MiniStat label="Price" value={spotlightVehicle?.price ?? "—"} />
-                </div>
-
-                <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                        Why this matters
-                      </p>
-                      <h3 className="mt-2 text-xl font-semibold text-white">
-                        Explore EVs with more confidence, less friction.
-                      </h3>
-                    </div>
-                    <div className="rounded-full border border-sky-400/15 bg-sky-400/10 px-3 py-1 text-xs font-medium text-sky-200">
-                      PlugV
-                    </div>
-                  </div>
-
-                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                    {[
-                      "Compare EVs side by side",
-                      "Discover charging stations",
-                      "Track upcoming launches",
-                    ].map((item) => (
-                      <div
-                        key={item}
-                        className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-sm text-slate-200"
-                      >
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Hero
+  badge="India's EV Intelligence Platform"
+  title="Find the right EV with confidence."
+  description="Explore electric vehicles, compare models, understand charging, and discover upcoming launches—all in one premium platform designed to help you choose with confidence."
+  primaryLabel="Explore EVs"
+  primaryHref="/vehicles"
+  secondaryLabel="Compare EVs"
+  secondaryHref="/compare"
+  visualTitle={heroVisualTitle}
+  visualSubtitle={heroVisualSubtitle}
+  visualScore={heroVisualScore}
+  visualRange={heroVisualRange}
+  visualCharging={heroVisualCharging}
+  visualAvailability={heroVisualAvailability}
+  visualCtaLabel="View Vehicle"
+  visualCtaHref={heroVisualCtaHref}
+  backgroundImageSrc="/images/hero/plugv-hero-v3.webp"
+  backgroundImageAlt="Mahindra BE 6 hero"
+/>
 
       <section className="border-y border-white/10 bg-white/[0.02]">
         <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">
-                Search and filter
-              </div>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Find the right EV, faster.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-slate-400">
-                Search by brand, type, charging, price, or range. Then narrow
-                the lineup with premium filters and sort by what matters most.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              {featuredTypes.map((type) => (
-                <Pill
-                  key={type}
-                  active={selectedType === type}
-                  onClick={() => setSelectedType(type)}
-                >
-                  {type}
-                </Pill>
-              ))}
-            </div>
+          <div className="mt-8 max-w-3xl">
+            <UniversalSearch />
           </div>
 
           <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/20 backdrop-blur lg:p-5">
-            <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr_0.7fr_0.7fr]">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">
+                  Search and filter
+                </div>
+                <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                  Find the right EV, faster.
+                </h2>
+                <p className="mt-4 text-base leading-7 text-slate-400">
+                  Search by brand, type, charging, price, or range. Then narrow
+                  the lineup with premium filters and sort by what matters most.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                {featuredTypes.map((type) => (
+                  <Pill
+                    key={type}
+                    active={selectedType === type}
+                    onClick={() => setSelectedType(type)}
+                  >
+                    {type}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-4 lg:grid-cols-[1.3fr_0.7fr_0.7fr_0.7fr]">
               <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
                 <Search className="h-4 w-4 text-sky-300" />
                 <input
@@ -430,6 +323,23 @@ export default function VehiclesPage() {
         </div>
       </section>
 
+      <section className="border-y border-white/10 bg-white/[0.02]">
+        <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="grid gap-4 sm:grid-cols-4">
+            <StatCard
+              value={`${launchedVehicles.length}+`}
+              label="Launched EVs"
+            />
+            <StatCard value={`${brands.length - 1}+`} label="Brands" />
+            <StatCard
+              value={`${averageRange}${averageRangeUnit ? ` ${averageRangeUnit}` : ""}`}
+              label="Average range"
+            />
+            <StatCard value={`${types.length - 1}+`} label="Body styles" />
+          </div>
+        </div>
+      </section>
+
       <section className="py-20 sm:py-24">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -463,6 +373,7 @@ export default function VehiclesPage() {
             <div className="grid gap-8 lg:grid-cols-3">
               {filteredVehicles.map((vehicle, index) => {
                 const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
+
                 return (
                   <article
                     key={vehicle.slug}
@@ -515,7 +426,7 @@ export default function VehiclesPage() {
                         </Link>
 
                         <Link
-                          href="/#compare"
+                          href="/compare"
                           className="text-sm font-semibold text-sky-300 transition hover:text-sky-200"
                         >
                           Compare
@@ -532,8 +443,8 @@ export default function VehiclesPage() {
                 No EVs match your search.
               </p>
               <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-slate-400">
-                Try another brand, type, or keyword and keep exploring the
-                PlugV lineup.
+                Try another brand, type, or keyword and keep exploring the PlugV
+                lineup.
               </p>
               <button
                 type="button"

@@ -15,7 +15,7 @@ import {
 import { stations } from "@/data/stations";
 import PageContainer from "@/components/ui/PageContainer";
 import SectionTitle from "@/components/ui/SectionTitle";
-import Button from "@/components/ui/button";
+import Button from "@/components/ui/Button";
 import StatCard from "@/components/ui/StatCard";
 
 type Station = (typeof stations)[number];
@@ -293,9 +293,9 @@ function CityChip({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <Button
+  type="button"
+  onClick={onClick}
       className={[
         "rounded-full border px-4 py-2 text-sm font-semibold transition",
         active
@@ -304,7 +304,7 @@ function CityChip({
       ].join(" ")}
     >
       {label}
-    </button>
+    </Button>
   );
 }
 

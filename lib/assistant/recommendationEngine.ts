@@ -1,191 +1,372 @@
-import { vehicles } from "@/data/vehicles";
+import { vehicles, upcomingEVs } from "@/data/vehicles";
 
-type Vehicle = (typeof vehicles)[number];
+type LaunchedVehicle = (typeof vehicles)[number];
+type UpcomingVehicle = (typeof upcomingEVs)[number];
+type CatalogVehicle = LaunchedVehicle | UpcomingVehicle;
 
-export type AssistantProfile = {
-  budgetLakh: number;
-  bodyStyle: "Any" | "SUV" | "Crossover" | "Hatchback" | "Sedan";
-  usage: "City" | "Mixed" | "Highway" | "Daily commute";
-  homeCharging: "Yes" | "No";
-  seats: "Any" | "4-5" | "6-7";
-  priority: "Balanced" | "Range" | "Price" | "Charging";
+export type AssistantPreferences = {
+  budgetLakh?: number;
+  bodyType?: string;
+  rangeMinKm?: number;
+  chargingMinKw?: number;
+  useCase?: string;
+  keywords?: string[];
+  scope?: "launched" | "upcoming" | "both";
 };
 
-export type Recommendation = {
-  vehicle: Vehicle;
+export type AssistantRecommendation = {
+  vehicle: CatalogVehicle;
   score: number;
   reasons: string[];
 };
 
-function parseNumeric(value?: string) {
+export type AssistantResponse = {
+  summary: string;
+  recommendations: AssistantRecommendation[];
+};
+
+function safeText(value: unknown): string {
+  return String(value ?? "").toLowerCase().trim();
+}
+
+function parseNumeric(value?: string): number {
   if (!value) return 0;
   const cleaned = value.replace(/,/g, "");
   const match = cleaned.match(/(\d+(\.\d+)?)/);
   return match ? Number(match[1]) : 0;
 }
 
-function priceScore(vehicle: Vehicle, budgetLakh: number) {
-  const price = parseNumeric(vehicle.price);
-  if (!price || !budgetLakh) return 40;
-  const diff = Math.abs(price - budgetLakh);
-  return Math.max(10, Math.min(100, Math.round(100 - diff * 7)));
+function getVehicleLabel(vehicle: CatalogVehicle): string {
+  return `${vehicle.brand} ${vehicle.name}`.trim();
 }
 
-function rangeScore(vehicle: Vehicle) {
-  return parseNumeric(vehicle.range);
+function getVehicleType(vehicle: CatalogVehicle): string {
+  if ("type" in vehicle && vehicle.type) return vehicle.type;
+  if ("segment" in vehicle && vehicle.segment) return vehicle.segment;
+  return "";
 }
 
-function chargingScore(vehicle: Vehicle) {
-  const raw = (vehicle.charging ?? "").toLowerCase();
-  if (raw.includes("ultra")) return 180;
-  if (raw.includes("fast")) return 120;
-  if (raw.includes("dc")) return 120;
-  if (raw.includes("type 2")) return 70;
-  if (raw.includes("ac")) return 70;
-  return parseNumeric(vehicle.charging);
+function getVehicleStatus(vehicle: CatalogVehicle): string {
+  if ("status" in vehicle && vehicle.status) return vehicle.status;
+  if ("launch" in vehicle && vehicle.launch) return vehicle.launch;
+  return "Upcoming";
 }
 
-function bodyScore(vehicle: Vehicle, bodyStyle: AssistantProfile["bodyStyle"]) {
-  if (bodyStyle === "Any") return 50;
-  const type = (vehicle.type ?? "").toLowerCase();
-  return type.includes(bodyStyle.toLowerCase()) ? 100 : 35;
+function getVehiclePrice(vehicle: CatalogVehicle): string | undefined {
+  if ("price" in vehicle) return vehicle.price;
+  return undefined;
 }
 
-function usageScore(
-  vehicle: Vehicle,
-  usage: AssistantProfile["usage"],
-  homeCharging: AssistantProfile["homeCharging"]
-) {
-  const range = rangeScore(vehicle);
-  const charging = chargingScore(vehicle);
-  const type = (vehicle.type ?? "").toLowerCase();
+function getVehicleRange(vehicle: CatalogVehicle): string | undefined {
+  if ("range" in vehicle) return vehicle.range;
+  return undefined;
+}
 
-  let score = 50;
+function getVehicleCharging(vehicle: CatalogVehicle): string | undefined {
+  if ("charging" in vehicle) return vehicle.charging;
+  return undefined;
+}
 
-  if (usage === "City") {
-    if (charging >= 100) score += 18;
-    if (range > 300) score += 8;
-    if (type.includes("hatchback") || type.includes("sedan")) score += 10;
+function extractBudgetLakh(input: string): number | undefined {
+  const match = input.match(
+    /(?:under|below|within|upto|up to|less than|max|maximum)?\s*₹?\s*(\d+(?:\.\d+)?)\s*(lakh|lakhs|l|crore|cr|k)?/i
+  );
+
+  if (!match) return undefined;
+
+  const amount = Number(match[1]);
+  const unit = (match[2] ?? "lakh").toLowerCase();
+
+  if (unit === "crore" || unit === "cr") return amount * 100;
+  if (unit === "k") return amount / 100;
+  return amount;
+}
+
+function extractBodyType(input: string): string | undefined {
+  const q = safeText(input);
+
+  const bodyTypes = [
+    "compact suv",
+    "luxury suv",
+    "electric suv",
+    "suv coupe",
+    "hatchback",
+    "sedan",
+    "mpv",
+    "coupe",
+    "wagon",
+    "pickup",
+    "microcar",
+    "roadster",
+  ];
+
+  return bodyTypes.find((type) => q.includes(type));
+}
+
+function extractUseCase(input: string): string | undefined {
+  const q = safeText(input);
+
+  if (q.includes("family")) return "family";
+  if (q.includes("city")) return "city";
+  if (q.includes("highway") || q.includes("long drive") || q.includes("road trip")) {
+    return "highway";
+  }
+  if (q.includes("value") || q.includes("cheap") || q.includes("budget")) {
+    return "value";
+  }
+  if (q.includes("performance") || q.includes("fun")) return "performance";
+
+  return undefined;
+}
+
+function extractScope(input: string): AssistantPreferences["scope"] {
+  const q = safeText(input);
+
+  if (
+    q.includes("upcoming") ||
+    q.includes("coming soon") ||
+    q.includes("launch") ||
+    q.includes("future")
+  ) {
+    return "upcoming";
   }
 
-  if (usage === "Daily commute") {
-    if (charging >= 100) score += 16;
-    if (range > 300) score += 12;
-    if (type.includes("suv")) score += 6;
+  if (q.includes("both") || q.includes("all")) {
+    return "both";
   }
 
-  if (usage === "Mixed") {
-    if (range > 350) score += 16;
-    if (charging >= 100) score += 14;
-  }
-
-  if (usage === "Highway") {
-    if (range > 400) score += 22;
-    if (charging >= 100) score += 18;
-    if (charging >= 150) score += 8;
-  }
-
-  if (homeCharging === "No" && charging >= 100) score += 10;
-  if (homeCharging === "Yes" && range > 350) score += 6;
-
-  return Math.min(100, score);
+  return "launched";
 }
 
-function seatsScore(vehicle: Vehicle, seats: AssistantProfile["seats"]) {
-  if (seats === "Any") return 50;
-  const type = (vehicle.type ?? "").toLowerCase();
-
-  if (seats === "6-7") {
-    return type.includes("suv") || type.includes("crossover") ? 100 : 35;
-  }
-
-  return type.includes("hatchback") || type.includes("sedan") ? 100 : 70;
-}
-
-function priorityScore(vehicle: Vehicle, priority: AssistantProfile["priority"]) {
-  const price = priceScore(vehicle, 25);
-  const range = rangeScore(vehicle);
-  const charging = chargingScore(vehicle);
-
-  if (priority === "Price") return price;
-  if (priority === "Range") return Math.min(100, Math.round(range / 5));
-  if (priority === "Charging") return Math.min(100, Math.round(charging / 2));
-  return Math.round((price + Math.min(100, range / 5) + Math.min(100, charging / 2)) / 3);
-}
-
-function buildReasons(
-  vehicle: Vehicle,
-  profile: AssistantProfile
-) {
+function scoreVehicle(
+  vehicle: CatalogVehicle,
+  prefs: AssistantPreferences
+): AssistantRecommendation {
   const reasons: string[] = [];
-  const price = parseNumeric(vehicle.price);
-  const range = parseNumeric(vehicle.range);
-  const charging = chargingScore(vehicle);
-  const type = (vehicle.type ?? "").toLowerCase();
+  let score = 0;
 
-  if (Math.abs(price - profile.budgetLakh) <= 4) {
-    reasons.push("Fits your budget target closely.");
-  }
-  if (profile.usage === "City" && charging >= 100) {
-    reasons.push("Strong for city charging convenience.");
-  }
-  if (profile.usage === "Highway" && range >= 400) {
-    reasons.push("Good for longer highway trips.");
-  }
-  if (profile.homeCharging === "No" && charging >= 100) {
-    reasons.push("Fast charging helps because you do not have home charging.");
-  }
-  if (profile.seats === "6-7" && (type.includes("suv") || type.includes("crossover"))) {
-    reasons.push("Body style suits a larger family footprint.");
-  }
-  if (profile.priority === "Range" && range >= 400) {
-    reasons.push("Strong range match for your priority.");
-  }
-  if (profile.priority === "Charging" && charging >= 100) {
-    reasons.push("Charging speed matches your priority.");
-  }
-  if (reasons.length === 0) {
-    reasons.push("A balanced fit based on your selected preferences.");
+  const price = parseNumeric(getVehiclePrice(vehicle));
+  const range = parseNumeric(getVehicleRange(vehicle));
+  const charging = parseNumeric(getVehicleCharging(vehicle));
+
+  const vehicleType = safeText(getVehicleType(vehicle));
+  const vehicleName = safeText(vehicle.name);
+  const vehicleStatus = safeText(getVehicleStatus(vehicle));
+  const vehicleBrand = safeText(vehicle.brand);
+  const label = getVehicleLabel(vehicle);
+
+  // Body type match
+  if (prefs.bodyType) {
+    const desiredBody = safeText(prefs.bodyType);
+    if (
+      vehicleType.includes(desiredBody) ||
+      desiredBody.includes(vehicleType) ||
+      vehicleName.includes(desiredBody) ||
+      vehicleBrand.includes(desiredBody)
+    ) {
+      score += 20;
+      reasons.push(`Matches requested body type: ${getVehicleType(vehicle)}`);
+    }
   }
 
-  return reasons.slice(0, 3);
+  // Budget fit
+  if (prefs.budgetLakh && price > 0) {
+    if (price <= prefs.budgetLakh) {
+      score += 24;
+      reasons.push(`Fits within the ₹${prefs.budgetLakh} lakh budget`);
+
+      const headroom = prefs.budgetLakh - price;
+      if (headroom >= 5) {
+        score += 4;
+        reasons.push("Leaves comfortable budget headroom");
+      }
+    } else {
+      const overBy = price - prefs.budgetLakh;
+      if (overBy <= 5) {
+        score += 5;
+        reasons.push("Slightly above budget but still close to the target");
+      } else {
+        score -= 12;
+      }
+    }
+  }
+
+  // If budget is specified but price is unknown (common for upcoming)
+  if (prefs.budgetLakh && price === 0 && "launch" in vehicle) {
+    score -= 2;
+    reasons.push("Pricing is not confirmed yet");
+  }
+
+  // Range
+  if (prefs.rangeMinKm && range > 0) {
+    if (range >= prefs.rangeMinKm) {
+      score += 18;
+      reasons.push(`Offers ${range} km of range`);
+    } else {
+      score -= 6;
+    }
+  } else if (range > 0) {
+    score += Math.min(12, Math.round(range / 100));
+  }
+
+  // Charging
+  if (prefs.chargingMinKw && charging > 0) {
+    if (charging >= prefs.chargingMinKw) {
+      score += 16;
+      reasons.push(`Fast charging capability is ${charging} kW`);
+    } else {
+      score -= 4;
+    }
+  } else if (charging > 0) {
+    score += Math.min(8, Math.round(charging / 30));
+  }
+
+  // Use case tuning
+  switch (prefs.useCase) {
+    case "family":
+      if (vehicleType.includes("suv") || vehicleType.includes("mpv")) {
+        score += 10;
+        reasons.push("Good fit for family use");
+      }
+      if (range >= 400) score += 5;
+      break;
+
+    case "city":
+      if (
+        vehicleType.includes("compact") ||
+        vehicleType.includes("hatchback") ||
+        vehicleType.includes("sedan") ||
+        vehicleType.includes("microcar")
+      ) {
+        score += 10;
+        reasons.push("Compact and practical for city driving");
+      }
+      break;
+
+    case "highway":
+      if (range >= 450) {
+        score += 14;
+        reasons.push("Strong range confidence for highway trips");
+      }
+      if (charging >= 100) {
+        score += 8;
+        reasons.push("Fast charging helps on long drives");
+      }
+      break;
+
+    case "value":
+      if (price > 0) {
+        score += 8;
+        reasons.push("Balanced price-to-capability profile");
+      }
+      break;
+
+    case "performance":
+      if (charging >= 100) score += 6;
+      if (range >= 400) score += 6;
+      break;
+  }
+
+  // General signals
+  if (vehicleStatus.includes("launched")) {
+    score += 6;
+    reasons.push("Available now");
+  } else if (vehicleStatus.includes("upcoming") || "launch" in vehicle) {
+    score += 2;
+    reasons.push("Upcoming model");
+  }
+
+  if (vehicleBrand) score += 1;
+  if (vehicleName.includes("ev")) score += 1;
+
+  const combined = `${vehicleBrand} ${vehicleName} ${vehicleType} ${vehicleStatus}`;
+  const keywordBoost = (prefs.keywords ?? []).reduce((acc, keyword) => {
+    const k = safeText(keyword);
+    if (!k) return acc;
+    if (combined.includes(k)) return acc + 2;
+    return acc;
+  }, 0);
+
+  score += keywordBoost;
+
+  const uniqueReasons = Array.from(new Set(reasons)).slice(0, 3);
+
+  return {
+    vehicle,
+    score: Math.max(0, score),
+    reasons:
+      uniqueReasons.length > 0
+        ? uniqueReasons
+        : ["Solid overall fit based on PlugV scoring signals"],
+  };
 }
 
-export function getRecommendations(profile: AssistantProfile): Recommendation[] {
-  const launched = vehicles.filter((vehicle) => vehicle.launched);
+function buildSummary(
+  recommendations: AssistantRecommendation[],
+  prefs: AssistantPreferences
+): string {
+  const top = recommendations[0]?.vehicle;
+  if (!top) return "No matching EVs were found.";
 
-  return launched
-    .map((vehicle) => {
-      const price = priceScore(vehicle, profile.budgetLakh);
-      const range = Math.min(100, Math.round(rangeScore(vehicle) / 5));
-      const charging = Math.min(100, Math.round(chargingScore(vehicle) / 2));
-      const body = bodyScore(vehicle, profile.bodyStyle);
-      const usage = usageScore(vehicle, profile.usage, profile.homeCharging);
-      const seats = seatsScore(vehicle, profile.seats);
-      const priority = priorityScore(vehicle, profile.priority);
+  const parts = [
+    getVehicleLabel(top),
+    prefs.budgetLakh ? `within ₹${prefs.budgetLakh} lakh` : undefined,
+    prefs.useCase ? `for ${prefs.useCase} use` : undefined,
+  ].filter(Boolean);
 
-      const score = Math.max(
-        1,
-        Math.min(
-          100,
-          Math.round(
-            price * 0.22 +
-              range * 0.2 +
-              charging * 0.2 +
-              body * 0.12 +
-              usage * 0.16 +
-              seats * 0.05 +
-              priority * 0.05
-          )
-        )
-      );
+  return `Here are the strongest matches from PlugV for ${parts.join(" ")}.`;
+}
 
-      return {
-        vehicle,
-        score,
-        reasons: buildReasons(vehicle, profile),
-      };
-    })
+export function parseAssistantPrompt(prompt: string): AssistantPreferences {
+  const budgetLakh = extractBudgetLakh(prompt);
+  const bodyType = extractBodyType(prompt);
+  const useCase = extractUseCase(prompt);
+  const scope = extractScope(prompt);
+  const q = safeText(prompt);
+
+  const keywords: string[] = [];
+  if (q.includes("awd")) keywords.push("awd");
+  if (q.includes("suv")) keywords.push("suv");
+  if (q.includes("family")) keywords.push("family");
+  if (q.includes("city")) keywords.push("city");
+  if (q.includes("highway")) keywords.push("highway");
+  if (q.includes("range")) keywords.push("range");
+  if (q.includes("charging")) keywords.push("charging");
+  if (q.includes("budget")) keywords.push("budget");
+  if (q.includes("value")) keywords.push("value");
+  if (q.includes("fast")) keywords.push("fast");
+  if (q.includes("launched")) keywords.push("launched");
+  if (q.includes("upcoming")) keywords.push("upcoming");
+
+  return {
+    budgetLakh,
+    bodyType,
+    useCase,
+    keywords,
+    scope,
+  };
+}
+
+export function getRecommendations(prompt: string, limit = 3): AssistantResponse {
+  const prefs = parseAssistantPrompt(prompt);
+
+  const catalog: CatalogVehicle[] =
+    prefs.scope === "upcoming"
+      ? upcomingEVs
+      : prefs.scope === "both"
+        ? [...vehicles, ...upcomingEVs]
+        : vehicles;
+
+  const ranked = catalog
+    .map((vehicle) => scoreVehicle(vehicle, prefs))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
+    .slice(0, limit);
+
+  return {
+    summary: buildSummary(ranked, prefs),
+    recommendations: ranked,
+  };
 }
+
+// Backward-compatible alias
+export const getPlugVRecommendations = getRecommendations;

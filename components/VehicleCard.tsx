@@ -1,83 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import Image from "next/image";
-import type { Vehicle } from "@/data/vehicles";
+import { ArrowRight, BatteryCharging, Gauge, Zap } from "lucide-react";
 
-export default function VehicleCard({
-  vehicle,
-}: {
-  vehicle: Vehicle;
-}) {
-  return (
-    <article className="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+import { vehicles } from "@/data/vehicles";
 
-      {/* Image Panel */}
-      <div className="relative h-56 overflow-hidden bg-gradient-to-br from-emerald-50 to-slate-100">
-
-        <Image
-          src={`/vehicles/${vehicle.slug}.jpg`}
-          alt={vehicle.name}
-          fill
-          className="object-cover transition duration-500 group-hover:scale-105"
-        />
-
-        {/* Status Badge */}
-        <div className="absolute left-4 top-4 rounded-full bg-emerald-700 px-3 py-1 text-xs font-semibold text-white shadow-md">
-          {vehicle.status}
-        </div>
-
-        {/* Brand Badge */}
-        <div className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700 backdrop-blur">
-          {vehicle.brand}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-6">
-
-        <h3 className="text-2xl font-bold text-slate-900">
-          {vehicle.name}
-        </h3>
-
-        <p className="mt-1 text-sm text-slate-500">
-          {vehicle.type}
-        </p>
-
-        {/* Vehicle Specs */}
-        <div className="mt-6 space-y-4">
-
-          <Row label="Range" value={vehicle.range} />
-
-          <Row label="Charging" value={vehicle.charging} />
-
-          <Row label="Battery" value={vehicle.battery} />
-
-        </div>
-
-        {/* Price */}
-        <div className="mt-8">
-
-          <div className="text-sm uppercase tracking-wide text-slate-400">
-            Starting Price
-          </div>
-
-          <div className="mt-1 text-3xl font-black text-emerald-700">
-            {vehicle.price}
-          </div>
-
-        </div>
-
-        {/* CTA */}
-        <Link
-          href={`/vehicles/${vehicle.slug}`}
-          className="mt-8 flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
-        >
-          View Details →
-        </Link>
-
-      </div>
-    </article>
-  );
-}
+type Vehicle = (typeof vehicles)[number];
 
 function Row({
   label,
@@ -87,16 +15,102 @@ function Row({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-
-      <span className="text-slate-500">
+    <div className="flex items-center justify-between gap-4 border-b border-white/10 py-3 last:border-b-0">
+      <span className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
         {label}
       </span>
 
-      <span className="font-semibold text-slate-900">
+      <span className="text-sm font-semibold text-white">
         {value}
       </span>
-
     </div>
+  );
+}
+
+export default function VehicleCard({
+  vehicle,
+}: {
+  vehicle: Vehicle;
+}) {
+  const range = vehicle.range ?? "—";
+  const charging = vehicle.charging ?? "—";
+
+  return (
+    <article className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 transition duration-300 hover:-translate-y-1 hover:border-sky-400/25 hover:bg-white/[0.06]">
+      <div className="relative overflow-hidden border-b border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_35%),linear-gradient(145deg,rgba(15,23,42,0.96),rgba(2,6,23,0.96))] p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="inline-flex items-center rounded-full border border-sky-400/15 bg-sky-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-200">
+              {vehicle.brand}
+            </div>
+
+            <h3 className="mt-3 text-xl font-semibold tracking-tight text-white">
+              {vehicle.name}
+            </h3>
+
+            <p className="mt-1 text-sm text-slate-400">
+              {vehicle.type}
+            </p>
+          </div>
+
+          <div className="shrink-0 rounded-2xl border border-white/10 bg-slate-950/70 p-3 text-sky-300">
+            <BatteryCharging className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+            <div className="flex items-center gap-2 text-slate-500">
+              <Gauge className="h-4 w-4 text-sky-300" />
+
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">
+                Range
+              </span>
+            </div>
+
+            <p className="mt-2 text-lg font-semibold text-white">
+              {range}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+            <div className="flex items-center gap-2 text-slate-500">
+              <Zap className="h-4 w-4 text-sky-300" />
+
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">
+                Charging
+              </span>
+            </div>
+
+            <p className="mt-2 text-lg font-semibold text-white">
+              {charging}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-5">
+        <div className="space-y-0">
+          <Row label="Brand" value={vehicle.brand} />
+          <Row label="Type" value={vehicle.type} />
+          <Row label="Range" value={range} />
+          <Row label="Charging" value={charging} />
+        </div>
+
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <Link
+            href={`/vehicles/${vehicle.slug}`}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-sky-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+          >
+            View Vehicle
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            PlugV
+          </span>
+        </div>
+      </div>
+    </article>
   );
 }

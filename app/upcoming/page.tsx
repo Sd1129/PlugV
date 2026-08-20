@@ -589,7 +589,7 @@ export default function UpcomingEVsPage() {
                 Upcoming launches
               </p>
               <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Curated launch previews for serious buyers.
+              Discover upcoming EV launches in India.
               </h2>
               <p className="mt-3 text-base leading-7 text-slate-400">
                 Showing {filteredEVs.length} result{filteredEVs.length === 1 ? "" : "s"}.

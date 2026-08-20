@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SourceType {
+  MANUAL
+  OFFICIAL
+  CRAWLED
+  USER_SUBMITTED
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model City {
+  id        String   @id
+  name      String
+  state     String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stations  Station[]
+
+  @@index([state])
+  @@index([name])
+}
+
+model Station {
+  id             String   @id
+  cityId         String
+  city           City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  name           String
+  operator       String
+  slug           String   @unique
+  address        String
+  latitude       Float
+  longitude      Float
+  phone          String?
+  website        String?
+  openingHours   String?
+  directionsUrl  String?
+
+  chargingAc     Boolean  @default(false)
+  chargingDcFast Boolean  @default(false)
+  maxPowerKW     Int      @default(0)
+
+  ccs2           Boolean  @default(false)
+  chademo        Boolean  @default(false)
+  acType2        Boolean  @default(false)
+  gbt            Boolean  @default(false)
+
+  amenities      String[] @default([])
+  searchText     String   @default("")
+  sourceStatus   VerificationStatus @default(PENDING)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sources        StationSource[]
+  verifications  StationVerification[]
+
+  @@index([cityId])
+  @@index([name])
+  @@index([operator])
+  @@index([sourceStatus])
+  @@index([searchText])
+}
+
+model StationSource {
+  id          String   @id @default(cuid())
+  stationId   String
+  station     Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  sourceName  String
+  sourceUrl   String?
+  sourceType  SourceType
+  capturedAt  DateTime @default(now())
+  rawPayload  Json?
+
+  @@index([stationId])
+  @@index([sourceType])
+}
+
+model StationVerification {
+  id          String   @id @default(cuid())
+  stationId   String
+  station     Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  verifiedBy  String
+  verifiedAt  DateTime @default(now())
+  notes       String?
+
+  @@index([stationId])
+}

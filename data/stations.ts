@@ -7,6 +7,10 @@ export type Station = {
     network: string;
     speed: string;
     connectors: string[];
+    reviewRating?: number;
+    reviewCount?: number;
+    lastChecked?: string;
+    reviewSource?: "community" | "operator" | "plugv";
     availability: "Available" | "Busy" | "Limited";
     lat: number;
     lng: number;

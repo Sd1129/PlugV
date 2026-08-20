@@ -1,29 +1,81 @@
-import Link from "next/link";
+"use client";
 
-const navItems = [
-  { href: "/vehicles", label: "Explore EVs" },
-  { href: "/search", label: "Search" },
-  { href: "/compare", label: "Compare" },
-  { href: "/charging", label: "Charging" },
-  { href: "/upcoming", label: "Upcoming" },
-  { href: "/about", label: "About" },
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search, ArrowRight } from "lucide-react";
+
+import { vehicles } from "@/data/vehicles";
+
+const NAV_LINKS = [
+  { href: "/vehicles", label: "EXPLORE EVs" },
+  { href: "/compare", label: "COMPARE" },
+  { href: "/charging", label: "CHARGING" },
+  { href: "/travel", label: "TRAVEL" },
+  { href: "/upcoming", label: "UPCOMING" },
+  
 ];
 
 export default function SiteHeader() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const suggestions = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 1) return [];
+
+    return vehicles
+      .filter((vehicle) => {
+        return (
+          vehicle.name.toLowerCase().includes(q) ||
+          vehicle.brand.toLowerCase().includes(q) ||
+          vehicle.type.toLowerCase().includes(q)
+        );
+      })
+      .slice(0, 6);
+  }, [query]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function goToVehicle(vehicle: (typeof vehicles)[number]) {
+    setQuery("");
+    setOpen(false);
+    router.push(`/vehicles/${vehicle.slug}`);
+  }
+
+  function submitSearch() {
+    const q = query.trim();
+    if (!q) return;
+    setOpen(false);
+    router.push(`/vehicles?query=${encodeURIComponent(q)}`);
+  }
+
+  function isActiveLink(href: string) {
+    if (href === "/vehicles") return pathname === "/vehicles" || pathname.startsWith("/vehicles/");
+    return pathname === href;
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
-      <div className="border-b border-white/10">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-2 text-[10px] font-medium uppercase tracking-[0.3em] text-slate-400 sm:px-6 lg:px-8">
-          <span>India&apos;s EV Intelligence Platform</span>
-          <span className="hidden sm:inline">Built for clarity and confidence</span>
-        </div>
-      </div>
-
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/20">
             <span className="text-lg font-black text-sky-300">P</span>
           </div>
+
           <div>
             <p className="text-lg font-semibold tracking-tight text-white">PlugV</p>
             <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
@@ -32,24 +84,100 @@ export default function SiteHeader() {
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-slate-300 transition hover:text-white"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <nav className="hidden items-center gap-4 lg:flex">
+  {NAV_LINKS.map((link) => {
+    const active = isActiveLink(link.href);
 
-        <Link
-          href="/vehicles"
-          className="hidden rounded-full border border-sky-400/20 bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 sm:inline-flex"
-        >
-          Explore EVs
-        </Link>
+    return (
+      <Link
+        key={link.href}
+        href={link.href}
+        aria-current={active ? "page" : undefined}
+        className={[
+          "rounded-full px-3 py-1.5 text-sm transition",
+          active
+            ? "bg-sky-400/10 text-sky-400 font-semibold ring-1 ring-sky-400/20"
+            : "font-medium text-slate-300 hover:text-white hover:bg-white/5",
+        ].join(" ")}
+      >
+        {link.label}
+      </Link>
+    );
+  })}
+</nav>
+
+        <div ref={wrapRef} className="relative hidden w-full max-w-[360px] lg:block">
+          <label className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 shadow-lg shadow-black/10 backdrop-blur">
+            <Search className="h-4 w-4 shrink-0 text-slate-400" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setOpen(true);
+              }}
+              onFocus={() => setOpen(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  submitSearch();
+                }
+              }}
+              placeholder="Search EVs, brands..."
+              aria-label="Search EVs"
+              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+            />
+          </label>
+
+          {open && query.trim().length > 0 ? (
+            <div className="absolute left-0 right-0 top-[calc(100%+0.65rem)] z-50 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/95 shadow-2xl shadow-black/40 backdrop-blur-xl">
+              <div className="border-b border-white/10 px-4 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-300/80">
+                  Suggestions
+                </p>
+              </div>
+
+              {suggestions.length > 0 ? (
+                <div className="max-h-80 overflow-auto p-2">
+                  {suggestions.map((vehicle) => (
+                    <button
+                      key={vehicle.slug}
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => goToVehicle(vehicle)}
+                      className="flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition hover:bg-white/5"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          {vehicle.name}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-400">
+                          {vehicle.brand} • {vehicle.type}
+                        </p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-slate-500" />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="px-4 py-5 text-sm text-slate-400">
+                  No matching vehicles found.
+                </div>
+              )}
+
+              <div className="border-t border-white/10 p-2">
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={submitSearch}
+                  className="flex w-full items-center justify-center rounded-2xl bg-sky-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                >
+                  Search all results
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
     </header>
   );

@@ -1,0 +1,68 @@
+import type { ChargingStation } from "./types";
+
+export const chennaiStations: ChargingStation[] = [
+  {
+    id: "chennai-tech-mahindra-001",
+    name: "Statiq Tech Mahindra Chennai Station",
+    operator: "Statiq",
+    state: "Tamil Nadu",
+    city: "Chennai",
+    address: "Tech Mahindra campus, Chennai, Tamil Nadu",
+    latitude: 12.966,
+    longitude: 80.242,
+    openingHours: "Open 24x7",
+    directionsUrl:
+      "https://www.google.com/maps/search/?api=1&query=Statiq+Tech+Mahindra+Chennai+Station",
+    connectors: { ccs2: true, chademo: false, acType2: true },
+    charging: { ac: true, dcFast: true, maxPowerKW: 60 },
+    amenities: ["Fast Charging", "24x7"],
+  },
+  {
+    id: "chennai-ampl-mmh05-001",
+    name: "Statiq AMPL Chennai-MMH05 Station",
+    operator: "Statiq",
+    state: "Tamil Nadu",
+    city: "Chennai",
+    address: "Chennai, Tamil Nadu",
+    latitude: 13.058,
+    longitude: 80.248,
+    openingHours: "Open 24x7",
+    directionsUrl:
+      "https://www.google.com/maps/search/?api=1&query=Statiq+AMPL+Chennai-MMH05+Station",
+    connectors: { ccs2: true, chademo: false, acType2: true },
+    charging: { ac: true, dcFast: true, maxPowerKW: 60 },
+    amenities: ["Fast Charging", "24x7"],
+  },
+  {
+    id: "chennai-express-avenue-001",
+    name: "Statiq Express Avenue Station",
+    operator: "Statiq",
+    state: "Tamil Nadu",
+    city: "Chennai",
+    address: "Express Avenue, Chennai, Tamil Nadu",
+    latitude: 13.061,
+    longitude: 80.261,
+    openingHours: "24 hours",
+    directionsUrl:
+      "https://www.google.com/maps/search/?api=1&query=Statiq+Express+Avenue+Station+Chennai",
+    connectors: { ccs2: true, chademo: false, acType2: true },
+    charging: { ac: true, dcFast: false, maxPowerKW: 22 },
+    amenities: ["Parking", "24x7"],
+  },
+  {
+    id: "chennai-novotel-omr-001",
+    name: "Statiq Novotel Chennai OMR Station",
+    operator: "Statiq",
+    state: "Tamil Nadu",
+    city: "Chennai",
+    address: "OMR, Chennai, Tamil Nadu",
+    latitude: 12.840,
+    longitude: 80.244,
+    openingHours: "24 hours",
+    directionsUrl:
+      "https://www.google.com/maps/search/?api=1&query=Statiq+Novotel+Chennai+OMR+Station",
+    connectors: { ccs2: true, chademo: false, acType2: true },
+    charging: { ac: true, dcFast: true, maxPowerKW: 60 },
+    amenities: ["Fast Charging", "24x7", "Parking"],
+  },
+];

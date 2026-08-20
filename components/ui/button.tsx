@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 
@@ -13,6 +13,7 @@ type ButtonProps = {
   fullWidth?: boolean;
   disabled?: boolean;
   className?: string;
+  type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
 };
 
 export default function Button({
@@ -24,6 +25,7 @@ export default function Button({
   fullWidth = false,
   disabled = false,
   className = "",
+  type = "button",
 }: ButtonProps) {
   const base =
     "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300";
@@ -46,7 +48,9 @@ export default function Button({
     width,
     disabledStyle,
     className,
-  ].join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const content = (
     <>
@@ -57,7 +61,11 @@ export default function Button({
 
   if (href) {
     return (
-      <Link href={href} className={classes}>
+      <Link
+        href={href}
+        className={classes}
+        aria-disabled={disabled}
+      >
         {content}
       </Link>
     );
@@ -65,7 +73,7 @@ export default function Button({
 
   return (
     <button
-      type="button"
+      type={type}
       onClick={onClick}
       disabled={disabled}
       className={classes}
