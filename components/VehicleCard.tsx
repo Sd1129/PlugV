@@ -78,7 +78,7 @@ export default function VehicleCard({
               <Zap className="h-4 w-4 text-sky-300" />
 
               <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">
-                Charging
+                Power / battery
               </span>
             </div>
 
@@ -94,7 +94,7 @@ export default function VehicleCard({
           <Row label="Brand" value={vehicle.brand} />
           <Row label="Type" value={vehicle.type} />
           <Row label="Range" value={range} />
-          <Row label="Charging" value={charging} />
+          <Row label="Power / battery" value={charging} />
         </div>
 
         <div className="mt-5 flex items-center justify-between gap-3">

@@ -83,7 +83,7 @@ function ResultCard({
           <div className="flex items-center gap-2 text-sky-200/80">
             <BatteryCharging className="h-4 w-4" />
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em]">
-              Charging
+              Power / battery
             </p>
           </div>
           <p className="mt-2 text-lg font-semibold text-white">
@@ -170,7 +170,7 @@ export default function AssistantPage() {
 
             <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
               Tell PlugV what you need and get a ranked shortlist with clear
-              reasons, pricing, range, and charging insight.
+              reasons, pricing, range, and available vehicle specifications.
             </p>
           </div>
 

@@ -14,7 +14,8 @@ function scoreRange(vehicle: Vehicle) {
 }
 
 function scoreCharging(vehicle: Vehicle) {
-  return parseNumeric(vehicle.charging);
+  const raw = vehicle.charging ?? "";
+  return /\bkw\b/i.test(raw) && !/\bkwh\b/i.test(raw) ? parseNumeric(raw) : 0;
 }
 
 function scoreValue(vehicle: Vehicle) {
@@ -92,7 +93,8 @@ export function getCompareInsights(input: Vehicle[]) {
   }
 
   const byRange = rankVehicles(launched, scoreRange)[0];
-  const byCharging = rankVehicles(launched, scoreCharging)[0];
+  const verifiedCharging = launched.filter((vehicle) => scoreCharging(vehicle) > 0);
+  const byCharging = verifiedCharging.length ? rankVehicles(verifiedCharging, scoreCharging)[0] : null;
   const byValue = rankVehicles(launched, scoreValue)[0];
   const byCity = rankVehicles(launched, scoreCity)[0];
   const byHighway = rankVehicles(launched, scoreHighway)[0];

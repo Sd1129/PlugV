@@ -65,6 +65,11 @@ function getVehicleCharging(vehicle: CatalogVehicle): string | undefined {
   return undefined;
 }
 
+function getVerifiedChargingKw(vehicle: CatalogVehicle): number {
+  const raw = getVehicleCharging(vehicle) ?? "";
+  return /\bkw\b/i.test(raw) && !/\bkwh\b/i.test(raw) ? parseNumeric(raw) : 0;
+}
+
 function extractBudgetLakh(input: string): number | undefined {
   const match = input.match(
     /(?:under|below|within|upto|up to|less than|max|maximum)?\s*₹?\s*(\d+(?:\.\d+)?)\s*(lakh|lakhs|l|crore|cr|k)?/i
@@ -145,7 +150,7 @@ function scoreVehicle(
 
   const price = parseNumeric(getVehiclePrice(vehicle));
   const range = parseNumeric(getVehicleRange(vehicle));
-  const charging = parseNumeric(getVehicleCharging(vehicle));
+  const charging = getVerifiedChargingKw(vehicle);
 
   const vehicleType = safeText(getVehicleType(vehicle));
   const vehicleName = safeText(vehicle.name);

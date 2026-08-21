@@ -15,16 +15,7 @@ function scoreRange(vehicle: Vehicle) {
 
 function scoreCharging(vehicle: Vehicle) {
   const raw = (vehicle.charging ?? "").toLowerCase();
-
-  // Handle text-based charging labels gracefully.
-  if (raw.includes("ultra")) return 180;
-  if (raw.includes("fast")) return 120;
-  if (raw.includes("dc")) return 120;
-  if (raw.includes("type 2")) return 60;
-  if (raw.includes("ac")) return 60;
-  if (raw.includes("slow")) return 30;
-
-  return parseNumeric(vehicle.charging);
+  return /\bkw\b/.test(raw) && !/\bkwh\b/.test(raw) ? parseNumeric(raw) : 0;
 }
 
 function scoreValue(vehicle: Vehicle) {

@@ -30,8 +30,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const vehicle = vehicles.find((item) => item.slug === slug);
   if (!vehicle) return {};
 
-  const title = `${vehicle.brand} ${vehicle.name} Price, Range & Charging`;
-  const description = `Explore ${vehicle.brand} ${vehicle.name} price in India, claimed range, charging information and comparison tools on PlugV.`;
+  const title = `${vehicle.brand} ${vehicle.name} Price, Range & Specs`;
+  const description = `Explore ${vehicle.brand} ${vehicle.name} price in India, claimed range, available specifications and comparison tools on PlugV.`;
   const image = getVehicleImage(vehicle.slug);
 
   return {
@@ -139,7 +139,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
     additionalProperty: [
       { "@type": "PropertyValue", name: "Claimed range", value: vehicle.range ?? "Not listed" },
       { "@type": "PropertyValue", name: "Price", value: vehicle.price ?? "Not listed" },
-      { "@type": "PropertyValue", name: "Charging", value: vehicle.charging ?? "Not listed" },
+      { "@type": "PropertyValue", name: "Power or battery specification", value: vehicle.charging ?? "Not listed" },
     ],
   };
 
@@ -150,7 +150,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
       icon: <Gauge className="h-4 w-4" />,
     },
     {
-      label: "Charging",
+      label: "Power / battery",
       value: vehicle.charging ?? "—",
       icon: <BatteryCharging className="h-4 w-4" />,
     },
@@ -518,7 +518,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
                         icon={<Gauge className="h-4 w-4" />}
                       />
                       <StatCard
-                        label="Charging"
+                        label="Power / battery"
                         value={item.charging ?? "—"}
                         icon={<BatteryCharging className="h-4 w-4" />}
                       />
