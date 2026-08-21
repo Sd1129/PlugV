@@ -60,8 +60,11 @@ export default function StationTrustRow({
     return (
       <div className="flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] font-semibold text-slate-400">
-          <ShieldCheck className="h-3 w-3" />
-          Verification pending
+          <Database className="h-3 w-3 text-sky-300" />
+          Directory listing
+        </span>
+        <span className="text-[9px] font-medium text-slate-500">
+          Confirm with operator
         </span>
       </div>
     );

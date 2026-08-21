@@ -132,7 +132,7 @@ export function searchChargingStations(
     originLng,
   } = query;
 
-  const safeLimit = Math.min(Math.max(limit, 1), 100);
+  const safeLimit = Math.min(Math.max(limit, 1), 500);
   const safeOffset = Math.max(offset, 0);
 
   let filtered = chargingStations.filter((station) => {

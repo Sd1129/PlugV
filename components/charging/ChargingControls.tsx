@@ -110,6 +110,7 @@ export default function ChargingControls({
             onChange={(event) => onCityChange(event.target.value)}
             className="mt-2.5 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3.5 py-3 text-sm font-semibold text-white outline-none"
           >
+            <option value="">All cities in {selectedState}</option>
             {cities.map((city) => (
               <option key={city} value={city}>
                 {city}
@@ -120,6 +121,18 @@ export default function ChargingControls({
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => onCityChange("")}
+          className={[
+            "cursor-pointer rounded-full border px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] transition",
+            !nearbyMode && !selectedCity
+              ? "border-sky-400/30 bg-sky-400 text-slate-950"
+              : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10",
+          ].join(" ")}
+        >
+          All {selectedState}
+        </button>
         {cities.map((city) => {
           const active = !nearbyMode && city === selectedCity;
 

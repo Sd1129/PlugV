@@ -65,10 +65,9 @@ function formatDistanceLabel(distanceKm: number): string {
 
 export function useChargingStations(pageSize = 12) {
   const initialState = states[0] ?? "";
-  const initialCities = getCitiesByState(initialState);
 
   const [selectedState, setSelectedState] = useState(initialState);
-  const [selectedCity, setSelectedCity] = useState(initialCities[0] ?? "");
+  const [selectedCity, setSelectedCity] = useState("");
 
   const cities = useMemo(
     () => getCitiesByState(selectedState),
@@ -98,7 +97,7 @@ export function useChargingStations(pageSize = 12) {
 
   const selectState = useCallback((state: string) => {
     setSelectedState(state);
-    setSelectedCity(getCitiesByState(state)[0] ?? "");
+    setSelectedCity("");
   }, []);
 
   const origin = useMemo(() => {
@@ -143,17 +142,9 @@ export function useChargingStations(pageSize = 12) {
 
       if (!nearbyMode) {
         params.set("state", selectedState);
-        params.set("city", selectedCity);
+        if (selectedCity) params.set("city", selectedCity);
       } else {
         params.set("ignoreCityFilter", "true");
-
-        if (selectedCity) {
-          params.set("city", selectedCity);
-        }
-
-        if (selectedState) {
-          params.set("state", selectedState);
-        }
       }
 
       if (userLocation) {
@@ -181,7 +172,7 @@ export function useChargingStations(pageSize = 12) {
     let cancelled = false;
 
     async function loadStations() {
-      if (!nearbyMode && (!selectedState || !selectedCity)) {
+      if (!nearbyMode && !selectedState) {
         setStations([]);
         setTotal(0);
         setOffset(0);

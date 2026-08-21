@@ -12,7 +12,7 @@ import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import DataTrustNotice from "@/components/trust/DataTrustNotice";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 100;
 
 const CITY_IMAGES: Record<string, string> = {
   Hyderabad: "/images/cities/hyderabad.webp",
@@ -86,7 +86,7 @@ export default function ChargingPage() {
       <section className="pb-16 pt-4 sm:pb-20">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <CityBanner
-            city={charging.selectedCity}
+            city={charging.selectedCity || `All ${charging.selectedState}`}
             state={charging.selectedState}
             total={charging.total}
             imageSrc={getCityImage(charging.selectedCity)}
