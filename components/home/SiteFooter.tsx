@@ -8,6 +8,7 @@ const footerLinks = [
   { label: "Charging", href: "/charging" },
   { label: "Upcoming", href: "/upcoming" },
   { label: "About", href: "/about" },
+  { label: "Founder", href: "/founder" },
 ];
 
 const supportLinks = [

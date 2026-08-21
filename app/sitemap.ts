@@ -13,6 +13,7 @@ const staticRoutes = [
   { path: "/assistant", priority: 0.7, changeFrequency: "monthly" as const },
   { path: "/my-ev", priority: 0.85, changeFrequency: "monthly" as const },
   { path: "/about", priority: 0.5, changeFrequency: "yearly" as const },
+  { path: "/founder", priority: 0.5, changeFrequency: "yearly" as const },
   { path: "/methodology", priority: 0.6, changeFrequency: "monthly" as const },
 ];
 
