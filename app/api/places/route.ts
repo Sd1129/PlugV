@@ -33,6 +33,11 @@ const majorIndianCities = [
 
 type PlaceResult = { id: string; label: string; detail: string; latitude: number; longitude: number; type: string };
 
+type PhotonFeature = {
+  geometry?: { coordinates?: [number, number] };
+  properties?: { name?: string; city?: string; district?: string; state?: string; country?: string; countrycode?: string; type?: string; osm_id?: number };
+};
+
 function localMatches(query: string): PlaceResult[] {
   const normalized = query.toLowerCase();
   const cities = majorIndianCities
@@ -42,6 +47,37 @@ function localMatches(query: string): PlaceResult[] {
     .filter((station) => [station.name, station.operator, station.address, station.city, station.state].join(" ").toLowerCase().includes(normalized))
     .map((station) => ({ id: `station:${station.id}`, label: station.name, detail: `${station.address} · ${station.operator}`, latitude: station.latitude, longitude: station.longitude, type: "charging_station" }));
   return [...cities, ...stations].slice(0, 8);
+}
+
+async function photonMatches(query: string): Promise<PlaceResult[]> {
+  try {
+    const params = new URLSearchParams({ q: `${query}, India`, limit: "12", lang: "en", bbox: "68.1,6.5,97.4,35.7" });
+    const response = await fetch(`https://photon.komoot.io/api/?${params.toString()}`, { next: { revalidate: 3600 }, signal: AbortSignal.timeout(4500) });
+    if (!response.ok) return [];
+    const payload = await response.json() as { features?: PhotonFeature[] };
+    return (payload.features ?? []).flatMap((feature) => {
+      const coordinates = feature.geometry?.coordinates;
+      const properties = feature.properties;
+      if (!coordinates || !properties?.name) return [];
+      const countryCode = properties.countrycode?.toLowerCase();
+      if (countryCode && countryCode !== "in") return [];
+      const locality = properties.city ?? properties.district;
+      const detailParts = [properties.name, locality && locality !== properties.name ? locality : "", properties.state, properties.country ?? "India"].filter(Boolean);
+      return [{ id: `photon:${properties.osm_id ?? `${coordinates[0]}-${coordinates[1]}`}`, label: properties.state ? `${properties.name}, ${properties.state}` : properties.name, detail: detailParts.join(", "), latitude: coordinates[1], longitude: coordinates[0], type: properties.type ?? "place" }];
+    });
+  } catch {
+    return [];
+  }
+}
+
+function mergePlaces(...groups: PlaceResult[][]): PlaceResult[] {
+  const seen = new Set<string>();
+  return groups.flat().filter((place) => {
+    const key = `${place.label.toLowerCase()}-${place.latitude.toFixed(3)}-${place.longitude.toFixed(3)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 10);
 }
 
 export async function GET(request: NextRequest) {
@@ -76,7 +112,7 @@ export async function GET(request: NextRequest) {
     );
 
     if (!response.ok) {
-      return NextResponse.json({ places: local });
+      return NextResponse.json({ places: mergePlaces(local, await photonMatches(query)) });
     }
 
     const results = (await response.json()) as NominatimPlace[];
@@ -95,15 +131,9 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    const seen = new Set(local.map((place) => `${place.label}-${place.latitude.toFixed(3)}-${place.longitude.toFixed(3)}`));
-    const places = [...local, ...external.filter((place) => {
-      const key = `${place.label}-${place.latitude.toFixed(3)}-${place.longitude.toFixed(3)}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    })].slice(0, 8);
+    const places = mergePlaces(local, external, await photonMatches(query));
     return NextResponse.json({ places });
   } catch {
-    return NextResponse.json({ places: local });
+    return NextResponse.json({ places: mergePlaces(local, await photonMatches(query)) });
   }
 }
