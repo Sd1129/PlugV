@@ -3,7 +3,6 @@ import Link from "next/link";
 
 const footerLinks = [
   { label: "Explore EVs", href: "/vehicles" },
-  { label: "EVs under ₹25 lakh", href: "/best-ev-cars-under-25-lakh" },
   { label: "Search", href: "/search" },
   { label: "Compare", href: "/compare" },
   { label: "Charging", href: "/charging" },

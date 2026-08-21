@@ -97,8 +97,8 @@ export default function HomePage() {
               EV intelligence, built for India
             </div>
             <h1 className="mt-7 text-5xl font-semibold tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
-              Every EV decision.
-              <span className="block text-sky-300">Finally connected.</span>
+              Your EV journey.
+              <span className="block text-sky-300">All in one place.</span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-8 text-slate-300 sm:text-lg">
               PlugV is your companion for choosing, comparing, charging, travelling,
