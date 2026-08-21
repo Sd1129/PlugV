@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { vehicles } from "@/data/vehicles";
+import { upcomingVehicles } from "@/data/vehicles-upcoming";
 import { absoluteUrl } from "@/lib/seo";
 
 const staticRoutes = [
@@ -32,6 +33,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: updated,
       changeFrequency: "monthly" as const,
       priority: 0.8,
+    })),
+    ...upcomingVehicles.map((vehicle) => ({
+      url: absoluteUrl(`/upcoming/${vehicle.slug}`),
+      lastModified: new Date(`${vehicle.verifiedAt}T00:00:00Z`),
+      changeFrequency: "weekly" as const,
+      priority: 0.75,
     })),
   ];
 }
