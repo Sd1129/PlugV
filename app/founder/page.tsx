@@ -22,21 +22,10 @@ export default function FounderPage() {
       <SiteHeader />
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_20%,rgba(56,189,248,0.19),transparent_31%),radial-gradient(circle_at_82%_70%,rgba(16,185,129,0.13),transparent_30%)]" />
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[0.72fr_1.28fr] lg:px-8 lg:py-28">
-          <div className="mx-auto w-full max-w-sm">
-            <div className="relative aspect-square overflow-hidden rounded-[2.75rem] border border-sky-300/20 bg-gradient-to-br from-sky-300 via-cyan-300 to-emerald-300 p-1 shadow-[0_35px_100px_-30px_rgba(56,189,248,0.55)]">
-              <div className="flex h-full items-center justify-center rounded-[2.5rem] bg-slate-950">
-                <span className="text-7xl font-semibold tracking-[-0.08em] text-sky-200">SMA</span>
-              </div>
-            </div>
-            <div className="relative -mt-10 mx-5 rounded-[1.5rem] border border-white/10 bg-slate-900/95 p-5 text-center shadow-2xl backdrop-blur">
-              <h1 className="text-xl font-semibold">Syed Manjoor Ahmed</h1>
-              <p className="mt-1 text-sm font-medium text-sky-300">Founder — PlugV</p>
-            </div>
-          </div>
-
-          <div>
+        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
+          <div className="max-w-4xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-200"><Sparkles className="h-4 w-4" />A note from the founder</div>
+            <p className="mt-7 text-sm font-semibold uppercase tracking-[0.2em] text-sky-300">Syed Manjoor Ahmed · Founder — PlugV</p>
             <h2 className="mt-6 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">Building a clearer EV journey for India.</h2>
             <div className="mt-7 space-y-5 text-base leading-8 text-slate-300">
               <p>PlugV began with a simple observation: choosing and owning an electric vehicle in India still involves searching across too many disconnected sources.</p>
