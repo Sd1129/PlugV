@@ -252,16 +252,16 @@ export default function TravelPage() {
       <DataTrustNotice message="Routes, journey times, practical range and charging stops are planning estimates. Confirm charger status with the operator before departure." />
 
       <section className="relative isolate overflow-hidden border-b border-white/10">
-        <Image src="/images/travel/travel-hero-v2.webp" alt="Electric vehicle travelling on an Indian highway at sunrise" fill priority sizes="100vw" className="-z-30 object-cover object-center" />
-        <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(2,6,23,0.78)_0%,rgba(2,6,23,0.58)_40%,rgba(2,6,23,0.20)_72%,rgba(2,6,23,0.08)_100%)]" />
+        <Image src="/images/travel/travel-hero-v2.webp" alt="Electric vehicle travelling on an Indian highway at sunrise" fill priority sizes="100vw" className="-z-30 object-cover object-[68%_center] sm:object-center" />
+        <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(2,6,23,0.86)_0%,rgba(2,6,23,0.70)_34%,rgba(2,6,23,0.24)_58%,rgba(2,6,23,0.02)_78%)]" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_left,rgba(14,165,233,0.12),transparent_38%)]" />
-        <div className="mx-auto grid min-h-[530px] w-full max-w-7xl items-center gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-          <div className="max-w-xl">
+        <div className="mx-auto flex min-h-[620px] w-full max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8">
+          <div className="w-full max-w-[560px]">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-slate-950/45 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-100 backdrop-blur-md"><Sparkles className="h-3.5 w-3.5" />PlugV Travel</div>
             <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">Plan any EV trip in India.</h1>
             <p className="mt-5 text-base leading-8 text-slate-200">Search for any city, neighbourhood, landmark, or place in India. PlugV calculates the driving route and shows charging coverage from our verified dataset.</p>
+            <div className="mt-8"><TravelRouteMap origin={origin?.label ?? originInput} destination={destination?.label ?? destinationInput} isPlanned={Boolean(route)} knownStops={nearbyStations.length} /></div>
           </div>
-          <TravelRouteMap origin={origin?.label ?? originInput} destination={destination?.label ?? destinationInput} isPlanned={Boolean(route)} knownStops={nearbyStations.length} />
         </div>
       </section>
 

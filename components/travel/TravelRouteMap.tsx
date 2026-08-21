@@ -14,11 +14,11 @@ export default function TravelRouteMap({
   knownStops,
 }: TravelRouteMapProps) {
   return (
-    <div className="relative h-[360px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#071525] sm:h-[420px]">
+    <div className="relative h-[250px] overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#071525]/90 shadow-2xl shadow-black/30 backdrop-blur-sm sm:h-[280px]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_17%_18%,rgba(56,189,248,0.20),transparent_22%),radial-gradient(circle_at_82%_70%,rgba(37,99,235,0.18),transparent_24%)]" />
       <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(rgba(255,255,255,0.45)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.45)_1px,transparent_1px)] [background-size:32px_32px]" />
 
-      <div className="absolute left-5 top-5 z-10 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/50 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-200 backdrop-blur">
+      <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-sky-200 backdrop-blur">
         <Route className="h-3.5 w-3.5" />
         Live route planning
       </div>
@@ -29,21 +29,21 @@ export default function TravelRouteMap({
       </svg>
 
       <div className="absolute left-[11%] top-[68%] -translate-x-1/2 -translate-y-1/2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/60 bg-white text-slate-950"><MapPin className="h-5 w-5" /></div>
-        <p className="mt-2 max-w-24 text-center text-xs font-semibold text-white">{origin || "Origin"}</p>
+        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-white text-slate-950"><MapPin className="h-4 w-4" /></div>
+        <p className="mt-1.5 max-w-24 text-center text-[10px] font-semibold text-white">{origin || "Origin"}</p>
       </div>
 
       <div className="absolute left-[52%] top-[51%] -translate-x-1/2 -translate-y-1/2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-200/50 bg-emerald-400 text-slate-950"><Zap className="h-4 w-4" /></div>
-        <p className="mt-2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-200">PlugV coverage</p>
+        <div className="flex h-7 w-7 items-center justify-center rounded-full border border-emerald-200/50 bg-emerald-400 text-slate-950"><Zap className="h-3.5 w-3.5" /></div>
+        <p className="mt-1.5 whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.14em] text-emerald-200">PlugV coverage</p>
       </div>
 
       <div className="absolute left-[89%] top-[43%] -translate-x-1/2 -translate-y-1/2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-sky-300/60 bg-sky-300 text-slate-950"><MapPin className="h-5 w-5" /></div>
-        <p className="mt-2 max-w-24 text-center text-xs font-semibold text-white">{destination || "Destination"}</p>
+        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-sky-300/60 bg-sky-300 text-slate-950"><MapPin className="h-4 w-4" /></div>
+        <p className="mt-1.5 max-w-24 text-center text-[10px] font-semibold text-white">{destination || "Destination"}</p>
       </div>
 
-      <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/65 px-4 py-3 text-xs text-slate-300 backdrop-blur">
+      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950/75 px-3 py-2.5 text-[10px] text-slate-300 backdrop-blur sm:bottom-4 sm:left-4 sm:right-4 sm:text-xs">
         <span>{isPlanned ? "Driving route calculated" : "Choose two places to plan"}</span>
         <span className="font-semibold text-sky-200">{knownStops} known stations near route</span>
       </div>
