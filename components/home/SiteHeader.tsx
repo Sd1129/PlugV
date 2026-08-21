@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, ArrowRight } from "lucide-react";
+import { Search, ArrowRight, Menu, X } from "lucide-react";
 
 import { vehicles } from "@/data/vehicles";
 
 const NAV_LINKS = [
-  { href: "/vehicles", label: "EXPLORE EVs" },
-  { href: "/compare", label: "COMPARE" },
-  { href: "/charging", label: "CHARGING" },
-  { href: "/travel", label: "TRAVEL" },
-  { href: "/upcoming", label: "UPCOMING" },
+  { href: "/vehicles", label: "Explore EVs" },
+  { href: "/compare", label: "Compare" },
+  { href: "/charging", label: "Charging" },
+  { href: "/travel", label: "Travel" },
+  { href: "/upcoming", label: "Upcoming" },
   
 ];
 
@@ -23,6 +23,7 @@ export default function SiteHeader() {
 
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const suggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -69,7 +70,7 @@ export default function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/20">
@@ -178,7 +179,60 @@ export default function SiteHeader() {
             </div>
           ) : null}
         </div>
+
+        <button type="button" onClick={() => setMobileOpen((current) => !current)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white lg:hidden" aria-label={mobileOpen ? "Close navigation" : "Open navigation"} aria-expanded={mobileOpen}>{mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button>
       </div>
+
+      {mobileOpen ? (
+        <div className="border-t border-white/10 bg-slate-950/98 px-4 py-4 shadow-2xl lg:hidden">
+          <div className="mx-auto w-full max-w-7xl">
+            <form
+              className="mb-4 flex items-center gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setMobileOpen(false);
+                submitSearch();
+              }}
+            >
+              <label className="flex min-h-12 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4">
+                <Search className="h-4 w-4 shrink-0 text-slate-400" />
+                <span className="sr-only">Search EVs and brands</span>
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search EVs or brands"
+                  className="w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={!query.trim()}
+                className="min-h-12 rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Search
+              </button>
+            </form>
+
+            <nav aria-label="Mobile navigation" className="grid gap-2">
+              {NAV_LINKS.map((link) => {
+                const active = isActiveLink(link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex min-h-12 items-center rounded-xl px-4 text-base font-semibold ${active ? "bg-sky-400/10 text-sky-300" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }

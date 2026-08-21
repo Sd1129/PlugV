@@ -96,11 +96,10 @@ export function useChargingStations(pageSize = 12) {
   const [selectedStation, setSelectedStation] =
     useState<ChargingStation | null>(null);
 
-  useEffect(() => {
-    if (cities.length > 0 && !cities.includes(selectedCity)) {
-      setSelectedCity(cities[0]);
-    }
-  }, [cities, selectedCity]);
+  const selectState = useCallback((state: string) => {
+    setSelectedState(state);
+    setSelectedCity(getCitiesByState(state)[0] ?? "");
+  }, []);
 
   const origin = useMemo(() => {
     if (userLocation) return userLocation;
@@ -239,20 +238,16 @@ export function useChargingStations(pageSize = 12) {
     };
   }, [buildParams, nearbyMode, selectedState, selectedCity]);
 
-  useEffect(() => {
-    if (stations.length === 0) {
-      setSelectedStation(null);
-      return;
+  const activeStation = useMemo(() => {
+    if (
+      selectedStation &&
+      stations.some((station) => station.id === selectedStation.id)
+    ) {
+      return selectedStation;
     }
 
-    setSelectedStation((current) => {
-      if (current && stations.some((station) => station.id === current.id)) {
-        return current;
-      }
-
-      return stations[0];
-    });
-  }, [stations]);
+    return stations[0] ?? null;
+  }, [selectedStation, stations]);
 
   function useMyLocation() {
     if (!navigator.geolocation) {
@@ -339,7 +334,7 @@ export function useChargingStations(pageSize = 12) {
     cities,
     selectedState,
     selectedCity,
-    setSelectedState,
+    setSelectedState: selectState,
     setSelectedCity,
     searchQuery,
     setSearchQuery,
@@ -367,7 +362,7 @@ export function useChargingStations(pageSize = 12) {
     offset,
     loading,
     error,
-    selectedStation,
+    selectedStation: activeStation,
     setSelectedStation,
     showing,
     remaining,

@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, Gauge, Sparkles, Zap } from "lucide-react";
+import { Gauge, Sparkles, Zap } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
+import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 
 function parseNumeric(value?: string) {
-  if (!value) return 0;
-  const cleaned = value.replace(/,/g, "");
-  const match = cleaned.match(/(\d+(\.\d+)?)/);
-  return match ? Number(match[1]) : 0;
+  const values = value?.replace(/,/g, "").match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  return values.length ? Math.max(...values) : 0;
 }
 
 function accentFor(seed: string) {
@@ -57,6 +56,8 @@ export default function VehiclesHero() {
     [...launchedVehicles].sort(
       (a, b) => parseNumeric(b.range) - parseNumeric(a.range)
     )[0] ?? null;
+  const spotlightProfile = spotlightVehicle ? getVehicleTripProfile(spotlightVehicle.slug) : undefined;
+  const spotlightVariant = spotlightProfile?.variants.find((variant) => variant.name === spotlightProfile.defaultVariant);
 
   const brandsCount = new Set(launchedVehicles.map((vehicle) => vehicle.brand)).size;
 
@@ -190,10 +191,10 @@ export default function VehiclesHero() {
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-3">
                   <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
-                    Charging
+                    {spotlightVariant ? "Battery · DC charging" : "Trip specification"}
                   </p>
                   <p className="mt-2 text-sm font-semibold text-white">
-                    {spotlightVehicle?.charging ?? "—"}
+                    {spotlightVariant ? `${spotlightVariant.batteryCapacityKWh} kWh · ${spotlightVariant.maxDcChargeKW} kW` : "Awaiting verification"}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-3">

@@ -1,505 +1,304 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { ArrowRight, Filter, Search } from "lucide-react";
+import { useState } from "react";
+import {
+  ArrowRight,
+  BatteryCharging,
+  CalendarClock,
+  Compass,
+  MapPinned,
+  Route,
+  Scale,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 
-import Hero from "@/components/home/Hero";
-import UniversalSearch from "@/components/ui/UniversalSearch";
-import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
+import SiteHeader from "@/components/home/SiteHeader";
+import { upcomingEVs } from "@/data/upcoming";
 import { vehicles } from "@/data/vehicles";
+import { chargingStations } from "@/data/charging/stations";
+import { vehicleTripProfiles } from "@/data/vehicle-trip-profiles";
 
-const sortOptions = [
-  { value: "recommended", label: "Recommended" },
-  { value: "range-desc", label: "Range (high to low)" },
-  { value: "price-asc", label: "Price (low to high)" },
-  { value: "name-asc", label: "Name (A–Z)" },
-] as const;
+const priorities = [
+  { label: "Daily city driving", detail: "Efficient, easy, stress-free" },
+  { label: "Family & weekends", detail: "Space, comfort, practical range" },
+  { label: "Long highway runs", detail: "Range and charging confidence" },
+  { label: "Performance & design", detail: "A more emotional EV choice" },
+];
 
-function parseNumeric(value?: string) {
-  if (!value) return 0;
-  const cleaned = value.replace(/,/g, "");
-  const match = cleaned.match(/(\d+(\.\d+)?)/);
-  return match ? Number(match[1]) : 0;
+function highestNumber(value?: string) {
+  const numbers = value?.match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  return numbers.length ? Math.max(...numbers) : 0;
 }
 
-function accentFor(seed: string) {
-  const ACCENTS = [
-    "from-sky-400/25 via-cyan-400/10 to-transparent",
-    "from-fuchsia-400/25 via-rose-400/10 to-transparent",
-    "from-emerald-400/25 via-teal-400/10 to-transparent",
-    "from-amber-300/25 via-orange-400/10 to-transparent",
-    "from-violet-400/25 via-indigo-400/10 to-transparent",
-  ];
-
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-
-  return ACCENTS[hash % ACCENTS.length];
+function matchesForPriority(label: string) {
+  const ranked = [...vehicles].sort((a, b) => highestNumber(b.range) - highestNumber(a.range));
+  if (label === "Daily city driving") return ranked.filter((vehicle) => ["Hatchback", "Microcar"].includes(vehicle.type)).slice(0, 3);
+  if (label === "Family & weekends") return ranked.filter((vehicle) => ["SUV", "MPV"].includes(vehicle.type)).slice(0, 3);
+  if (label === "Long highway runs") return ranked.filter((vehicle) => highestNumber(vehicle.range) >= 500 && vehicleTripProfiles[vehicle.slug]).slice(0, 3);
+  return ranked.filter((vehicle) => ["Roadster", "Luxury Sedan", "SUV Coupe", "Crossover"].includes(vehicle.type)).slice(0, 3);
 }
 
-function StatCard({
-  value,
-  label,
-}: {
-  value: string;
-  label: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/10 backdrop-blur">
-      <p className="text-2xl font-semibold text-white">{value}</p>
-      <p className="mt-1 text-sm text-slate-400">{label}</p>
-    </div>
-  );
-}
-
-function MiniStat({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-3">
-      <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
-        {label}
-      </p>
-      <p className="mt-2 text-sm font-semibold text-white">{value}</p>
-    </div>
-  );
-}
-
-function Pill({
-  children,
-  active = false,
-  onClick,
-}: {
-  children: string;
-  active?: boolean;
-  onClick?: () => void;
-}) {
-  const classes = [
-    "inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition",
-    active
-      ? "border-sky-400/25 bg-sky-400 text-slate-950"
-      : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white",
-  ].join(" ");
-
-  if (onClick) {
-    return (
-      <button type="button" onClick={onClick} className={classes}>
-        {children}
-      </button>
-    );
-  }
-
-  return <span className={classes}>{children}</span>;
-}
+const capabilities = [
+  {
+    eyebrow: "Choose",
+    title: "Find an EV that fits your actual life.",
+    description:
+      "A guided match built around your city, budget, home-charging setup, daily distance, and travel habits.",
+    href: "#ev-match",
+    icon: Compass,
+  },
+  {
+    eyebrow: "Compare",
+    title: "Make a clearer decision, not a longer spreadsheet.",
+    description:
+      "Compare usable range, charging reality, cabin, safety, and ownership cost in one considered workspace.",
+    href: "/compare",
+    icon: Scale,
+  },
+  {
+    eyebrow: "Charge",
+    title: "Know where charging actually works.",
+    description:
+      "Find compatible charging, understand availability, and build confidence before a long drive.",
+    href: "/charging",
+    icon: BatteryCharging,
+  },
+  {
+    eyebrow: "Travel",
+    title: "Plan the journey—not just the destination.",
+    description:
+      "Turn range, charging stops, and route awareness into a calm, reliable EV road trip.",
+    href: "/travel",
+    icon: Route,
+  },
+];
 
 export default function HomePage() {
-  const launchedVehicles = useMemo(
-    () => vehicles.filter((vehicle) => vehicle.launched),
-    []
-  );
-
-  const brands = useMemo(
-    () => ["All brands", ...Array.from(new Set(launchedVehicles.map((v) => v.brand))).sort()],
-    [launchedVehicles]
-  );
-
-  const types = useMemo(
-    () => ["All types", ...Array.from(new Set(launchedVehicles.map((v) => v.type))).sort()],
-    [launchedVehicles]
-  );
-
-  const [query, setQuery] = useState("");
-  const [selectedType, setSelectedType] = useState("All types");
-  const [selectedBrand, setSelectedBrand] = useState("All brands");
-  const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>(
-    "recommended"
-  );
-
-  const filteredVehicles = useMemo(() => {
-    const q = query.toLowerCase().trim();
-
-    const matches = launchedVehicles.filter((vehicle) => {
-      const matchesQuery =
-        vehicle.name.toLowerCase().includes(q) ||
-        vehicle.brand.toLowerCase().includes(q) ||
-        vehicle.type.toLowerCase().includes(q) ||
-        vehicle.status.toLowerCase().includes(q) ||
-        (vehicle.price ?? "").toLowerCase().includes(q) ||
-        (vehicle.range ?? "").toLowerCase().includes(q) ||
-        (vehicle.charging ?? "").toLowerCase().includes(q);
-
-      const matchesType =
-        selectedType === "All types" || vehicle.type === selectedType;
-      const matchesBrand =
-        selectedBrand === "All brands" || vehicle.brand === selectedBrand;
-
-      return matchesQuery && matchesType && matchesBrand;
-    });
-
-    const sorted = [...matches];
-
-    switch (sortBy) {
-      case "range-desc":
-        sorted.sort((a, b) => parseNumeric(b.range) - parseNumeric(a.range));
-        break;
-      case "price-asc":
-        sorted.sort((a, b) => parseNumeric(a.price) - parseNumeric(b.price));
-        break;
-      case "name-asc":
-        sorted.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      default:
-        break;
-    }
-
-    return sorted;
-  }, [launchedVehicles, query, selectedType, selectedBrand, sortBy]);
-
-  const spotlightVehicle = useMemo(() => {
-    const source = filteredVehicles.length > 0 ? filteredVehicles : launchedVehicles;
-    if (source.length === 0) return null;
-
-    return [...source].sort((a, b) => parseNumeric(b.range) - parseNumeric(a.range))[0];
-  }, [filteredVehicles, launchedVehicles]);
-
-  const averageRange = useMemo(() => {
-    const values = launchedVehicles
-      .map((vehicle) => parseNumeric(vehicle.range))
-      .filter((value) => value > 0);
-
-    if (!values.length) return "—";
-
-    const avg = Math.round(
-      values.reduce((sum, value) => sum + value, 0) / values.length
-    );
-    return `${avg}`;
-  }, [launchedVehicles]);
-
-  const averageRangeUnit = useMemo(() => {
-    const sample = launchedVehicles.find((vehicle) => vehicle.range)?.range ?? "";
-    if (sample.toLowerCase().includes("mi")) return "mi";
-    if (sample.toLowerCase().includes("km")) return "km";
-    return "";
-  }, [launchedVehicles]);
-
-  const featuredTypes = types.slice(1, 5);
-
-  const heroVisualTitle = spotlightVehicle?.name ?? "Mahindra BE 6";
-  const heroVisualSubtitle = spotlightVehicle
-    ? `${spotlightVehicle.brand} • ${spotlightVehicle.type} • ${spotlightVehicle.status}`
-    : "Premium electric SUV built for long-distance confidence and everyday intelligence.";
-  const heroVisualScore = "92";
-  const heroVisualRange = spotlightVehicle?.range ?? "682 km";
-  const heroVisualCharging = spotlightVehicle?.charging ?? "175 kW DC";
-  const heroVisualAvailability =
-    spotlightVehicle?.status === "Launched"
-      ? "Available"
-      : spotlightVehicle?.status ?? "Available";
-  const heroVisualCtaHref = spotlightVehicle
-    ? `/vehicles/${spotlightVehicle.slug}`
-    : "/vehicles";
+  const [priority, setPriority] = useState(priorities[0]);
+  const matchedVehicles = matchesForPriority(priority.label);
+  const brandsCount = new Set(vehicles.map((vehicle) => vehicle.brand)).size;
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
+    <main className="min-h-screen overflow-x-hidden bg-[#030914] text-white">
       <SiteHeader />
 
-      <Hero
-  badge="India's EV Intelligence Platform"
-  title="Find the right EV with confidence."
-  description="Explore electric vehicles, compare models, understand charging, and discover upcoming launches—all in one premium platform designed to help you choose with confidence."
-  primaryLabel="Explore EVs"
-  primaryHref="/vehicles"
-  secondaryLabel="Compare EVs"
-  secondaryHref="/compare"
-  visualTitle={heroVisualTitle}
-  visualSubtitle={heroVisualSubtitle}
-  visualScore={heroVisualScore}
-  visualRange={heroVisualRange}
-  visualCharging={heroVisualCharging}
-  visualAvailability={heroVisualAvailability}
-  visualCtaLabel="View Vehicle"
-  visualCtaHref={heroVisualCtaHref}
-  backgroundImageSrc="/images/hero/plugv-hero-v3.webp"
-  backgroundImageAlt="Mahindra BE 6 hero"
-/>
+      <section className="relative isolate overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 -z-20 bg-[#061322]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_26%,rgba(56,189,248,0.17),transparent_25%),radial-gradient(circle_at_80%_72%,rgba(14,165,233,0.12),transparent_30%)]" />
 
-      <section className="border-y border-white/10 bg-white/[0.02]">
-        <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mt-8 max-w-3xl">
-            <UniversalSearch />
+        <div className="mx-auto grid min-h-[660px] w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:px-8 lg:py-20">
+          <div className="relative z-10 max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/15 bg-sky-300/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">
+              <Sparkles className="h-3.5 w-3.5" />
+              EV intelligence, built for India
+            </div>
+            <h1 className="mt-7 text-5xl font-semibold tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
+              Every EV decision.
+              <span className="block text-sky-300">Finally connected.</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-8 text-slate-300 sm:text-lg">
+              PlugV is your companion for choosing, comparing, charging, travelling,
+              and living with an electric vehicle. Less noise. Better decisions.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link
+                href="#ev-match"
+                className="inline-flex items-center gap-2 rounded-full bg-sky-300 px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-200"
+              >
+                Find my EV
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/travel"
+                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/[0.09]"
+              >
+                Plan an EV trip
+                <MapPinned className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="mt-12 flex flex-wrap gap-x-7 gap-y-3 text-sm text-slate-400">
+              <span>Built around your life</span>
+              <span>•</span>
+              <span>India-first charging context</span>
+              <span>•</span>
+              <span>Useful before and after purchase</span>
+            </div>
           </div>
 
-          <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/20 backdrop-blur lg:p-5">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">
-                  Search and filter
-                </div>
-                <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                  Find the right EV, faster.
-                </h2>
-                <p className="mt-4 text-base leading-7 text-slate-400">
-                  Search by brand, type, charging, price, or range. Then narrow
-                  the lineup with premium filters and sort by what matters most.
+          <div className="relative h-[440px] sm:h-[520px] lg:h-[590px]">
+            <div className="absolute inset-0 overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-950 shadow-[0_35px_120px_-35px_rgba(14,165,233,0.34)]">
+              <Image
+                src="/images/hero/plugv-hero-v3.webp"
+                alt="Electric SUV ready for the road"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover object-[center_42%]"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,8,20,0.05)_30%,rgba(2,8,20,0.78)_100%)]" />
+              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200">
+                  One intelligent EV home
+                </p>
+                <p className="mt-2 max-w-sm text-xl font-medium tracking-tight text-white sm:text-2xl">
+                  The car is only the beginning. PlugV helps with everything around it.
                 </p>
               </div>
-
-              <div className="flex flex-wrap gap-3">
-                {featuredTypes.map((type) => (
-                  <Pill
-                    key={type}
-                    active={selectedType === type}
-                    onClick={() => setSelectedType(type)}
-                  >
-                    {type}
-                  </Pill>
-                ))}
-              </div>
             </div>
-
-            <div className="mt-8 grid gap-4 lg:grid-cols-[1.3fr_0.7fr_0.7fr_0.7fr]">
-              <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
-                <Search className="h-4 w-4 text-sky-300" />
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search vehicles, brands, types, range, price..."
-                  className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500"
-                  aria-label="Search vehicles"
-                />
-              </label>
-
-              <div className="relative">
-                <Filter className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                <select
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/70 py-3 pl-10 pr-4 text-sm font-semibold text-white outline-none"
-                >
-                  {types.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <select
-                value={selectedBrand}
-                onChange={(e) => setSelectedBrand(e.target.value)}
-                className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none"
-              >
-                {brands.map((brand) => (
-                  <option key={brand} value={brand}>
-                    {brand}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={sortBy}
-                onChange={(e) =>
-                  setSortBy(e.target.value as (typeof sortOptions)[number]["value"])
-                }
-                className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none"
-              >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+            <div className="absolute -bottom-5 -left-3 rounded-2xl border border-white/10 bg-slate-950/85 px-5 py-4 backdrop-blur-xl sm:left-7">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300">Made for real journeys</p>
+              <p className="mt-1 text-sm font-medium text-white">From your commute to your next road trip</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="border-y border-white/10 bg-white/[0.02]">
-        <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="grid gap-4 sm:grid-cols-4">
-            <StatCard
-              value={`${launchedVehicles.length}+`}
-              label="Launched EVs"
-            />
-            <StatCard value={`${brands.length - 1}+`} label="Brands" />
-            <StatCard
-              value={`${averageRange}${averageRangeUnit ? ` ${averageRangeUnit}` : ""}`}
-              label="Average range"
-            />
-            <StatCard value={`${types.length - 1}+`} label="Body styles" />
-          </div>
+      <section className="border-b border-white/10 bg-white/[0.02]">
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-px bg-white/10 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
+          <PlatformMetric value={`${vehicles.length}`} label="Launched EVs tracked" />
+          <PlatformMetric value={`${brandsCount}`} label="EV brands" />
+          <PlatformMetric value={`${chargingStations.length}`} label="Known charging stations" />
+          <PlatformMetric value={`${Object.keys(vehicleTripProfiles).length}`} label="Official trip profiles" />
         </div>
       </section>
 
-      <section className="py-20 sm:py-24">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300/80">
-                Launched EVs
-              </p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Curated vehicles for serious buyers.
-              </h2>
-              <p className="mt-3 text-base leading-7 text-slate-400">
-                Showing {filteredVehicles.length} result
-                {filteredVehicles.length === 1 ? "" : "s"}.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3 text-sm text-slate-400">
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
-                Compare-ready
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
-                Search-first
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
-                Premium discovery
-              </span>
-            </div>
+      <section id="ev-match" className="scroll-mt-24 bg-[#030914] py-20 sm:py-28">
+        <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 lg:px-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">EV Match</p>
+            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">
+              Start with how you live.
+            </h2>
+            <p className="mt-5 max-w-md text-base leading-8 text-slate-400">
+              Most platforms begin with filters. PlugV begins with you—then explains
+              which EV choices make sense and why.
+            </p>
           </div>
 
-          {filteredVehicles.length > 0 ? (
-            <div className="grid gap-8 lg:grid-cols-3">
-              {filteredVehicles.map((vehicle, index) => {
-                const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-5 sm:p-7">
+            <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-sm font-semibold text-white">What matters most to you?</p>
+                <p className="mt-1 text-sm text-slate-400">Choose a starting point. We will shape the rest around it.</p>
+              </div>
+              <span className="text-xs font-medium uppercase tracking-[0.2em] text-sky-300">Instant shortlist</span>
+            </div>
 
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {priorities.map((option) => {
+                const selected = option.label === priority.label;
                 return (
-                  <article
-                    key={vehicle.slug}
-                    className="group overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 shadow-[0_24px_80px_-28px_rgba(0,0,0,0.72)] backdrop-blur transition-all duration-300 hover:-translate-y-2 hover:border-sky-400/20 hover:shadow-[0_30px_100px_-24px_rgba(56,189,248,0.22)]"
+                  <button
+                    key={option.label}
+                    type="button"
+                    onClick={() => setPriority(option)}
+                    className={`rounded-2xl border p-5 text-left transition ${
+                      selected
+                        ? "border-sky-300/50 bg-sky-300/10"
+                        : "border-white/10 bg-slate-950/40 hover:border-white/25 hover:bg-white/[0.04]"
+                    }`}
                   >
-                    <div
-                      className={`relative h-[320px] overflow-hidden bg-gradient-to-br ${accent}`}
-                    >
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
-                      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(225deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:26px_26px] opacity-15" />
-
-                      <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200 backdrop-blur">
-                        #{index + 1} pick
-                      </div>
-
-                      <div className="absolute inset-x-0 bottom-6 px-6">
-                        <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-300/80">
-                            Spotlight
-                          </p>
-                          <h3 className="mt-2 text-2xl font-semibold tracking-tight text-white">
-                            {vehicle.name}
-                          </h3>
-                          <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">
-                            {vehicle.brand} • {vehicle.type} • {vehicle.status}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6 p-7">
-                      <div className="grid grid-cols-3 gap-3">
-                        <MiniStat label="Range" value={vehicle.range ?? "—"} />
-                        <MiniStat label="Charging" value={vehicle.charging ?? "—"} />
-                        <MiniStat label="Price" value={vehicle.price ?? "—"} />
-                      </div>
-
-                      <p className="text-sm leading-7 text-slate-300">
-                        A premium EV profile designed for shoppers who want the
-                        most relevant details first.
-                      </p>
-
-                      <div className="flex items-center justify-between border-t border-white/10 pt-5">
-                        <Link
-                          href={`/vehicles/${vehicle.slug}`}
-                          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
-                        >
-                          View details
-                          <ArrowRight className="h-4 w-4" />
-                        </Link>
-
-                        <Link
-                          href="/compare"
-                          className="text-sm font-semibold text-sky-300 transition hover:text-sky-200"
-                        >
-                          Compare
-                        </Link>
-                      </div>
-                    </div>
-                  </article>
+                    <p className="text-sm font-semibold text-white">{option.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-400">{option.detail}</p>
+                  </button>
                 );
               })}
             </div>
-          ) : (
-            <div className="rounded-[2rem] border border-dashed border-white/15 bg-white/5 p-10 text-center shadow-2xl shadow-black/20">
-              <p className="text-2xl font-semibold text-white">
-                No EVs match your search.
-              </p>
-              <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-slate-400">
-                Try another brand, type, or keyword and keep exploring the PlugV
-                lineup.
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("");
-                  setSelectedType("All types");
-                  setSelectedBrand("All brands");
-                  setSortBy("recommended");
-                }}
-                className="mt-6 inline-flex items-center justify-center rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-              >
-                Reset filters
-              </button>
+
+            <div className="mt-6 rounded-2xl border border-sky-300/15 bg-sky-300/[0.06] p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-300">Your starting profile</p>
+                <p className="mt-1 text-lg font-semibold text-white">{priority.label}</p>
+                </div>
+                <Link href="/vehicles" className="inline-flex items-center gap-2 text-sm font-semibold text-sky-200 hover:text-white">
+                Explore the full catalog
+                <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {matchedVehicles.map((vehicle) => <Link key={vehicle.slug} href={`/vehicles/${vehicle.slug}`} className="rounded-xl border border-white/10 bg-slate-950/55 p-4 transition hover:border-sky-300/30 hover:bg-slate-950/75"><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-300">{vehicle.brand}</p><p className="mt-1 text-sm font-semibold text-white">{vehicle.name}</p><p className="mt-2 text-xs text-slate-400">{vehicle.range ?? "Range not listed"}</p></Link>)}
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </section>
 
-      <section className="border-y border-white/10 bg-white/[0.02] py-16 sm:py-20">
+      <section className="border-y border-white/10 bg-white/[0.02] py-20 sm:py-28">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                title: "Built for comparison",
-                desc: "Every EV card gives buyers the core details they need to make a faster decision.",
-              },
-              {
-                title: "Built for trust",
-                desc: "A calmer and more premium interface makes the platform feel dependable and clear.",
-              },
-              {
-                title: "Built for growth",
-                desc: "This page can scale into saved searches, AI recommendations, and lead generation.",
-              },
-            ].map((item) => (
-              <article
-                key={item.title}
-                className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300/80">
-                  Discovery principle
-                </p>
-                <h3 className="mt-3 text-xl font-semibold text-white">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-7 text-slate-300">
-                  {item.desc}
-                </p>
-              </article>
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Your EV, in context</p>
+            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">Not a marketplace. A better way to move.</h2>
+            <p className="mt-5 text-base leading-8 text-slate-400">The tools below work together, so every answer leads naturally to the next useful decision.</p>
+          </div>
+
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 md:grid-cols-2">
+            {capabilities.map((capability) => {
+              const Icon = capability.icon;
+              return (
+                <Link key={capability.title} href={capability.href} className="group bg-[#050d19] p-7 transition hover:bg-[#081526] sm:p-9">
+                  <Icon className="h-6 w-6 text-sky-300" />
+                  <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300/80">{capability.eyebrow}</p>
+                  <h3 className="mt-3 max-w-md text-2xl font-semibold tracking-tight text-white">{capability.title}</h3>
+                  <p className="mt-4 max-w-lg text-sm leading-7 text-slate-400">{capability.description}</p>
+                  <span className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-white">Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 sm:py-28">
+        <div className="mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.15fr] lg:items-end lg:px-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Launch radar</p>
+            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">Know what&apos;s worth waiting for.</h2>
+            <p className="mt-5 max-w-md text-base leading-8 text-slate-400">Follow manufacturer targets and official EV concepts with clear sourcing—without confusing speculation with confirmed launches.</p>
+            <Link href="/upcoming" className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.06]">
+              View upcoming EVs
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="divide-y divide-white/10 rounded-[2rem] border border-white/10 bg-white/[0.03] px-6 sm:px-8">
+            {upcomingEVs.map((vehicle) => (
+              <Link key={vehicle.slug} href="/upcoming" className="group flex items-center justify-between gap-6 py-6">
+                <div>
+                  <p className="text-sm font-medium text-slate-400">{vehicle.brand}</p>
+                  <p className="mt-1 text-xl font-semibold tracking-tight text-white">{vehicle.name}</p>
+                  <p className="mt-2 text-sm text-slate-400">{vehicle.launch} · {vehicle.range}</p>
+                </div>
+                <CalendarClock className="h-5 w-5 shrink-0 text-sky-300 transition group-hover:scale-110" />
+              </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="border-t border-white/10 bg-[#061322] py-20 sm:py-28">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+          <div className="max-w-2xl">
+            <ShieldCheck className="h-7 w-7 text-sky-300" />
+            <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">A better EV life, from day one.</h2>
+            <p className="mt-5 text-base leading-8 text-slate-300">PlugV stays useful after the decision: charging, travel, ownership, alerts, and what comes next.</p>
+          </div>
+          <Link href="/vehicles" className="inline-flex w-fit items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-slate-200">
+            Begin exploring
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
 
       <SiteFooter />
     </main>
   );
+}
+
+function PlatformMetric({ value, label }: { value: string; label: string }) {
+  return <div className="bg-[#050d19] px-4 py-6 text-center sm:px-6"><p className="text-2xl font-semibold text-white sm:text-3xl">{value}</p><p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p></div>;
 }

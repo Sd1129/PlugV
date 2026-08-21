@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import {
   ArrowLeft,
@@ -15,11 +17,36 @@ import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import TrustSummary from "@/components/vehicles/TrustSummary";
 import { vehicles } from "@/data/vehicles";
+import { getVehicleImage } from "@/data/vehicle-images";
 import { getCompareInsights } from "@/lib/compare/compareEngine";
+import { absoluteUrl, safeJsonLd } from "@/lib/seo";
 
 type PageProps = {
   params: { slug: string } | Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const vehicle = vehicles.find((item) => item.slug === slug);
+  if (!vehicle) return {};
+
+  const title = `${vehicle.brand} ${vehicle.name} Price, Range & Charging`;
+  const description = `Explore ${vehicle.brand} ${vehicle.name} price in India, claimed range, charging information and comparison tools on PlugV.`;
+  const image = getVehicleImage(vehicle.slug);
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/vehicles/${vehicle.slug}` },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: `/vehicles/${vehicle.slug}`,
+      images: image ? [image] : ["/images/hero/plugv-compare-hero.webp"],
+    },
+  };
+}
 
 function accentFor(seed: string) {
   const accents = [
@@ -98,7 +125,23 @@ export default async function VehicleDetailPage({ params }: PageProps) {
     .slice(0, 3);
 
   const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
+  const vehicleImage = getVehicleImage(vehicle.slug);
   const compareInsights = getCompareInsights(vehicles);
+  const vehicleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `${vehicle.brand} ${vehicle.name}`,
+    brand: { "@type": "Brand", name: vehicle.brand },
+    category: `Electric ${vehicle.type}`,
+    description: `${vehicle.brand} ${vehicle.name} electric vehicle in India with ${vehicle.range ?? "range information"}.`,
+    url: absoluteUrl(`/vehicles/${vehicle.slug}`),
+    image: vehicleImage ? absoluteUrl(vehicleImage) : undefined,
+    additionalProperty: [
+      { "@type": "PropertyValue", name: "Claimed range", value: vehicle.range ?? "Not listed" },
+      { "@type": "PropertyValue", name: "Price", value: vehicle.price ?? "Not listed" },
+      { "@type": "PropertyValue", name: "Charging", value: vehicle.charging ?? "Not listed" },
+    ],
+  };
 
   const stats = [
     {
@@ -140,7 +183,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
   const nextSteps = [
     {
       label: "Compare against other EVs",
-      href: "/#compare",
+      href: `/compare?vehicle=${encodeURIComponent(vehicle.slug)}`,
       icon: <ArrowRight className="h-4 w-4" />,
     },
     {
@@ -162,6 +205,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(vehicleSchema) }} />
       <SiteHeader />
 
       <section className="relative overflow-hidden">
@@ -213,7 +257,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/#compare"
+                href={`/compare?vehicle=${encodeURIComponent(vehicle.slug)}`}
                 className="inline-flex items-center justify-center rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
               >
                 Compare on PlugV
@@ -232,6 +276,16 @@ export default async function VehicleDetailPage({ params }: PageProps) {
 
             <div className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 shadow-2xl shadow-black/30 backdrop-blur">
               <div className={`relative h-[360px] overflow-hidden bg-gradient-to-br ${accent}`}>
+                {vehicleImage ? (
+                  <Image
+                    src={vehicleImage}
+                    alt={`${vehicle.brand} ${vehicle.name} electric vehicle`}
+                    fill
+                    priority
+                    sizes="(min-width: 1024px) 48vw, 100vw"
+                    className="object-cover"
+                  />
+                ) : null}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
                 <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(225deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:26px_26px] opacity-15" />
 

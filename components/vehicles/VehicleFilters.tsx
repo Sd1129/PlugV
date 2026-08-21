@@ -22,6 +22,10 @@ type VehicleFiltersProps = {
   brands: string[];
   sortOptions?: readonly SortOption[];
   resultCount: number;
+  minimumRange: number;
+  onMinimumRange: (value: number) => void;
+  verifiedOnly: boolean;
+  onVerifiedOnly: (value: boolean) => void;
   onReset: () => void;
 };
 
@@ -45,6 +49,10 @@ export default function VehicleFilters({
   brands,
   sortOptions = DEFAULT_SORT_OPTIONS,
   resultCount,
+  minimumRange,
+  onMinimumRange,
+  verifiedOnly,
+  onVerifiedOnly,
   onReset,
 }: VehicleFiltersProps) {
   const featuredTypes = types.slice(1, 5);
@@ -92,7 +100,7 @@ export default function VehicleFilters({
         </div>
 
         <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/20 backdrop-blur lg:p-5">
-          <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr_0.7fr_0.7fr]">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1.3fr_0.7fr_0.7fr_0.7fr_0.7fr]">
             <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
               <Search className="h-4 w-4 text-sky-300" />
               <input
@@ -143,21 +151,18 @@ export default function VehicleFilters({
                 </option>
               ))}
             </select>
+
+            <select value={minimumRange} onChange={(e) => onMinimumRange(Number(e.target.value))} className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none" aria-label="Minimum driving range">
+              <option value={0}>Any range</option>
+              <option value={300}>300+ km range</option>
+              <option value={400}>400+ km range</option>
+              <option value={500}>500+ km range</option>
+              <option value={600}>600+ km range</option>
+            </select>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            {[
-              "Premium discovery",
-              "Sharper comparison",
-              "Better EV decisions",
-            ].map((item) => (
-              <span
-                key={item}
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium tracking-wide text-slate-300"
-              >
-                {item}
-              </span>
-            ))}
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300"><input type="checkbox" checked={verifiedOnly} onChange={(event) => onVerifiedOnly(event.target.checked)} className="accent-emerald-400" />Verified trip specs only</label>
 
             <button
               type="button"

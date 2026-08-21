@@ -4,7 +4,7 @@ import { ArrowRight, CalendarDays, Gauge, Sparkles } from "lucide-react";
 import { upcomingEVs } from "@/data/upcoming";
 import PageContainer from "@/components/ui/PageContainer";
 import SectionTitle from "@/components/ui/SectionTitle";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 
 type UpcomingVehicle = {
   slug: string;

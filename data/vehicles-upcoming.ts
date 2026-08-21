@@ -1,155 +1,59 @@
 export type UpcomingVehicle = {
-    brand: string;
-    name: string;
-    segment: string;
-    launch: string;
-    note: string;
-    slug: string;
-  };
-  
-  export const upcomingVehicles: UpcomingVehicle[] = [
-    {
-      brand: "Honda",
-      name: "Elevate EV",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Electric SUV positioning for urban and family buyers.",
-      slug: "honda-elevate-ev",
-    },
-    {
-      brand: "Mahindra",
-      name: "Thar EV",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Lifestyle EV with strong off-road identity.",
-      slug: "mahindra-thar-ev",
-    },
-    {
-      brand: "Tata",
-      name: "Sierra EV",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Premium electric SUV with a modern revival of the Sierra name.",
-      slug: "tata-sierra-ev",
-    },
-    {
-      brand: "Tata",
-      name: "Avinya",
-      segment: "Premium EV",
-      launch: "Expected 2026",
-      note: "Flagship electric concept family from Tata Motors.",
-      slug: "tata-avinya",
-    },
-    {
-      brand: "Toyota",
-      name: "Urban Cruiser EV",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Toyota's electric compact SUV for mainstream buyers.",
-      slug: "toyota-urban-cruiser-ev",
-    },
-    {
-      brand: "Hyundai",
-      name: "Inster",
-      segment: "City EV",
-      launch: "Expected 2025-2026",
-      note: "Compact urban EV with a practical city-first proposition.",
-      slug: "hyundai-inster",
-    },
-    {
-      brand: "Hyundai",
-      name: "IONIQ 6",
-      segment: "Sedan",
-      launch: "Expected 2025-2026",
-      note: "Aerodynamic premium electric sedan.",
-      slug: "hyundai-ioniq-6",
-    },
-    {
-      brand: "Volvo",
-      name: "EX90",
-      segment: "Luxury SUV",
-      launch: "Expected 2025-2026",
-      note: "Three-row electric luxury SUV.",
-      slug: "volvo-ex90",
-    },
-    {
-      brand: "VinFast",
-      name: "VF3",
-      segment: "Mini SUV",
-      launch: "Expected 2025-2026",
-      note: "Compact entry EV with urban-focused appeal.",
-      slug: "vinfast-vf3",
-    },
-    {
-      brand: "VinFast",
-      name: "LimoGreen",
-      segment: "MPV",
-      launch: "Expected 2025-2026",
-      note: "People-mover focused electric MPV.",
-      slug: "vinfast-limogreen",
-    },
-    {
-      brand: "BYD",
-      name: "Atto 2",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Smaller SUV positioned below Atto 3.",
-      slug: "byd-atto-2",
-    },
-    {
-      brand: "Kia",
-      name: "EV5",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Family-friendly electric SUV with premium positioning.",
-      slug: "kia-ev5",
-    },
-    {
-      brand: "MG",
-      name: "4 EV",
-      segment: "Hatchback",
-      launch: "Expected 2025-2026",
-      note: "Sporty electric hatchback with a global footprint.",
-      slug: "mg-4-ev",
-    },
-    {
-      brand: "Maruti Suzuki",
-      name: "eWX",
-      segment: "Hatchback",
-      launch: "Expected 2025-2026",
-      note: "Compact electric city car concept translated for India.",
-      slug: "maruti-suzuki-ewx",
-    },
-    {
-      brand: "JSW Chery",
-      name: "iCar V23",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Boxy EV SUV with lifestyle and adventure appeal.",
-      slug: "jsw-chery-icar-v23",
-    },
-    {
-      brand: "JSW Jaecoo",
-      name: "J5 EV",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Mainstream electric SUV for value-conscious premium buyers.",
-      slug: "jsw-jaecoo-j5-ev",
-    },
-    {
-      brand: "Mahindra",
-      name: "XUV.e8",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Electric sibling in the XUV lineup with a premium focus.",
-      slug: "mahindra-xuv-e8",
-    },
-    {
-      brand: "Tata",
-      name: "Safari EV",
-      segment: "SUV",
-      launch: "Expected 2025-2026",
-      note: "Large family-oriented electric SUV.",
-      slug: "tata-safari-ev",
-    },
-  ];
+  brand: string;
+  name: string;
+  segment: string;
+  launch: string;
+  note: string;
+  slug: string;
+  status: "Manufacturer target" | "Official concept";
+  expectedPrice?: string;
+  range?: string;
+  battery?: string;
+  features: string[];
+  sourceName: string;
+  sourceUrl: string;
+  verifiedAt: string;
+};
+
+export const upcomingVehicles: UpcomingVehicle[] = [
+  {
+    brand: "Tata",
+    name: "Avinya",
+    segment: "Premium EV",
+    launch: "Targeted for 2027",
+    note: "Tata's next-generation pure-EV family, focused on space, calm design, software and ultra-fast charging.",
+    slug: "tata-avinya",
+    status: "Manufacturer target",
+    range: "500 km added in under 30 min",
+    features: ["GEN 3 architecture", "Ultra-fast charging", "Human-centred cabin"],
+    sourceName: "Tata.ev",
+    sourceUrl: "https://ev.tatamotors.com/concept-cars/avinya.html",
+    verifiedAt: "2026-08-21",
+  },
+  {
+    brand: "Mahindra",
+    name: "Vision Thar.e",
+    segment: "Adventure SUV",
+    launch: "No production date announced",
+    note: "A born-electric interpretation of the Thar identity, presented with an AWD powertrain and modular construction.",
+    slug: "mahindra-thar-e",
+    status: "Official concept",
+    features: ["INGLO platform", "Electric AWD concept", "Modular design"],
+    sourceName: "Mahindra Electric Automobiles",
+    sourceUrl: "https://www.mahindraelectricsuv.com/on/demandware.static/-/Library-Sites-MEASharedLibrary/default/dw2fc90bd9/mahindraelectricimages/BEV/pdfs/thare.pdf",
+    verifiedAt: "2026-08-21",
+  },
+  {
+    brand: "Toyota",
+    name: "FT-3e",
+    segment: "Concept SUV",
+    launch: "No India launch announced",
+    note: "Toyota's next-generation battery-electric SUV concept exploring personalised services, energy sharing and software-led ownership.",
+    slug: "toyota-ft-3e",
+    status: "Official concept",
+    features: ["Next-gen BEV", "Software-defined", "Energy and data sharing"],
+    sourceName: "Toyota Global Newsroom",
+    sourceUrl: "https://global.toyota/en/newsroom/corporate/39886279.html",
+    verifiedAt: "2026-08-21",
+  },
+];

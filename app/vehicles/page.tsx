@@ -2,7 +2,6 @@
 
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
-import UniversalSearch from "@/components/ui/UniversalSearch";
 import VehiclesHero from "@/components/vehicles/VehiclesHero";
 import VehicleFilters, {
   type SortOption,
@@ -10,16 +9,17 @@ import VehicleFilters, {
 import VehicleGrid from "@/components/vehicles/VehicleGrid";
 import VehicleHighlights from "@/components/vehicles/VehicleHighlights";
 import { vehicles } from "@/data/vehicles";
-import { useMemo, useState } from "react";
+import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 function parseNumeric(value?: string) {
-  if (!value) return 0;
-  const cleaned = value.replace(/,/g, "");
-  const match = cleaned.match(/(\d+(\.\d+)?)/);
-  return match ? Number(match[1]) : 0;
+  const values = value?.replace(/,/g, "").match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  return values.length ? Math.max(...values) : 0;
 }
 
-export default function VehiclesPage() {
+function VehiclesContent() {
+  const searchParams = useSearchParams();
   const launchedVehicles = useMemo(
     () => vehicles.filter((vehicle) => vehicle.launched),
     []
@@ -41,10 +41,12 @@ export default function VehiclesPage() {
     [launchedVehicles]
   );
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => searchParams.get("query") ?? "");
   const [selectedType, setSelectedType] = useState("All types");
   const [selectedBrand, setSelectedBrand] = useState("All brands");
   const [sortBy, setSortBy] = useState<SortOption["value"]>("recommended");
+  const [minimumRange, setMinimumRange] = useState(0);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   const filteredVehicles = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -63,8 +65,10 @@ export default function VehiclesPage() {
         selectedType === "All types" || vehicle.type === selectedType;
       const matchesBrand =
         selectedBrand === "All brands" || vehicle.brand === selectedBrand;
+      const matchesRange = parseNumeric(vehicle.range) >= minimumRange;
+      const matchesVerification = !verifiedOnly || Boolean(getVehicleTripProfile(vehicle.slug));
 
-      return matchesQuery && matchesType && matchesBrand;
+      return matchesQuery && matchesType && matchesBrand && matchesRange && matchesVerification;
     });
 
     const sorted = [...matches];
@@ -84,19 +88,13 @@ export default function VehiclesPage() {
     }
 
     return sorted;
-  }, [launchedVehicles, query, selectedType, selectedBrand, sortBy]);
+  }, [launchedVehicles, query, selectedType, selectedBrand, sortBy, minimumRange, verifiedOnly]);
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
       <SiteHeader />
 
       <VehiclesHero />
-
-      <section className="border-y border-white/10 bg-white/[0.02]">
-        <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <UniversalSearch />
-        </div>
-      </section>
 
       <VehicleFilters
         query={query}
@@ -110,11 +108,17 @@ export default function VehiclesPage() {
         types={types}
         brands={brands}
         resultCount={filteredVehicles.length}
+        minimumRange={minimumRange}
+        onMinimumRange={setMinimumRange}
+        verifiedOnly={verifiedOnly}
+        onVerifiedOnly={setVerifiedOnly}
         onReset={() => {
           setQuery("");
           setSelectedType("All types");
           setSelectedBrand("All brands");
           setSortBy("recommended");
+          setMinimumRange(0);
+          setVerifiedOnly(false);
         }}
       />
 
@@ -124,5 +128,13 @@ export default function VehiclesPage() {
 
       <SiteFooter />
     </main>
+  );
+}
+
+export default function VehiclesPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-slate-950" aria-label="Loading electric vehicles" />}>
+      <VehiclesContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, BatteryCharging, BadgeCheck } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
+import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
+import { getVehicleImage } from "@/data/vehicle-images";
 
 function accentFor(seed: string) {
   const accents = [
@@ -44,16 +47,30 @@ function VehicleCard({
   index: number;
 }) {
   const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
+  const tripProfile = getVehicleTripProfile(vehicle.slug);
+  const tripVariant = tripProfile?.variants.find((variant) => variant.name === tripProfile.defaultVariant);
+  const vehicleImage = getVehicleImage(vehicle.slug);
 
   return (
     <article className="group overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 shadow-[0_24px_80px_-28px_rgba(0,0,0,0.72)] backdrop-blur transition-all duration-300 hover:-translate-y-2 hover:border-sky-400/20 hover:shadow-[0_30px_100px_-24px_rgba(56,189,248,0.22)]">
       <div className={`relative h-[320px] overflow-hidden bg-gradient-to-br ${accent}`}>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
+        {vehicleImage ? (
+          <Image
+            src={vehicleImage}
+            alt={`${vehicle.brand} ${vehicle.name} electric vehicle`}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition duration-700 group-hover:scale-[1.035]"
+          />
+        ) : null}
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.04),rgba(2,6,23,0.08)_45%,rgba(2,6,23,0.82))]" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(225deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:26px_26px] opacity-15" />
 
         <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200 backdrop-blur">
           #{index + 1} pick
         </div>
+
+        {tripProfile ? <div className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-100 backdrop-blur"><BadgeCheck className="h-3.5 w-3.5" />Official specs</div> : null}
 
         <div className="absolute inset-x-0 bottom-6 px-6">
           <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">
@@ -73,9 +90,11 @@ function VehicleCard({
       <div className="space-y-6 p-7">
         <div className="grid grid-cols-3 gap-3">
           <MiniStat label="Range" value={vehicle.range ?? "—"} />
-          <MiniStat label="Charging" value={vehicle.charging ?? "—"} />
+          <MiniStat label={tripVariant ? "Battery" : "Trip data"} value={tripVariant ? `${tripVariant.batteryCapacityKWh} kWh` : "Estimate"} />
           <MiniStat label="Price" value={vehicle.price ?? "—"} />
         </div>
+
+        {tripVariant ? <div className="flex items-center justify-between rounded-2xl border border-emerald-300/15 bg-emerald-400/[0.06] px-4 py-3 text-xs"><span className="inline-flex items-center gap-2 font-semibold text-emerald-100"><BatteryCharging className="h-4 w-4" />Up to {tripVariant.maxDcChargeKW} kW DC</span><span className="text-slate-400">{tripVariant.connector}</span></div> : null}
 
         <p className="text-sm leading-7 text-slate-300">
           A premium EV profile designed for shoppers who want the most relevant details first.
@@ -91,7 +110,7 @@ function VehicleCard({
           </Link>
 
           <Link
-            href="/compare"
+            href={`/compare?vehicle=${encodeURIComponent(vehicle.slug)}`}
             className="text-sm font-semibold text-sky-300 transition hover:text-sky-200"
           >
             Compare

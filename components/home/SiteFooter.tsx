@@ -3,6 +3,7 @@ import Link from "next/link";
 
 const footerLinks = [
   { label: "Explore EVs", href: "/vehicles" },
+  { label: "EVs under ₹25 lakh", href: "/best-ev-cars-under-25-lakh" },
   { label: "Search", href: "/search" },
   { label: "Compare", href: "/compare" },
   { label: "Charging", href: "/charging" },
@@ -11,9 +12,8 @@ const footerLinks = [
 ];
 
 const supportLinks = [
-  { label: "Contact", href: "/contact" },
-  { label: "Privacy", href: "/privacy" },
-  { label: "Terms", href: "/terms" },
+  { label: "Plan an EV trip", href: "/travel" },
+  { label: "Ask the EV Assistant", href: "/assistant" },
 ];
 
 export default function SiteFooter() {
@@ -59,7 +59,7 @@ export default function SiteFooter() {
 
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-300/80">
-              Support
+              Plan
             </h3>
             <div className="mt-4 grid gap-3">
               {supportLinks.map((item) => (

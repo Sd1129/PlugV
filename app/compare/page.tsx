@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   BatteryCharging,
@@ -14,9 +16,9 @@ import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import TrustSummary from "@/components/vehicles/TrustSummary";
 import { vehicles } from "@/data/vehicles";
+import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
+import { getVehicleImage } from "@/data/vehicle-images";
 import { getCompareInsights } from "@/lib/compare/compareEngine";
-
-type Vehicle = (typeof vehicles)[number];
 
 function parseNumeric(value?: string) {
   if (!value) return 0;
@@ -161,16 +163,22 @@ function StatusBar({
   );
 }
 
-export default function ComparePage() {
+function CompareContent() {
+  const searchParams = useSearchParams();
   const launchedVehicles = useMemo(
     () => vehicles.filter((vehicle) => vehicle.launched),
     []
   );
 
-  const [leftSlug, setLeftSlug] = useState(launchedVehicles[0]?.slug ?? "");
+  const requestedSlug = searchParams.get("vehicle");
+  const requestedVehicle = launchedVehicles.find((vehicle) => vehicle.slug === requestedSlug);
+  const [leftSlug, setLeftSlug] = useState(requestedVehicle?.slug ?? launchedVehicles[0]?.slug ?? "");
   const [rightSlug, setRightSlug] = useState(
-    launchedVehicles[1]?.slug ?? launchedVehicles[0]?.slug ?? ""
+    launchedVehicles.find((vehicle) => vehicle.slug !== requestedVehicle?.slug)?.slug ?? launchedVehicles[0]?.slug ?? ""
   );
+  const [annualDistanceKm, setAnnualDistanceKm] = useState(12000);
+  const [electricityRate, setElectricityRate] = useState(10);
+  const [ownershipYears, setOwnershipYears] = useState(5);
 
   const leftVehicle = useMemo(
     () =>
@@ -191,10 +199,16 @@ export default function ComparePage() {
 
   const leftRange = parseNumeric(leftVehicle?.range);
   const rightRange = parseNumeric(rightVehicle?.range);
-  const leftCharging = parseNumeric(leftVehicle?.charging);
-  const rightCharging = parseNumeric(rightVehicle?.charging);
   const leftPrice = parseNumeric(leftVehicle?.price);
   const rightPrice = parseNumeric(rightVehicle?.price);
+  const leftTripVariant = defaultTripVariant(leftVehicle?.slug);
+  const rightTripVariant = defaultTripVariant(rightVehicle?.slug);
+  const leftCharging = leftTripVariant?.maxDcChargeKW ?? 0;
+  const rightCharging = rightTripVariant?.maxDcChargeKW ?? 0;
+  const leftEfficiency = leftTripVariant ? leftTripVariant.batteryCapacityKWh / leftTripVariant.practicalRangeKm : 0.16;
+  const rightEfficiency = rightTripVariant ? rightTripVariant.batteryCapacityKWh / rightTripVariant.practicalRangeKm : 0.16;
+  const leftEnergyCost = Math.round(annualDistanceKm * ownershipYears * leftEfficiency * electricityRate);
+  const rightEnergyCost = Math.round(annualDistanceKm * ownershipYears * rightEfficiency * electricityRate);
 
   const heroStats = [
     {
@@ -262,11 +276,12 @@ export default function ComparePage() {
       <SiteHeader />
 
       {/* HERO */}
-<section className="relative overflow-hidden">
-  <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.16),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.12),transparent_28%)]" />
-  <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),transparent_18%,transparent_82%,rgba(255,255,255,0.02))]" />
+<section className="relative isolate overflow-hidden border-b border-white/10">
+  <Image src="/images/hero/plugv-compare-hero.webp" alt="Two electric SUVs positioned side by side for comparison" fill priority sizes="100vw" className="-z-30 object-cover object-center" />
+  <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(2,6,23,0.96)_0%,rgba(2,6,23,0.84)_38%,rgba(2,6,23,0.32)_68%,rgba(2,6,23,0.16)_100%)]" />
+  <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_left,rgba(56,189,248,0.16),transparent_38%)]" />
 
-  <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+  <div className="mx-auto flex min-h-[580px] w-full max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
     <div className="max-w-3xl">
       <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200">
         Compare EVs
@@ -410,12 +425,34 @@ export default function ComparePage() {
   </div>
 </section>
 
+      <section className="py-14 sm:py-18">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7">
+            <div className="flex flex-col gap-3 border-b border-white/10 pb-6 lg:flex-row lg:items-end lg:justify-between">
+              <div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Ownership cost preview</p><h2 className="mt-2 text-2xl font-semibold sm:text-3xl">Compare the energy cost of living with each EV.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Adjust your expected driving and electricity price. Verified variants use battery-based efficiency; other vehicles use a clearly labelled planning estimate.</p></div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <CostInput label="Kilometres / year" value={annualDistanceKm} min={1000} max={100000} step={1000} onChange={setAnnualDistanceKm} />
+                <CostInput label="Electricity ₹ / kWh" value={electricityRate} min={1} max={100} step={1} onChange={setElectricityRate} />
+                <CostInput label="Ownership years" value={ownershipYears} min={1} max={15} step={1} onChange={setOwnershipYears} />
+              </div>
+            </div>
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
+              <OwnershipCostCard vehicleName={`${leftVehicle?.brand ?? ""} ${leftVehicle?.name ?? ""}`} energyCost={leftEnergyCost} efficiency={leftEfficiency} verified={Boolean(leftTripVariant)} years={ownershipYears} />
+              <OwnershipCostCard vehicleName={`${rightVehicle?.brand ?? ""} ${rightVehicle?.name ?? ""}`} energyCost={rightEnergyCost} efficiency={rightEfficiency} verified={Boolean(rightTripVariant)} years={ownershipYears} />
+            </div>
+            <p className="mt-5 text-xs leading-5 text-slate-500">Planning estimate only. It excludes purchase price, finance, insurance, service, tyres, battery degradation, charging losses and changing tariffs. City-specific total ownership cost will require verified on-road prices and partner quotes.</p>
+          </div>
+        </div>
+      </section>
+
       <section className="border-y border-white/10 bg-white/[0.02] py-16 sm:py-20">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-6 lg:grid-cols-2">
             {[leftVehicle, rightVehicle].map((vehicle, idx) => {
               if (!vehicle) return null;
               const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
+              const tripVariant = defaultTripVariant(vehicle.slug);
+              const vehicleImage = getVehicleImage(vehicle.slug);
               const side = idx === 0 ? "Left pick" : "Right pick";
 
               return (
@@ -426,6 +463,16 @@ export default function ComparePage() {
                   <div
                     className={`relative h-[260px] overflow-hidden bg-gradient-to-br ${accent}`}
                   >
+                    {vehicleImage ? (
+                      <Image
+                        src={vehicleImage}
+                        alt={`${vehicle.brand} ${vehicle.name} electric vehicle`}
+                        fill
+                        sizes="(min-width: 1024px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-slate-950/10" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
                     <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200 backdrop-blur">
                       {side}
@@ -449,7 +496,7 @@ export default function ComparePage() {
                   <div className="space-y-4 p-6">
                     <div className="grid gap-4 sm:grid-cols-3">
                       <MiniStat label="Range" value={vehicle.range ?? "—"} />
-                      <MiniStat label="Charging" value={vehicle.charging ?? "—"} />
+                      <MiniStat label="DC charging" value={tripVariant ? `${tripVariant.maxDcChargeKW} kW` : "Not verified"} />
                       <MiniStat label="Price" value={vehicle.price ?? "—"} />
                     </div>
 
@@ -536,7 +583,9 @@ export default function ComparePage() {
                 <StatusBar
                   label="Charging advantage"
                   value={
-                    leftCharging === rightCharging
+                    leftCharging === 0 && rightCharging === 0
+                      ? "Not verified"
+                      : leftCharging === rightCharging
                       ? "Even"
                       : leftCharging > rightCharging
                         ? leftVehicle?.name ?? "—"
@@ -583,7 +632,9 @@ export default function ComparePage() {
                     Charging
                   </p>
                   <p className="mt-2 text-sm font-semibold text-white">
-                    {leftCharging === rightCharging
+                    {leftCharging === 0 && rightCharging === 0
+                      ? "Not verified"
+                      : leftCharging === rightCharging
                       ? "Even"
                       : leftCharging > rightCharging
                         ? leftVehicle?.name ?? "—"
@@ -612,4 +663,22 @@ export default function ComparePage() {
       <SiteFooter />
     </main>
   );
+}
+
+function defaultTripVariant(slug?: string) {
+  if (!slug) return undefined;
+  const profile = getVehicleTripProfile(slug);
+  return profile?.variants.find((variant) => variant.name === profile.defaultVariant);
+}
+
+function CostInput({ label, value, min, max, step, onChange }: { label: string; value: number; min: number; max: number; step: number; onChange: (value: number) => void }) {
+  return <label className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2"><span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</span><input type="number" value={value} min={min} max={max} step={step} onChange={(event) => onChange(Math.min(max, Math.max(min, Number(event.target.value) || min)))} className="mt-1 w-full bg-transparent text-sm font-semibold text-white outline-none" /></label>;
+}
+
+function OwnershipCostCard({ vehicleName, energyCost, efficiency, verified, years }: { vehicleName: string; energyCost: number; efficiency: number; verified: boolean; years: number }) {
+  return <article className="rounded-2xl border border-white/10 bg-slate-950/60 p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-sm font-semibold text-white">{vehicleName}</p><p className="mt-1 text-xs text-slate-500">{verified ? "Official battery profile" : "Estimated efficiency profile"}</p></div><span className={`rounded-full border px-3 py-1 text-[10px] font-semibold ${verified ? "border-emerald-300/20 bg-emerald-400/10 text-emerald-200" : "border-amber-300/20 bg-amber-400/10 text-amber-100"}`}>{verified ? "Verified inputs" : "Estimate"}</span></div><div className="mt-5 grid grid-cols-2 gap-3"><MiniStat label={`${years}-year energy`} value={`₹${energyCost.toLocaleString("en-IN")}`} /><MiniStat label="Energy intensity" value={`${(efficiency * 100).toFixed(1)} kWh / 100 km`} /></div></article>;
+}
+
+export default function ComparePage() {
+  return <Suspense fallback={<main className="min-h-screen bg-slate-950" />}><CompareContent /></Suspense>;
 }

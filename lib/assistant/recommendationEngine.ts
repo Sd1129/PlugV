@@ -47,9 +47,7 @@ function getVehicleType(vehicle: CatalogVehicle): string {
 }
 
 function getVehicleStatus(vehicle: CatalogVehicle): string {
-  if ("status" in vehicle && vehicle.status) return vehicle.status;
-  if ("launch" in vehicle && vehicle.launch) return vehicle.launch;
-  return "Upcoming";
+  return vehicle.status;
 }
 
 function getVehiclePrice(vehicle: CatalogVehicle): string | undefined {

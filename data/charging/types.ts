@@ -30,6 +30,13 @@ export type ChargingStation = {
     reviewSource?: "community" | "operator" | "plugv";
   };
 
+  availability?: {
+    status: "available" | "limited" | "busy" | "offline" | "unknown";
+    availableConnectors?: number;
+    totalConnectors?: number;
+    lastUpdated?: string;
+  };
+
   trust?: {
     verified: boolean;
     sourceType:
@@ -43,10 +50,3 @@ export type ChargingStation = {
 
   amenities: string[];
 };
-  
-    // Station review / reliability information
-    reviewRating?: number;
-    reviewCount?: number;
-    lastChecked?: string;
-    reviewSource?: "community" | "operator" | "plugv";
-  };
