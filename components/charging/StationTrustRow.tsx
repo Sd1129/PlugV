@@ -72,6 +72,19 @@ export default function StationTrustRow({
 
   const official = trust.sourceType === "OFFICIAL";
 
+  if (official) {
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/20 bg-sky-400/10 px-2.5 py-1 text-[9px] font-semibold text-sky-200">
+          <Database className="h-3 w-3" />
+          Government directory
+        </span>
+        <span className="text-[9px] font-medium text-slate-500">Status not live</span>
+        {trust.lastCheckedAt ? <span className="inline-flex items-center gap-1.5 text-[9px] font-medium text-slate-500"><Clock3 className="h-3 w-3" />{formatLastChecked(trust.lastCheckedAt)}</span> : null}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       {trust.verified ? (

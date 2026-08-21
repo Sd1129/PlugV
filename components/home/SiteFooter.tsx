@@ -18,11 +18,17 @@ const supportLinks = [
   { label: "Data methodology", href: "/methodology" },
 ];
 
+const legalLinks = [
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Use", href: "/terms" },
+  { label: "Disclaimer", href: "/disclaimer" },
+];
+
 export default function SiteFooter() {
   return (
     <footer className="border-t border-white/10 bg-slate-950">
       <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr_0.8fr]">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.7fr_0.8fr_0.7fr]">
           <div>
             <Link href="/" className="inline-flex items-center">
               <Image
@@ -40,6 +46,11 @@ export default function SiteFooter() {
               vehicles in India with clarity, confidence, and a premium EV-first
               experience.
             </p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-300/80">Legal</h3>
+            <div className="mt-4 grid gap-3">{legalLinks.map((item) => <Link key={item.href} href={item.href} className="text-sm text-slate-300 transition hover:text-white">{item.label}</Link>)}</div>
           </div>
 
           <div>
@@ -79,7 +90,7 @@ export default function SiteFooter() {
 
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} PlugV. All rights reserved.</span>
-          <a href="mailto:hello@plugv.in?subject=PlugV%20data%20correction" className="transition hover:text-white">Report incorrect information</a>
+          <a href="mailto:support@plugv.in?subject=PlugV%20data%20correction" className="transition hover:text-white">Report incorrect information</a>
         </div>
       </div>
     </footer>

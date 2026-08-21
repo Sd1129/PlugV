@@ -16,6 +16,9 @@ const staticRoutes = [
   { path: "/about", priority: 0.5, changeFrequency: "yearly" as const },
   { path: "/founder", priority: 0.5, changeFrequency: "yearly" as const },
   { path: "/methodology", priority: 0.6, changeFrequency: "monthly" as const },
+  { path: "/privacy", priority: 0.3, changeFrequency: "yearly" as const },
+  { path: "/terms", priority: 0.3, changeFrequency: "yearly" as const },
+  { path: "/disclaimer", priority: 0.3, changeFrequency: "yearly" as const },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

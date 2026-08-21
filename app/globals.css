@@ -32,6 +32,18 @@ a {
   color: #ffffff;
 }
 
+.legal-content h2 {
+  margin-top: 2.5rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: white;
+}
+
+.legal-content h2:first-child { margin-top: 0; }
+.legal-content p { margin-top: 0.8rem; max-width: 52rem; font-size: 0.95rem; line-height: 1.9; color: rgb(148 163 184); }
+.legal-content a { color: rgb(125 211 252); text-decoration: underline; text-underline-offset: 3px; }
+
 :where(a, button, input, select, textarea):focus-visible {
   outline: 3px solid #38bdf8;
   outline-offset: 3px;
