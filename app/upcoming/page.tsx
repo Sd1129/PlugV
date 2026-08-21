@@ -8,7 +8,7 @@ import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
 import { upcomingVehicles, type UpcomingVehicle } from "@/data/vehicles-upcoming";
 
-const statuses = ["All statuses", "Manufacturer target", "Official concept"] as const;
+const statuses = ["All statuses", "Manufacturer target", "Reported expectation", "Official concept"] as const;
 
 function accentFor(seed: string) {
   const accents = [
@@ -22,7 +22,7 @@ function accentFor(seed: string) {
 }
 
 function StatusBadge({ status }: { status: UpcomingVehicle["status"] }) {
-  const style = status === "Manufacturer target" ? "border-emerald-300/25 bg-emerald-400/15 text-emerald-100" : "border-violet-300/25 bg-violet-400/15 text-violet-100";
+  const style = status === "Manufacturer target" ? "border-emerald-300/25 bg-emerald-400/15 text-emerald-100" : status === "Reported expectation" ? "border-amber-300/25 bg-amber-400/15 text-amber-100" : "border-violet-300/25 bg-violet-400/15 text-violet-100";
   return <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${style}`}><BadgeCheck className="h-3.5 w-3.5" />{status}</span>;
 }
 
@@ -40,7 +40,7 @@ export default function UpcomingEVsPage() {
   }, [query, status]);
 
   const manufacturerTargets = upcomingVehicles.filter((vehicle) => vehicle.status === "Manufacturer target").length;
-  const officialConcepts = upcomingVehicles.length - manufacturerTargets;
+  const officialConcepts = upcomingVehicles.filter((vehicle) => vehicle.status === "Official concept").length;
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
@@ -64,6 +64,7 @@ export default function UpcomingEVsPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-200">How to read this page</p>
             <div className="mt-6 space-y-4">
               <TrustRow title="Manufacturer target" copy="The manufacturer has stated a market timing target. It can still change." tone="emerald" />
+              <TrustRow title="Reported expectation" copy="Credible automotive sources expect an India launch, but the manufacturer has not fixed the date." tone="amber" />
               <TrustRow title="Official concept" copy="The vehicle has been revealed, but production or an India launch is not confirmed." tone="violet" />
               <TrustRow title="No unsupported rumours" copy="Unverified launch dates and invented prices are intentionally excluded." tone="slate" />
             </div>
@@ -109,8 +110,8 @@ function UpcomingCard({ vehicle }: { vehicle: UpcomingVehicle }) {
   </article>;
 }
 
-function TrustRow({ title, copy, tone }: { title: string; copy: string; tone: "emerald" | "violet" | "slate" }) {
-  const dot = tone === "emerald" ? "bg-emerald-400" : tone === "violet" ? "bg-violet-400" : "bg-slate-400";
+function TrustRow({ title, copy, tone }: { title: string; copy: string; tone: "emerald" | "amber" | "violet" | "slate" }) {
+  const dot = tone === "emerald" ? "bg-emerald-400" : tone === "amber" ? "bg-amber-400" : tone === "violet" ? "bg-violet-400" : "bg-slate-400";
   return <div className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950/50 p-4"><span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} /><div><p className="text-sm font-semibold">{title}</p><p className="mt-1 text-xs leading-5 text-slate-400">{copy}</p></div></div>;
 }
 
