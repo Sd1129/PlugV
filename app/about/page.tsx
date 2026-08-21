@@ -4,7 +4,6 @@ import {
   BatteryCharging,
   CheckCircle2,
   Gauge,
-  MapPinned,
   Sparkles,
   ShieldCheck,
   Zap,

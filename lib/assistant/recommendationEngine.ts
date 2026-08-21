@@ -151,7 +151,6 @@ function scoreVehicle(
   const vehicleName = safeText(vehicle.name);
   const vehicleStatus = safeText(getVehicleStatus(vehicle));
   const vehicleBrand = safeText(vehicle.brand);
-  const label = getVehicleLabel(vehicle);
 
   // Body type match
   if (prefs.bodyType) {

@@ -1,5 +1,4 @@
 import { stats } from "@/components/home/homeData";
-import SectionBlock from "@/components/home/SectionBlock";
 
 function Tile({
   label,

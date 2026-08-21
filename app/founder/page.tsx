@@ -26,7 +26,7 @@ export default function FounderPage() {
           <div className="max-w-4xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-200"><Sparkles className="h-4 w-4" />A note from the founder</div>
             <p className="mt-7 text-sm font-semibold uppercase tracking-[0.2em] text-sky-300">Syed Manjoor Ahmed · Founder — PlugV</p>
-            <h2 className="mt-6 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">Building a clearer EV journey for India.</h2>
+            <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">Building a clearer EV journey for India.</h1>
             <div className="mt-7 space-y-5 text-base leading-8 text-slate-300">
               <p>PlugV began with a simple observation: choosing and owning an electric vehicle in India still involves searching across too many disconnected sources.</p>
               <p>I created PlugV to bring EV discovery, comparison, charging, travel planning and ownership support together in one clear and trustworthy platform. My goal is to reduce confusion and range anxiety while helping every Indian customer make a more confident EV decision.</p>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Bell, Bookmark, Calculator, CalendarClock, Car, ChevronRight, HeartPulse, MapPin, Phone, Plus, ShieldCheck, Trash2, Zap } from "lucide-react";
+import { Bell, Bookmark, Calculator, CalendarClock, Car, ChevronRight, HeartPulse, MapPin, Phone, Plus, Trash2, Zap } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import DataTrustNotice from "@/components/trust/DataTrustNotice";
@@ -36,10 +36,13 @@ export default function MyEvPage() {
   const [savedDetail, setSavedDetail] = useState("");
 
   useEffect(() => {
-    setReminders(readLocal(STORAGE.reminders, []));
-    setSaved(readLocal(STORAGE.saved, []));
-    setAlerts(readLocal(STORAGE.alerts, defaultAlerts));
-    setReady(true);
+    const timeout = window.setTimeout(() => {
+      setReminders(readLocal(STORAGE.reminders, []));
+      setSaved(readLocal(STORAGE.saved, []));
+      setAlerts(readLocal(STORAGE.alerts, defaultAlerts));
+      setReady(true);
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, []);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.reminders, JSON.stringify(reminders)); }, [ready, reminders]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.saved, JSON.stringify(saved)); }, [ready, saved]);

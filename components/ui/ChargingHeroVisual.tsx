@@ -1,5 +1,3 @@
-import type { CSSProperties } from "react";
-
 export default function ChargingHeroVisual() {
   return (
     <div className="relative h-[520px] w-full overflow-hidden rounded-[36px] border border-emerald-100 bg-[radial-gradient(circle_at_top,#f7fff5_0%,#eaf5e7_42%,#d9ead4_100%)] shadow-[0_24px_80px_rgba(15,95,45,0.14)]">
