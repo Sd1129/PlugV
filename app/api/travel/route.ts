@@ -6,6 +6,33 @@ type OsrmRoute = {
   geometry: { coordinates: [number, number][] };
 };
 
+const routingProviders = [
+  "https://router.project-osrm.org/route/v1/driving",
+  "https://routing.openstreetmap.de/routed-car/route/v1/driving",
+] as const;
+
+async function requestRoute(provider: string, coordinates: string) {
+  try {
+    const response = await fetch(
+      `${provider}/${coordinates}?overview=full&geometries=geojson`,
+      {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "PlugV-Travel/1.0 (https://plugv.in)",
+        },
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(8000),
+      }
+    );
+    if (!response.ok) return null;
+    const payload = (await response.json()) as { code?: string; routes?: OsrmRoute[] };
+    if (payload.code !== "Ok") return null;
+    return payload.routes?.[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const origin = request.nextUrl.searchParams.get("origin")?.split(",").map(Number);
   const destination = request.nextUrl.searchParams.get("destination")?.split(",").map(Number);
@@ -21,29 +48,19 @@ export async function GET(request: NextRequest) {
 
   const coordinates = `${origin[1]},${origin[0]};${destination[1]},${destination[0]}`;
 
-  try {
-    const response = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`,
-      { next: { revalidate: 3600 } }
-    );
-
-    if (!response.ok) {
-      return NextResponse.json({ error: "The route could not be calculated." }, { status: 502 });
+  for (const provider of routingProviders) {
+    const route = await requestRoute(provider, coordinates);
+    if (route) {
+      return NextResponse.json({
+        distanceKm: Math.round(route.distance / 1000),
+        durationMinutes: Math.round(route.duration / 60),
+        geometry: route.geometry.coordinates,
+      });
     }
-
-    const payload = (await response.json()) as { routes?: OsrmRoute[] };
-    const route = payload.routes?.[0];
-
-    if (!route) {
-      return NextResponse.json({ error: "No driving route was found." }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      distanceKm: Math.round(route.distance / 1000),
-      durationMinutes: Math.round(route.duration / 60),
-      geometry: route.geometry.coordinates,
-    });
-  } catch {
-    return NextResponse.json({ error: "Route service is unavailable." }, { status: 503 });
   }
+
+  return NextResponse.json(
+    { error: "Driving directions are temporarily unavailable. Please try again in a moment." },
+    { status: 503, headers: { "Retry-After": "30" } }
+  );
 }
