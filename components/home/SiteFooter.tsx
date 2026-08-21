@@ -11,6 +11,7 @@ const footerLinks = [
 ];
 
 const supportLinks = [
+  { label: "My EV owner hub", href: "/my-ev" },
   { label: "Plan an EV trip", href: "/travel" },
   { label: "Ask the EV Assistant", href: "/assistant" },
   { label: "Data methodology", href: "/methodology" },
