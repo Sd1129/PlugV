@@ -3,7 +3,7 @@ import Image from "next/image";
 import { ArrowRight, BatteryCharging, BadgeCheck } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
-import { getVehicleImage } from "@/data/vehicle-images";
+import { getVehicleVisual } from "@/data/vehicle-images";
 
 function accentFor(seed: string) {
   const accents = [
@@ -49,20 +49,18 @@ function VehicleCard({
   const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
   const tripProfile = getVehicleTripProfile(vehicle.slug);
   const tripVariant = tripProfile?.variants.find((variant) => variant.name === tripProfile.defaultVariant);
-  const vehicleImage = getVehicleImage(vehicle.slug);
+  const vehicleVisual = getVehicleVisual(vehicle.slug);
 
   return (
     <article className="group overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 shadow-[0_24px_80px_-28px_rgba(0,0,0,0.72)] backdrop-blur transition-all duration-300 hover:-translate-y-2 hover:border-sky-400/20 hover:shadow-[0_30px_100px_-24px_rgba(56,189,248,0.22)]">
       <div className={`relative h-[320px] overflow-hidden bg-gradient-to-br ${accent}`}>
-        {vehicleImage ? (
-          <Image
-            src={vehicleImage}
+        <Image
+            src={vehicleVisual.src}
             alt={`${vehicle.brand} ${vehicle.name} electric vehicle`}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition duration-700 group-hover:scale-[1.035]"
           />
-        ) : null}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.04),rgba(2,6,23,0.08)_45%,rgba(2,6,23,0.82))]" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(225deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:26px_26px] opacity-15" />
 
@@ -70,7 +68,9 @@ function VehicleCard({
           #{index + 1} pick
         </div>
 
-        {tripProfile ? <div className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-100 backdrop-blur"><BadgeCheck className="h-3.5 w-3.5" />Official specs</div> : null}
+        {!vehicleVisual.modelSpecific ? <div className="absolute right-6 top-6 rounded-full border border-amber-300/20 bg-slate-950/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100 backdrop-blur">Illustrative visual</div> : null}
+
+        {tripProfile && vehicleVisual.modelSpecific ? <div className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-100 backdrop-blur"><BadgeCheck className="h-3.5 w-3.5" />Official specs</div> : null}
 
         <div className="absolute inset-x-0 bottom-6 px-6">
           <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">

@@ -18,7 +18,7 @@ import TrustSummary from "@/components/vehicles/TrustSummary";
 import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
-import { getVehicleImage } from "@/data/vehicle-images";
+import { getVehicleVisual } from "@/data/vehicle-images";
 import { getCompareInsights } from "@/lib/compare/compareEngine";
 
 function parseNumeric(value?: string) {
@@ -454,7 +454,7 @@ function CompareContent() {
               if (!vehicle) return null;
               const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
               const tripVariant = defaultTripVariant(vehicle.slug);
-              const vehicleImage = getVehicleImage(vehicle.slug);
+              const vehicleVisual = getVehicleVisual(vehicle.slug);
               const side = idx === 0 ? "Left pick" : "Right pick";
 
               return (
@@ -465,20 +465,19 @@ function CompareContent() {
                   <div
                     className={`relative h-[260px] overflow-hidden bg-gradient-to-br ${accent}`}
                   >
-                    {vehicleImage ? (
-                      <Image
-                        src={vehicleImage}
+                    <Image
+                        src={vehicleVisual.src}
                         alt={`${vehicle.brand} ${vehicle.name} electric vehicle`}
                         fill
                         sizes="(min-width: 1024px) 50vw, 100vw"
                         className="object-cover"
                       />
-                    ) : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-slate-950/10" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
                     <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200 backdrop-blur">
                       {side}
                     </div>
+                    {!vehicleVisual.modelSpecific ? <div className="absolute right-6 top-6 rounded-full border border-amber-300/20 bg-slate-950/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100 backdrop-blur">Illustrative visual</div> : null}
 
                     <div className="absolute inset-x-0 bottom-6 px-6">
                       <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">

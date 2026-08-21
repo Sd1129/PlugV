@@ -10,3 +10,11 @@ const vehicleImages: Record<string, string> = {
 export function getVehicleImage(slug: string) {
   return vehicleImages[slug] ?? null;
 }
+
+export function getVehicleVisual(slug: string) {
+  const modelImage = getVehicleImage(slug);
+  return {
+    src: modelImage ?? "/images/vehicles/plugv-generic-ev-visual.webp",
+    modelSpecific: Boolean(modelImage),
+  };
+}
