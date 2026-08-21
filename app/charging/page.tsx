@@ -23,10 +23,16 @@ const CITY_IMAGES: Record<string, string> = {
   Chennai: "/images/cities/chennai.webp",
   Ahmedabad: "/images/cities/ahmedabad.webp",
   Jaipur: "/images/cities/jaipur.webp",
+  Tirupati: "/images/cities/tirupati.png",
+  Tirupathi: "/images/cities/tirupati.png",
 };
 
-function getCityImage(city: string) {
-  return CITY_IMAGES[city] ?? "/images/cities/hyderabad.webp";
+const STATE_IMAGES: Record<string, string> = {
+  "Andhra Pradesh": "/images/cities/tirupati.png",
+};
+
+function getCityImage(city: string, state: string) {
+  return CITY_IMAGES[city] ?? STATE_IMAGES[state] ?? "/images/cities/hyderabad.webp";
 }
 
 export default function ChargingPage() {
@@ -89,7 +95,7 @@ export default function ChargingPage() {
             city={charging.selectedCity || `All ${charging.selectedState}`}
             state={charging.selectedState}
             total={charging.total}
-            imageSrc={getCityImage(charging.selectedCity)}
+            imageSrc={getCityImage(charging.selectedCity, charging.selectedState)}
           />
 
           {charging.loading && charging.stations.length === 0 ? (
