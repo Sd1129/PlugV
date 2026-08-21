@@ -20,6 +20,7 @@ import {
 
 import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
+import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import TravelRouteMap from "@/components/travel/TravelRouteMap";
 import { chargingStations, type ChargingStation } from "@/data/charging/stations";
 import { vehicles } from "@/data/vehicles";
@@ -238,6 +239,7 @@ export default function TravelPage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
       <SiteHeader />
+      <DataTrustNotice message="Routes, journey times, practical range and charging stops are planning estimates. Confirm charger status with the operator before departure." />
 
       <section className="relative isolate overflow-hidden border-b border-white/10">
         <Image src="/images/travel/travel-hero-v2.webp" alt="Electric vehicle travelling on an Indian highway at sunrise" fill priority sizes="100vw" className="-z-30 object-cover object-center" />

@@ -15,6 +15,7 @@ import {
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import TrustSummary from "@/components/vehicles/TrustSummary";
+import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getVehicleImage } from "@/data/vehicle-images";
@@ -274,6 +275,7 @@ function CompareContent() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
       <SiteHeader />
+      <DataTrustNotice message="Comparison results separate official vehicle inputs from PlugV planning estimates and unverified fields." />
 
       {/* HERO */}
 <section className="relative isolate overflow-hidden border-b border-white/10">

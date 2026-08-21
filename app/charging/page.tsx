@@ -10,6 +10,7 @@ import { useChargingStations } from "@/hooks/useChargingStations";
 
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
+import DataTrustNotice from "@/components/trust/DataTrustNotice";
 
 const PAGE_SIZE = 12;
 
@@ -36,6 +37,7 @@ export default function ChargingPage() {
       <SiteHeader />
 
       <ChargingHero />
+      <DataTrustNotice message="A listed charger is not guaranteed to be operational or free. Live status appears only when an operator feed provides it." />
 
       <section className="relative">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.10),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.08),transparent_28%)]" />

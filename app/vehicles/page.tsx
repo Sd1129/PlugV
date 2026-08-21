@@ -8,6 +8,7 @@ import VehicleFilters, {
 } from "@/components/vehicles/VehicleFilters";
 import VehicleGrid from "@/components/vehicles/VehicleGrid";
 import VehicleHighlights from "@/components/vehicles/VehicleHighlights";
+import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { Suspense, useMemo, useState } from "react";
@@ -93,6 +94,7 @@ function VehiclesContent() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
       <SiteHeader />
+      <DataTrustNotice message="Prices are generally ex-showroom; range figures are manufacturer-claimed unless a practical estimate is explicitly labelled." />
 
       <VehiclesHero />
 
