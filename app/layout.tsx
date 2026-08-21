@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { absoluteUrl, safeJsonLd, SITE_NAME, SITE_URL } from "@/lib/seo";
+import FloatingAssistant from "@/components/assistant/FloatingAssistant";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -92,6 +93,7 @@ export default function RootLayout({
         <div id="main-content" tabIndex={-1}>
           {children}
         </div>
+        <FloatingAssistant />
       </body>
     </html>
   );
