@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">PlugV concept icon</title>
+  <desc id="desc">A premium rounded icon containing a stylised P, charging cable and electric bolt.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="40" x2="452" y2="472" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B2338"/>
+      <stop offset="1" stop-color="#020817"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="126" y1="100" x2="390" y2="410" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9"/>
+      <stop offset="0.5" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#34D399"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="13" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="18" y="18" width="476" height="476" rx="122" fill="url(#bg)"/>
+  <rect x="19" y="19" width="474" height="474" rx="121" fill="none" stroke="#7DD3FC" stroke-opacity=".22" stroke-width="2"/>
+  <circle cx="256" cy="250" r="174" fill="#38BDF8" fill-opacity=".035"/>
+  <path d="M160 374V144c0-20 16-36 36-36h76c76 0 126 42 126 108s-50 108-126 108h-60" fill="none" stroke="url(#brand)" stroke-width="45" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M280 156 224 250h52l-35 111 91-137h-55l43-68h-40Z" fill="url(#brand)" filter="url(#glow)"/>
+  <path d="M160 374c0 22 18 40 40 40h50" fill="none" stroke="url(#brand)" stroke-width="30" stroke-linecap="round"/>
+  <path d="M272 392v42M310 392v42" stroke="#67E8F9" stroke-width="20" stroke-linecap="round"/>
+</svg>

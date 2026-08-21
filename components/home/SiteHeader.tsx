@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, ArrowRight, Menu, X } from "lucide-react";
@@ -74,12 +75,10 @@ function isActiveLink(href: string) {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/20">
-            <span className="text-lg font-black text-sky-300">P</span>
-          </div>
+          <Image src="/brand/logo-icon.svg" alt="" width={44} height={44} className="h-11 w-11 rounded-xl shadow-lg shadow-sky-950/30" priority />
 
           <div>
-            <p className="text-lg font-semibold tracking-tight text-white">PlugV</p>
+            <p className="text-xl font-semibold tracking-[-0.035em] text-white">Plug<span className="text-sky-300">V</span></p>
             <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
               India&apos;s EV platform
             </p>

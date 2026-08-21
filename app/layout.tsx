@@ -29,18 +29,18 @@ export const metadata: Metadata = {
     title: "PlugV.in — India's EV Discovery and Ownership Platform",
     description:
       "Compare electric cars, understand real-world range, find chargers, and plan EV journeys across India.",
-    images: [{ url: "/images/hero/plugv-hero-v3.webp", width: 1200, height: 630 }],
+    images: [{ url: "/brand/plugv-social-card.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "PlugV.in — India's EV Platform",
     description: "Electric cars, comparisons, charging and EV travel in one place.",
-    images: ["/images/hero/plugv-hero-v3.webp"],
+    images: ["/brand/plugv-social-card.png"],
   },
   icons: {
     icon: [
       { url: "/brand/favicon.svg", type: "image/svg+xml" },
-      { url: "/brand/logo-icon.png", type: "image/png", sizes: "32x32" },
+      { url: "/brand/favicon-32.png", type: "image/png", sizes: "32x32" },
     ],
     apple: "/brand/apple-touch-icon.png",
   },

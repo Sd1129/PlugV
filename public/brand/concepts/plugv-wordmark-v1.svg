@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">PlugV concept wordmark</title>
+  <desc id="desc">PlugV icon alongside a prominent PlugV name and India's EV platform descriptor.</desc>
+  <defs>
+    <linearGradient id="bg" x1="20" y1="16" x2="324" y2="344" gradientUnits="userSpaceOnUse"><stop stop-color="#0B2338"/><stop offset="1" stop-color="#020817"/></linearGradient>
+    <linearGradient id="brand" x1="80" y1="58" x2="286" y2="300" gradientUnits="userSpaceOnUse"><stop stop-color="#67E8F9"/><stop offset=".5" stop-color="#38BDF8"/><stop offset="1" stop-color="#34D399"/></linearGradient>
+    <linearGradient id="v" x1="870" y1="80" x2="1020" y2="270" gradientUnits="userSpaceOnUse"><stop stop-color="#38BDF8"/><stop offset="1" stop-color="#34D399"/></linearGradient>
+  </defs>
+  <rect width="1200" height="360" rx="48" fill="#020817"/>
+  <g transform="translate(38 32) scale(.58)">
+    <rect x="18" y="18" width="476" height="476" rx="122" fill="url(#bg)"/><rect x="19" y="19" width="474" height="474" rx="121" fill="none" stroke="#7DD3FC" stroke-opacity=".22" stroke-width="2"/>
+    <path d="M160 374V144c0-20 16-36 36-36h76c76 0 126 42 126 108s-50 108-126 108h-60" fill="none" stroke="url(#brand)" stroke-width="45" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M280 156 224 250h52l-35 111 91-137h-55l43-68h-40Z" fill="url(#brand)"/>
+    <path d="M160 374c0 22 18 40 40 40h50" fill="none" stroke="url(#brand)" stroke-width="30" stroke-linecap="round"/><path d="M272 392v42M310 392v42" stroke="#67E8F9" stroke-width="20" stroke-linecap="round"/>
+  </g>
+  <text x="380" y="206" font-family="Inter, Avenir Next, Segoe UI, Arial, sans-serif" font-size="154" font-weight="760" letter-spacing="-9" fill="#F8FAFC">Plug<tspan fill="url(#v)">V</tspan></text>
+  <text x="390" y="268" font-family="Inter, Avenir Next, Segoe UI, Arial, sans-serif" font-size="27" font-weight="650" letter-spacing="8" fill="#94A3B8">INDIA'S EV PLATFORM</text>
+</svg>
