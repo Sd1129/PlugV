@@ -2,20 +2,29 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Bell, Bookmark, Calculator, CalendarClock, Car, ChevronRight, HeartPulse, MapPin, Phone, Plus, Trash2, Zap } from "lucide-react";
+import { AlertTriangle, Bell, Bookmark, Calculator, CalendarClock, Car, CheckCircle2, ChevronRight, Gauge, HeartPulse, MapPin, Navigation, Phone, Plus, ShieldCheck, Trash2, Zap } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import DataTrustNotice from "@/components/trust/DataTrustNotice";
+import { vehicles } from "@/data/vehicles";
 
 type Reminder = { id: string; type: "Service" | "Insurance"; title: string; date: string };
 type SavedItem = { id: string; type: "Trip" | "Charger"; title: string; detail: string };
 type AlertKey = "recalls" | "software" | "chargers" | "network";
+type DriveCondition = "city" | "highway" | "difficult";
+type OwnerProfile = { vehicleSlug: string; batteryPercent: number; distance: number; condition: DriveCondition };
 
-const STORAGE = { reminders: "plugv-owner-reminders", saved: "plugv-owner-saved", alerts: "plugv-owner-alerts" };
+const STORAGE = { reminders: "plugv-owner-reminders", saved: "plugv-owner-saved", alerts: "plugv-owner-alerts", profile: "plugv-owner-profile" };
 const defaultAlerts: Record<AlertKey, boolean> = { recalls: true, software: true, chargers: true, network: false };
+const defaultProfile: OwnerProfile = { vehicleSlug: vehicles[0]?.slug ?? "", batteryPercent: 70, distance: 80, condition: "city" };
 
 function readLocal<T>(key: string, fallback: T): T {
   try { const value = window.localStorage.getItem(key); return value ? JSON.parse(value) as T : fallback; } catch { return fallback; }
+}
+
+function maximumRange(value?: string) {
+  const ranges = value?.match(/\d+/g)?.map(Number) ?? [];
+  return ranges.length ? Math.max(...ranges) : 300;
 }
 
 export default function MyEvPage() {
@@ -28,6 +37,7 @@ export default function MyEvPage() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [saved, setSaved] = useState<SavedItem[]>([]);
   const [alerts, setAlerts] = useState(defaultAlerts);
+  const [profile, setProfile] = useState(defaultProfile);
   const [reminderType, setReminderType] = useState<Reminder["type"]>("Service");
   const [reminderTitle, setReminderTitle] = useState("");
   const [reminderDate, setReminderDate] = useState("");
@@ -40,6 +50,7 @@ export default function MyEvPage() {
       setReminders(readLocal(STORAGE.reminders, []));
       setSaved(readLocal(STORAGE.saved, []));
       setAlerts(readLocal(STORAGE.alerts, defaultAlerts));
+      setProfile(readLocal(STORAGE.profile, defaultProfile));
       setReady(true);
     }, 0);
     return () => window.clearTimeout(timeout);
@@ -47,6 +58,26 @@ export default function MyEvPage() {
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.reminders, JSON.stringify(reminders)); }, [ready, reminders]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.saved, JSON.stringify(saved)); }, [ready, saved]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.alerts, JSON.stringify(alerts)); }, [ready, alerts]);
+  useEffect(() => { if (ready) localStorage.setItem(STORAGE.profile, JSON.stringify(profile)); }, [ready, profile]);
+
+  const selectedVehicle = vehicles.find((vehicle) => vehicle.slug === profile.vehicleSlug) ?? vehicles[0];
+  const readiness = useMemo(() => {
+    const conditionFactor = profile.condition === "city" ? 0.82 : profile.condition === "highway" ? 0.74 : 0.66;
+    const practicalFullRange = maximumRange(selectedVehicle?.range) * conditionFactor;
+    const availableRange = practicalFullRange * Math.max(0, Math.min(100, profile.batteryPercent)) / 100;
+    const rangeWithReserve = availableRange * 0.85;
+    const margin = rangeWithReserve - Math.max(0, profile.distance);
+    const status = margin >= 25 ? "ready" : margin >= 0 ? "tight" : "charge";
+    return { practicalFullRange, availableRange, rangeWithReserve, margin, status };
+  }, [profile, selectedVehicle]);
+
+  const reminderSummary = useMemo(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const dated = reminders.map((item) => ({ ...item, time: new Date(`${item.date}T00:00:00`).getTime() }));
+    const overdue = dated.filter((item) => item.time < today.getTime()).length;
+    const next = dated.filter((item) => item.time >= today.getTime()).sort((a, b) => a.time - b.time)[0];
+    return { overdue, next };
+  }, [reminders]);
 
   const calculation = useMemo(() => {
     const usablePercent = Math.max(0, targetCharge - startCharge) / 100;
@@ -83,6 +114,31 @@ export default function MyEvPage() {
       </section>
 
       <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-12 sm:px-6 lg:px-8">
+        <section className="overflow-hidden rounded-[2rem] border border-emerald-300/15 bg-white/[0.045]">
+          <OwnerSectionHeader icon={Gauge} eyebrow="Today’s EV check" title="Can your EV comfortably complete today’s drive?" copy="Enter your current battery and expected driving. PlugV keeps a 15% reserve and adjusts claimed range for everyday conditions." />
+          <div className="grid gap-6 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid content-start gap-4 sm:grid-cols-2">
+              <label className="sm:col-span-2"><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(e) => setProfile((value) => ({ ...value, vehicleSlug: e.target.value }))} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name} · {vehicle.range ?? "Range unavailable"}</option>)}</select></label>
+              <NumberField label="Battery now" value={profile.batteryPercent} onChange={(batteryPercent) => setProfile((value) => ({ ...value, batteryPercent }))} suffix="%" min={0} max={100} />
+              <NumberField label="Today's driving" value={profile.distance} onChange={(distance) => setProfile((value) => ({ ...value, distance }))} suffix="km" min={0} max={2000} />
+              <label className="sm:col-span-2"><span className="text-xs font-semibold text-slate-300">Driving conditions</span><select value={profile.condition} onChange={(e) => setProfile((value) => ({ ...value, condition: e.target.value as DriveCondition }))} className="field mt-2 w-full"><option value="city">Mixed city driving</option><option value="highway">Highway driving</option><option value="difficult">Heavy AC, rain, hills or congestion</option></select></label>
+              <p className="sm:col-span-2 text-xs leading-5 text-slate-500">Manual estimate based on the vehicle’s published maximum range. Actual range changes with variant, speed, weather, terrain, load, battery health and driving style.</p>
+            </div>
+            <div className={`rounded-[1.5rem] border p-6 ${readiness.status === "ready" ? "border-emerald-300/20 bg-emerald-400/[0.08]" : readiness.status === "tight" ? "border-amber-300/20 bg-amber-400/[0.08]" : "border-red-300/20 bg-red-400/[0.08]"}`}>
+              <div className="flex items-start gap-3">{readiness.status === "ready" ? <CheckCircle2 className="mt-1 h-6 w-6 text-emerald-300" /> : <AlertTriangle className={`mt-1 h-6 w-6 ${readiness.status === "tight" ? "text-amber-300" : "text-red-300"}`} />}<div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Drive readiness</p><h3 className="mt-2 text-2xl font-semibold">{readiness.status === "ready" ? "Ready for today's drive" : readiness.status === "tight" ? "Possible, but the reserve is tight" : "Charge or plan a stop first"}</h3></div></div>
+              <div className="mt-6 grid grid-cols-2 gap-3"><Metric label="Estimated available" value={`${Math.round(readiness.availableRange)} km`} /><Metric label="After 15% reserve" value={`${Math.round(readiness.rangeWithReserve)} km`} /></div>
+              <p className="mt-4 text-sm text-slate-300">{readiness.margin >= 0 ? `About ${Math.round(readiness.margin)} km remains beyond your planned drive and safety reserve.` : `Your planned drive exceeds the reserve-adjusted estimate by about ${Math.abs(Math.round(readiness.margin))} km.`}</p>
+              <div className="mt-6 grid gap-2 sm:grid-cols-2"><Link href="/travel" className="action"><Navigation className="h-4 w-4" />Plan this journey</Link><Link href="/charging" className="flex min-h-12 items-center justify-center gap-2 rounded-[14px] border border-white/15 bg-white/5 text-sm font-semibold hover:bg-white/10"><MapPin className="h-4 w-4" />Find chargers</Link></div>
+            </div>
+          </div>
+        </section>
+
+        <section aria-label="Owner overview" className="grid gap-3 sm:grid-cols-3">
+          <OwnerSnapshot icon={CalendarClock} label="Reminders" value={reminderSummary.overdue ? `${reminderSummary.overdue} overdue` : reminderSummary.next ? `Next: ${new Date(`${reminderSummary.next.date}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : "None added"} href="#owner-reminders" />
+          <OwnerSnapshot icon={Bookmark} label="Saved places & trips" value={`${saved.length} saved`} href="#owner-saved" />
+          <OwnerSnapshot icon={ShieldCheck} label="Need help?" value="Safety steps & helplines" href="#emergency-help" />
+        </section>
+
         <section id="charging-cost" className="overflow-hidden rounded-[2rem] border border-sky-300/15 bg-white/[0.045]">
           <OwnerSectionHeader icon={Calculator} eyebrow="Charging cost calculator" title="Know what the next charge may cost" copy="Adjust the battery, charge level, tariff and charging loss. The result is a planning estimate." />
           <div className="grid gap-6 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-[1fr_0.8fr]">
@@ -103,7 +159,7 @@ export default function MyEvPage() {
         </section>
 
         <div className="grid gap-6 xl:grid-cols-2">
-          <section className="rounded-[2rem] border border-white/10 bg-white/[0.04]">
+          <section id="owner-reminders" className="scroll-mt-24 rounded-[2rem] border border-white/10 bg-white/[0.04]">
             <OwnerSectionHeader icon={CalendarClock} eyebrow="Reminders" title="Service and insurance dates" copy="Saved privately in this browser. Browser notifications are not enabled yet." />
             <form onSubmit={addReminder} className="grid gap-3 border-t border-white/10 p-5 sm:grid-cols-2">
               <select value={reminderType} onChange={(e) => setReminderType(e.target.value as Reminder["type"])} className="field"><option>Service</option><option>Insurance</option></select>
@@ -114,7 +170,7 @@ export default function MyEvPage() {
             <ItemList empty="No reminders saved yet." items={reminders.map((item) => ({ id: item.id, title: item.title, meta: `${item.type} · ${new Date(`${item.date}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` }))} onDelete={(id) => setReminders((items) => items.filter((item) => item.id !== id))} />
           </section>
 
-          <section className="rounded-[2rem] border border-white/10 bg-white/[0.04]">
+          <section id="owner-saved" className="scroll-mt-24 rounded-[2rem] border border-white/10 bg-white/[0.04]">
             <OwnerSectionHeader icon={Bookmark} eyebrow="Saved" title="Trips and trusted chargers" copy="Keep frequently used routes and charging locations easy to find." />
             <form onSubmit={addSaved} className="grid gap-3 border-t border-white/10 p-5 sm:grid-cols-2">
               <select value={savedType} onChange={(e) => setSavedType(e.target.value as SavedItem["type"])} className="field"><option>Trip</option><option>Charger</option></select>
@@ -134,12 +190,13 @@ export default function MyEvPage() {
             </div>
           </section>
 
-          <section className="rounded-[2rem] border border-red-300/15 bg-red-400/[0.045]">
+          <section id="emergency-help" className="scroll-mt-24 rounded-[2rem] border border-red-300/15 bg-red-400/[0.045]">
             <OwnerSectionHeader icon={HeartPulse} eyebrow="Emergency assistance" title="Help when it matters" copy="PlugV provides verified public contact shortcuts; it does not operate emergency or roadside services." />
             <div className="space-y-3 border-t border-white/10 p-5">
               <EmergencyLink number="112" title="Pan-India emergency" detail="Police, fire, medical and rescue emergencies" href="https://112.gov.in/" />
               <EmergencyLink number="1033" title="National Highway helpline" detail="Incident and road assistance on National Highways" href="https://nhai.gov.in/" />
               <Link href="/charging" className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/55 p-4 hover:bg-white/[0.06]"><span className="flex items-center gap-3"><MapPin className="h-5 w-5 text-sky-300" /><span><span className="block text-sm font-semibold">Find a nearby charger</span><span className="mt-1 block text-xs text-slate-500">Open PlugV charging search</span></span></span><ChevronRight className="h-4 w-4 text-slate-500" /></Link>
+              <div className="rounded-2xl border border-red-300/10 bg-slate-950/40 p-4"><p className="text-sm font-semibold">If the vehicle stops or shows smoke or unusual heat</p><ol className="mt-3 space-y-2 text-xs leading-5 text-slate-400"><li>1. Move away from traffic if it is safe, stop and switch on hazard lights.</li><li>2. Leave the vehicle and keep everyone at a safe distance if you notice smoke, heat, sparks or a strong chemical smell.</li><li>3. Do not touch orange high-voltage cables or attempt battery repairs.</li><li>4. Share your live location and call 112 for immediate danger; use manufacturer or insurer roadside assistance for a breakdown.</li></ol></div>
               <p className="pt-2 text-xs leading-5 text-slate-500">For vehicle-specific towing or battery assistance, use the roadside-assistance number in your manufacturer app, owner manual or insurance policy.</p>
             </div>
           </section>
@@ -154,5 +211,6 @@ export default function MyEvPage() {
 function OwnerSectionHeader({ icon: Icon, eyebrow, title, copy }: { icon: typeof Zap; eyebrow: string; title: string; copy: string }) { return <div className="flex gap-4 p-5 sm:p-7"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-400/10 text-sky-300"><Icon className="h-5 w-5" /></div><div><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300">{eyebrow}</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2><p className="mt-2 text-sm leading-6 text-slate-400">{copy}</p></div></div>; }
 function NumberField({ label, value, onChange, suffix, min, max, step = 1 }: { label: string; value: number; onChange: (value: number) => void; suffix: string; min: number; max: number; step?: number }) { return <label><span className="text-xs font-semibold text-slate-300">{label}</span><span className="mt-2 flex min-h-12 items-center rounded-2xl border border-white/10 bg-slate-950/60 px-4"><input type="number" value={value} onChange={(e) => onChange(Number(e.target.value))} min={min} max={max} step={step} className="w-full bg-transparent text-base font-semibold outline-none" /><span className="text-xs text-slate-500">{suffix}</span></span></label>; }
 function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4"><p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">{label}</p><p className="mt-2 text-lg font-semibold">{value}</p></div>; }
+function OwnerSnapshot({ icon: Icon, label, value, href }: { icon: typeof Zap; label: string; value: string; href: string }) { return <a href={href} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 hover:border-sky-300/20 hover:bg-white/[0.065]"><span className="flex min-w-0 items-center gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-400/10 text-sky-300"><Icon className="h-5 w-5" /></span><span className="min-w-0"><span className="block text-xs text-slate-500">{label}</span><span className="mt-1 block truncate text-sm font-semibold">{value}</span></span></span><ChevronRight className="h-4 w-4 shrink-0 text-slate-600" /></a>; }
 function ItemList({ items, empty, onDelete }: { items: { id: string; title: string; meta: string }[]; empty: string; onDelete: (id: string) => void }) { return <div className="border-t border-white/10 p-5">{items.length ? <div className="space-y-2">{items.map((item) => <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3"><div><p className="text-sm font-semibold">{item.title}</p><p className="mt-1 text-xs text-slate-500">{item.meta}</p></div><button type="button" onClick={() => onDelete(item.id)} aria-label={`Delete ${item.title}`} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-red-400/10 hover:text-red-200"><Trash2 className="h-4 w-4" /></button></div>)}</div> : <p className="py-4 text-center text-sm text-slate-500">{empty}</p>}</div>; }
 function EmergencyLink({ number, title, detail, href }: { number: string; title: string; detail: string; href: string }) { return <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/55 p-4"><div><p className="text-sm font-semibold">{title}</p><a href={href} target="_blank" rel="noreferrer" className="mt-1 block text-xs text-slate-500 hover:text-slate-300">{detail} · Official source</a></div><a href={`tel:${number}`} className="inline-flex min-h-10 items-center gap-2 rounded-full bg-red-300 px-4 text-sm font-bold text-red-950"><Phone className="h-4 w-4" />{number}</a></div>; }
