@@ -96,6 +96,7 @@ export default function TravelPage() {
   const [origin, setOrigin] = useState<Place | null>(null);
   const [destination, setDestination] = useState<Place | null>(null);
   const [suggestions, setSuggestions] = useState<Record<Field, Place[]>>({ origin: [], destination: [] });
+  const [searching, setSearching] = useState<Record<Field, boolean>>({ origin: false, destination: false });
   const [activeField, setActiveField] = useState<Field | null>(null);
   const [route, setRoute] = useState<RouteResult | null>(null);
   const [vehicleSlug, setVehicleSlug] = useState(vehicles[0]?.slug ?? "");
@@ -105,6 +106,7 @@ export default function TravelPage() {
   const [isPlanning, setIsPlanning] = useState(false);
   const [error, setError] = useState("");
   const searchTimers = useRef<Record<Field, ReturnType<typeof setTimeout> | null>>({ origin: null, destination: null });
+  const searchSequence = useRef<Record<Field, number>>({ origin: 0, destination: 0 });
 
   const nearbyStations = getNearbyStations(route);
   const selectedVehicle = vehicles.find((vehicle) => vehicle.slug === vehicleSlug) ?? vehicles[0];
@@ -138,20 +140,28 @@ export default function TravelPage() {
     setActiveField(field);
 
     if (searchTimers.current[field]) clearTimeout(searchTimers.current[field]);
+    const sequence = ++searchSequence.current[field];
     if (value.trim().length < 2) {
       setSuggestions((current) => ({ ...current, [field]: [] }));
+      setSearching((current) => ({ ...current, [field]: false }));
       return;
     }
 
+    setSearching((current) => ({ ...current, [field]: true }));
     searchTimers.current[field] = setTimeout(async () => {
       try {
         const response = await fetch(`/api/places?q=${encodeURIComponent(value.trim())}`);
+        if (!response.ok) throw new Error("Place search failed");
         const payload = (await response.json()) as { places?: Place[] };
+        if (sequence !== searchSequence.current[field]) return;
         setSuggestions((current) => ({ ...current, [field]: payload.places ?? [] }));
       } catch {
+        if (sequence !== searchSequence.current[field]) return;
         setSuggestions((current) => ({ ...current, [field]: [] }));
+      } finally {
+        if (sequence === searchSequence.current[field]) setSearching((current) => ({ ...current, [field]: false }));
       }
-    }, 400);
+    }, 250);
   }
 
   function choosePlace(field: Field, place: Place) {
@@ -223,14 +233,14 @@ export default function TravelPage() {
         </div>
       </label>
       {selected ? <p className="mt-2 truncate text-xs text-emerald-300">Selected: {selected.detail}</p> : null}
-      {activeField === field && suggestions[field].length > 0 ? (
+      {activeField === field && value.trim().length >= 2 ? (
         <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl shadow-black/40">
-          {suggestions[field].map((place) => (
+          {searching[field] ? <p className="px-4 py-3 text-xs text-slate-400">Searching Indian cities, chargers and places…</p> : suggestions[field].length ? suggestions[field].map((place) => (
             <button key={place.id} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => choosePlace(field, place)} className="block w-full border-b border-white/5 px-4 py-3 text-left last:border-b-0 hover:bg-white/5">
               <p className="text-sm font-semibold text-white">{place.label}</p>
-              <p className="mt-1 truncate text-xs text-slate-400">{place.detail}</p>
+              <p className="mt-1 truncate text-xs text-slate-400">{place.type === "charging_station" ? "Charging station · " : ""}{place.detail}</p>
             </button>
-          ))}
+          )) : <p className="px-4 py-3 text-xs text-slate-400">No matching Indian place found. Try a city, landmark or charging-station name.</p>}
         </div>
       ) : null}
     </div>
