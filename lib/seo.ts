@@ -1,4 +1,4 @@
-export const SITE_NAME = "PlugV";
+export const SITE_NAME = "PlugV.in";
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://plugv.in"
 ).replace(/\/$/, "");
