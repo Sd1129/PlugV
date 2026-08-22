@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   BatteryCharging,
+  CheckCircle2,
   Gauge,
   MapPinned,
   Sparkles,
@@ -20,6 +21,7 @@ import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getVehicleVisual } from "@/data/vehicle-images";
 import { getCompareInsights } from "@/lib/compare/compareEngine";
+import { getBuyingSpecs } from "@/data/vehicle-buying-specs";
 
 function parseNumeric(value?: string) {
   if (!value) return 0;
@@ -204,12 +206,35 @@ function CompareContent() {
   const rightPrice = parseNumeric(rightVehicle?.price);
   const leftTripVariant = defaultTripVariant(leftVehicle?.slug);
   const rightTripVariant = defaultTripVariant(rightVehicle?.slug);
+  const leftBuyingSpecs = getBuyingSpecs(leftVehicle?.slug ?? "");
+  const rightBuyingSpecs = getBuyingSpecs(rightVehicle?.slug ?? "");
+  const leftVariantSpecs = leftBuyingSpecs.variantDetails[0];
+  const rightVariantSpecs = rightBuyingSpecs.variantDetails[0];
   const leftCharging = leftTripVariant?.maxDcChargeKW ?? 0;
   const rightCharging = rightTripVariant?.maxDcChargeKW ?? 0;
   const leftEfficiency = leftTripVariant ? leftTripVariant.batteryCapacityKWh / leftTripVariant.practicalRangeKm : 0.16;
   const rightEfficiency = rightTripVariant ? rightTripVariant.batteryCapacityKWh / rightTripVariant.practicalRangeKm : 0.16;
   const leftEnergyCost = Math.round(annualDistanceKm * ownershipYears * leftEfficiency * electricityRate);
   const rightEnergyCost = Math.round(annualDistanceKm * ownershipYears * rightEfficiency * electricityRate);
+  const specificationRows = [
+    { label: "Starting price", left: leftVehicle?.price ?? "Awaiting official specification", right: rightVehicle?.price ?? "Awaiting official specification" },
+    { label: "Body type", left: leftVehicle?.type ?? "—", right: rightVehicle?.type ?? "—" },
+    { label: "Seating capacity", left: `${leftBuyingSpecs.seats} seats`, right: `${rightBuyingSpecs.seats} seats` },
+    { label: "Claimed range", left: leftVariantSpecs?.range ?? leftVehicle?.range ?? "Awaiting official specification", right: rightVariantSpecs?.range ?? rightVehicle?.range ?? "Awaiting official specification" },
+    { label: "Listed power / battery", left: leftVariantSpecs?.battery ?? leftVehicle?.charging ?? "Awaiting official specification", right: rightVariantSpecs?.battery ?? rightVehicle?.charging ?? "Awaiting official specification" },
+    { label: "Available variants", left: `${leftBuyingSpecs.variants.length} listed`, right: `${rightBuyingSpecs.variants.length} listed` },
+    { label: "Practical range", left: leftVariantSpecs?.practicalRange ?? "Awaiting trim verification", right: rightVariantSpecs?.practicalRange ?? "Awaiting trim verification" },
+    { label: "Maximum DC charging", left: leftVariantSpecs?.dcPower ?? "Awaiting trim verification", right: rightVariantSpecs?.dcPower ?? "Awaiting trim verification" },
+    { label: "Maximum AC charging", left: leftVariantSpecs?.acPower ?? "Awaiting trim verification", right: rightVariantSpecs?.acPower ?? "Awaiting trim verification" },
+    { label: "DC charging time", left: leftVariantSpecs?.dcTime ?? leftBuyingSpecs.dcTime, right: rightVariantSpecs?.dcTime ?? rightBuyingSpecs.dcTime },
+    { label: "AC charging time", left: leftBuyingSpecs.acTime, right: rightBuyingSpecs.acTime },
+    { label: "Connector", left: leftVariantSpecs?.connector ?? "Awaiting trim verification", right: rightVariantSpecs?.connector ?? "Awaiting trim verification" },
+  ];
+  const leftFeatures = comparisonFeatures(leftVehicle, leftBuyingSpecs, leftVariantSpecs?.features);
+  const rightFeatures = comparisonFeatures(rightVehicle, rightBuyingSpecs, rightVariantSpecs?.features);
+  const sharedFeatures = leftFeatures.filter((feature) => rightFeatures.includes(feature));
+  const leftUniqueFeatures = leftFeatures.filter((feature) => !rightFeatures.includes(feature));
+  const rightUniqueFeatures = rightFeatures.filter((feature) => !leftFeatures.includes(feature));
 
   const heroStats = [
     {
@@ -426,6 +451,24 @@ function CompareContent() {
     </div>
   </div>
 </section>
+
+      <section className="py-14 sm:py-18">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7">
+            <div className="flex flex-col gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key specifications</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Every important difference, side by side.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Highlighted rows contain different values. Unverified trim-level fields are labelled instead of estimated.</p></div><span className="rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold text-sky-200">{specificationRows.filter((row) => differentValues(row.left, row.right)).length} differences found</span></div>
+            <div className="mt-6 overflow-x-auto rounded-2xl border border-white/10"><div className="min-w-[700px]">
+              <div className="grid grid-cols-[190px_repeat(2,minmax(240px,1fr))] border-b border-white/10 bg-slate-950/80 text-sm font-semibold"><div className="p-4 text-slate-400">Specification</div><div className="border-l border-white/10 p-4 text-white">{leftVehicle?.brand} {leftVehicle?.name}</div><div className="border-l border-white/10 p-4 text-white">{rightVehicle?.brand} {rightVehicle?.name}</div></div>
+              {specificationRows.map((row) => { const different = differentValues(row.left, row.right); return <div key={row.label} className={`grid grid-cols-[190px_repeat(2,minmax(240px,1fr))] border-b border-white/10 text-sm last:border-0 ${different ? "bg-sky-400/[0.06]" : "bg-slate-950/35"}`}><div className="flex items-center justify-between gap-2 p-4 font-semibold text-slate-400"><span>{row.label}</span>{different ? <span className="rounded-full bg-sky-400/10 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-sky-300">Different</span> : null}</div><div className={`border-l p-4 font-semibold ${different ? "border-sky-300/20 text-sky-100" : "border-white/10 text-slate-200"}`}>{row.left}</div><div className={`border-l p-4 font-semibold ${different ? "border-sky-300/20 text-sky-100" : "border-white/10 text-slate-200"}`}>{row.right}</div></div>; })}
+            </div></div>
+          </div>
+
+          <div className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 sm:p-7">
+            <div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key features</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Unique equipment and shared strengths.</h2></div>
+            <div className="mt-6 grid gap-5 lg:grid-cols-3"><FeatureDifferenceColumn title={`Unique to ${leftVehicle?.name}`} features={leftUniqueFeatures} accent="sky" /><FeatureDifferenceColumn title="Shared features" features={sharedFeatures} accent="emerald" /><FeatureDifferenceColumn title={`Unique to ${rightVehicle?.name}`} features={rightUniqueFeatures} accent="violet" /></div>
+            {(!leftVariantSpecs?.features?.length || !rightVariantSpecs?.features?.length) ? <p className="mt-5 rounded-2xl border border-amber-300/15 bg-amber-400/[0.06] p-4 text-xs leading-6 text-amber-100/80">This comparison includes every model-wide feature currently structured in PlugV. Detailed trim equipment is shown only where it has been checked against the manufacturer catalogue.</p> : null}
+          </div>
+        </div>
+      </section>
 
       <section className="py-14 sm:py-18">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -661,6 +704,26 @@ function defaultTripVariant(slug?: string) {
   if (!slug) return undefined;
   const profile = getVehicleTripProfile(slug);
   return profile?.variants.find((variant) => variant.name === profile.defaultVariant);
+}
+
+function differentValues(left: string, right: string) {
+  return left.trim().toLowerCase() !== right.trim().toLowerCase();
+}
+
+function comparisonFeatures(vehicle: (typeof vehicles)[number] | undefined, specs: ReturnType<typeof getBuyingSpecs>, variantFeatures?: string[]) {
+  if (!vehicle) return [];
+  return Array.from(new Set([
+    ...(variantFeatures ?? []),
+    `${vehicle.type} body style`,
+    `${specs.seats}-seat configuration`,
+    vehicle.range ? `Claimed range: ${vehicle.range}` : null,
+    specs.variants.length ? `${specs.variants.length} listed variant${specs.variants.length === 1 ? "" : "s"}` : null,
+  ].filter(Boolean) as string[]));
+}
+
+function FeatureDifferenceColumn({ title, features, accent }: { title: string; features: string[]; accent: "sky" | "emerald" | "violet" }) {
+  const style = { sky: "text-sky-300 border-sky-300/15 bg-sky-400/[0.05]", emerald: "text-emerald-300 border-emerald-300/15 bg-emerald-400/[0.05]", violet: "text-violet-300 border-violet-300/15 bg-violet-400/[0.05]" }[accent];
+  return <div className={`rounded-2xl border p-5 ${style}`}><h3 className="text-sm font-semibold text-white">{title}</h3>{features.length ? <ul className="mt-4 space-y-3">{features.map((feature) => <li key={feature} className="flex gap-2 text-xs leading-5 text-slate-300"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />{feature}</li>)}</ul> : <p className="mt-4 text-xs leading-5 text-slate-500">No verified difference is currently recorded.</p>}</div>;
 }
 
 function CostInput({ label, value, min, max, step, onChange }: { label: string; value: number; min: number; max: number; step: number; onChange: (value: number) => void }) {
