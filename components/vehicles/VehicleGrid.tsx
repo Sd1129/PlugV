@@ -4,6 +4,7 @@ import { ArrowRight, BatteryCharging, BadgeCheck } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getVehicleVisual } from "@/data/vehicle-images";
+import { getBuyingSpecs } from "@/data/vehicle-buying-specs";
 
 function accentFor(seed: string) {
   const accents = [
@@ -50,6 +51,7 @@ function VehicleCard({
   const tripProfile = getVehicleTripProfile(vehicle.slug);
   const tripVariant = tripProfile?.variants.find((variant) => variant.name === tripProfile.defaultVariant);
   const vehicleVisual = getVehicleVisual(vehicle.slug);
+  const buyingSpecs = getBuyingSpecs(vehicle.slug);
 
   return (
     <article className="group overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 shadow-[0_24px_80px_-28px_rgba(0,0,0,0.72)] backdrop-blur transition-all duration-300 hover:-translate-y-2 hover:border-sky-400/20 hover:shadow-[0_30px_100px_-24px_rgba(56,189,248,0.22)]">
@@ -88,10 +90,13 @@ function VehicleCard({
       </div>
 
       <div className="space-y-6 p-7">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <MiniStat label="Range" value={vehicle.range ?? "—"} />
           <MiniStat label={tripVariant ? "Battery" : "Trip data"} value={tripVariant ? `${tripVariant.batteryCapacityKWh} kWh` : "Estimate"} />
           <MiniStat label="Price" value={vehicle.price ?? "—"} />
+          <MiniStat label="Seating" value={`${buyingSpecs.seats} seats`} />
+          <MiniStat label="DC charging" value={buyingSpecs.dcTime} />
+          <MiniStat label="AC charging" value={buyingSpecs.acTime} />
         </div>
 
         {tripVariant ? <div className="flex items-center justify-between rounded-2xl border border-emerald-300/15 bg-emerald-400/[0.06] px-4 py-3 text-xs"><span className="inline-flex items-center gap-2 font-semibold text-emerald-100"><BatteryCharging className="h-4 w-4" />Up to {tripVariant.maxDcChargeKW} kW DC</span><span className="text-slate-400">{tripVariant.connector}</span></div> : null}

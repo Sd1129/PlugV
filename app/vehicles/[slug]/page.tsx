@@ -18,6 +18,8 @@ import SiteFooter from "@/components/home/SiteFooter";
 import TrustSummary from "@/components/vehicles/TrustSummary";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleVisual } from "@/data/vehicle-images";
+import { getBuyingSpecs, startingPriceRupees } from "@/data/vehicle-buying-specs";
+import OnRoadPriceEstimator from "@/components/vehicles/OnRoadPriceEstimator";
 import { getCompareInsights } from "@/lib/compare/compareEngine";
 import { absoluteUrl, safeJsonLd } from "@/lib/seo";
 
@@ -125,6 +127,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
   const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
   const vehicleVisual = getVehicleVisual(vehicle.slug);
   const vehicleImage = vehicleVisual.src;
+  const buyingSpecs = getBuyingSpecs(vehicle.slug);
   const compareInsights = getCompareInsights(vehicles);
   const vehicleSchema = {
     "@context": "https://schema.org",
@@ -156,6 +159,21 @@ export default async function VehicleDetailPage({ params }: PageProps) {
       label: "Price",
       value: vehicle.price ?? "—",
       icon: <Sparkles className="h-4 w-4" />,
+    },
+    {
+      label: "Seating",
+      value: `${buyingSpecs.seats} seats`,
+      icon: <ShieldCheck className="h-4 w-4" />,
+    },
+    {
+      label: "DC charging time",
+      value: buyingSpecs.dcTime,
+      icon: <BatteryCharging className="h-4 w-4" />,
+    },
+    {
+      label: "AC charging time",
+      value: buyingSpecs.acTime,
+      icon: <BatteryCharging className="h-4 w-4" />,
     },
   ];
 
@@ -242,7 +260,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
               <Badge>India-focused</Badge>
             </div>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {stats.map((item) => (
                 <StatCard
                   key={item.label}
@@ -349,6 +367,16 @@ export default async function VehicleDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-4 sm:px-6 lg:px-8">
+        <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 sm:p-7">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300">Available variants</p>
+          <h2 className="mt-2 text-2xl font-semibold">Choose the battery and range that fit you</h2>
+          {buyingSpecs.variants.length ? <div className="mt-5 flex flex-wrap gap-3">{buyingSpecs.variants.map((variant) => <span key={variant} className="rounded-full border border-white/10 bg-slate-950/55 px-4 py-2 text-sm font-semibold text-slate-200">{variant}</span>)}</div> : <p className="mt-4 text-sm text-slate-400">Variant-level information is awaiting verification from the manufacturer. PlugV will not infer trim names.</p>}
+          {buyingSpecs.sourceUrl ? <a href={buyingSpecs.sourceUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex text-xs font-semibold text-sky-300 hover:text-sky-200">Source: {buyingSpecs.sourceName} · checked {buyingSpecs.verifiedAt}</a> : null}
+        </div>
+        <OnRoadPriceEstimator vehicleName={`${vehicle.brand} ${vehicle.name}`} startingPrice={startingPriceRupees(vehicle.price)} variants={buyingSpecs.variants} />
       </section>
 
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
