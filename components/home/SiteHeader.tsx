@@ -72,7 +72,8 @@ function isActiveLink(href: string) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
+    <>
+    <header className="fixed inset-x-0 top-0 z-[100] border-b border-white/10 bg-slate-950/95 shadow-lg shadow-black/20 backdrop-blur-xl">
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
           <Image src="/brand/logo-icon.svg" alt="" width={44} height={44} className="h-11 w-11 rounded-xl shadow-lg shadow-sky-950/30" priority />
@@ -184,7 +185,7 @@ function isActiveLink(href: string) {
       </div>
 
       {mobileOpen ? (
-        <div className="border-t border-white/10 bg-slate-950/98 px-4 py-4 shadow-2xl lg:hidden">
+        <div className="max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-white/10 bg-slate-950/98 px-4 py-4 shadow-2xl lg:hidden">
           <div className="mx-auto w-full max-w-7xl">
             <form
               className="mb-4 flex items-center gap-2"
@@ -234,5 +235,7 @@ function isActiveLink(href: string) {
         </div>
       ) : null}
     </header>
+    <div aria-hidden="true" className="h-20 shrink-0" />
+    </>
   );
 }
