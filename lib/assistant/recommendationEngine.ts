@@ -1,4 +1,5 @@
 import { vehicles, upcomingEVs } from "@/data/vehicles";
+import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 
 type LaunchedVehicle = (typeof vehicles)[number];
 type UpcomingVehicle = (typeof upcomingEVs)[number];
@@ -58,6 +59,7 @@ function getVehicleStatus(vehicle: CatalogVehicle): string {
 
 function getVehiclePrice(vehicle: CatalogVehicle): string | undefined {
   if ("price" in vehicle) return vehicle.price;
+  if ("expectedPrice" in vehicle) return vehicle.expectedPrice;
   return undefined;
 }
 
@@ -72,8 +74,22 @@ function getVehicleCharging(vehicle: CatalogVehicle): string | undefined {
 }
 
 function getVerifiedChargingKw(vehicle: CatalogVehicle): number {
+  const profile = getVehicleTripProfile(vehicle.slug);
+  if (profile?.variants.length) return Math.max(...profile.variants.map((variant) => variant.maxDcChargeKW));
   const raw = getVehicleCharging(vehicle) ?? "";
   return /\bkw\b/i.test(raw) && !/\bkwh\b/i.test(raw) ? parseNumeric(raw) : 0;
+}
+
+function getPriceLakh(vehicle: CatalogVehicle): number {
+  const raw = getVehiclePrice(vehicle);
+  const amount = parseNumeric(raw);
+  return raw && /\b(?:cr|crore)\b/i.test(raw) ? amount * 100 : amount;
+}
+
+function matchesBodyType(vehicle: CatalogVehicle, requested: string) {
+  const actual = safeText(getVehicleType(vehicle));
+  const desired = safeText(requested).replace(/^electric\s+/, "");
+  return actual.includes(desired) || desired.includes(actual);
 }
 
 function extractBudgetLakh(input: string): number | undefined {
@@ -167,7 +183,7 @@ function scoreVehicle(
   const reasons: string[] = [];
   let score = 0;
 
-  const price = parseNumeric(getVehiclePrice(vehicle));
+  const price = getPriceLakh(vehicle);
   const range = parseMaxNumeric(getVehicleRange(vehicle));
   const charging = getVerifiedChargingKw(vehicle);
 
@@ -384,12 +400,21 @@ export function getRecommendations(prompt: string, limit = 3): AssistantResponse
 
   const eligible = prefs.budgetLakh
     ? catalog.filter((vehicle) => {
-        const price = parseNumeric(getVehiclePrice(vehicle));
-        return price === 0 || price <= prefs.budgetLakh!;
+        const price = getPriceLakh(vehicle);
+        return price > 0 && price <= prefs.budgetLakh!;
       })
     : catalog;
 
-  const ranked = eligible
+  const requirementMatches = eligible.filter((vehicle) => {
+    if (prefs.bodyType && !matchesBodyType(vehicle, prefs.bodyType)) return false;
+    const range = parseMaxNumeric(getVehicleRange(vehicle));
+    if (prefs.rangeMinKm && (range === 0 || range < prefs.rangeMinKm)) return false;
+    const charging = getVerifiedChargingKw(vehicle);
+    if (prefs.chargingMinKw && (charging === 0 || charging < prefs.chargingMinKw)) return false;
+    return true;
+  });
+
+  const ranked = requirementMatches
     .map((vehicle) => scoreVehicle(vehicle, prefs))
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);

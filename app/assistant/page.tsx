@@ -289,9 +289,9 @@ export default function AssistantPage() {
                         brand: item.vehicle.brand,
                         name: item.vehicle.name,
                         type: "type" in item.vehicle ? item.vehicle.type : item.vehicle.segment,
-                        price: "price" in item.vehicle ? item.vehicle.price : undefined,
+                        price: "launch" in item.vehicle ? item.vehicle.expectedPrice : item.vehicle.price,
                         range: "range" in item.vehicle ? item.vehicle.range : undefined,
-                        charging: "charging" in item.vehicle ? item.vehicle.charging : undefined,
+                        charging: "launch" in item.vehicle ? item.vehicle.battery : item.vehicle.charging,
                         slug: item.vehicle.slug,
                       }}
                       score={item.score}
