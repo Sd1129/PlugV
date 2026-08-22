@@ -1,0 +1,27 @@
+"use client";
+
+import { useState } from "react";
+import { BatteryCharging, CarFront, Gauge, PlugZap, ShieldCheck, Users } from "lucide-react";
+
+type Variant = { name: string; battery: string; range: string; practicalRange: string; dcPower: string; acPower: string; dcTime: string; connector: string };
+
+export default function VehicleVariantExplorer({ vehicleName, bodyType, seating, listedRange, listedPower, variants }: { vehicleName: string; bodyType: string; seating: number; listedRange: string; listedPower: string; variants: Variant[] }) {
+  const [selectedName, setSelectedName] = useState(variants[0]?.name ?? "All listed configurations");
+  const selected = variants.find((variant) => variant.name === selectedName);
+  const specifications = [
+    { icon: CarFront, label: "Body type", value: bodyType },
+    { icon: Users, label: "Seating capacity", value: `${seating} seats` },
+    { icon: Gauge, label: "Claimed range", value: selected?.range ?? listedRange },
+    { icon: BatteryCharging, label: "Power / battery", value: selected?.battery ?? listedPower },
+    { icon: PlugZap, label: "Maximum DC charging", value: selected?.dcPower ?? "Awaiting official specification" },
+    { icon: PlugZap, label: "Maximum AC charging", value: selected?.acPower ?? "Awaiting official specification" },
+    { icon: BatteryCharging, label: "DC charging time", value: selected?.dcTime ?? "Awaiting official specification" },
+    { icon: ShieldCheck, label: "Connector", value: selected?.connector ?? "Awaiting official specification" },
+  ];
+
+  return <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04]">
+    <div className="grid gap-5 p-5 sm:p-7 lg:grid-cols-[1fr_320px] lg:items-end"><div><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300">Variants & specifications</p><h2 className="mt-2 text-2xl font-semibold">Explore {vehicleName} configurations</h2><p className="mt-2 text-sm leading-6 text-slate-400">Select a verified battery configuration to update the figures below.</p></div><label><span className="text-xs font-semibold text-slate-300">Select variant</span><select value={selectedName} disabled={!variants.length} onChange={(event) => setSelectedName(event.target.value)} className="mt-2 min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 text-sm font-semibold outline-none disabled:cursor-not-allowed disabled:text-slate-500">{variants.length ? variants.map((variant) => <option key={variant.name}>{variant.name}</option>) : <option>All listed configurations</option>}</select></label></div>
+    <div className="grid gap-3 border-t border-white/10 p-5 sm:grid-cols-2 sm:p-7 lg:grid-cols-4">{specifications.map(({ icon: Icon, label, value }) => <div key={label} className="rounded-2xl border border-white/10 bg-slate-950/45 p-4"><Icon className="h-5 w-5 text-sky-300" /><p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p><p className="mt-2 text-sm font-semibold leading-6 text-white">{value}</p></div>)}</div>
+    {!variants.length ? <p className="border-t border-white/10 px-5 py-4 text-xs leading-5 text-amber-100/80 sm:px-7">Official trim-level specifications are being verified. PlugV is showing the model-wide figures currently published in the catalogue and will not invent variant names.</p> : null}
+  </section>;
+}

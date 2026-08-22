@@ -20,6 +20,7 @@ import { vehicles } from "@/data/vehicles";
 import { getVehicleVisual } from "@/data/vehicle-images";
 import { getBuyingSpecs, startingPriceRupees } from "@/data/vehicle-buying-specs";
 import OnRoadPriceEstimator from "@/components/vehicles/OnRoadPriceEstimator";
+import VehicleVariantExplorer from "@/components/vehicles/VehicleVariantExplorer";
 import { getCompareInsights } from "@/lib/compare/compareEngine";
 import { absoluteUrl, safeJsonLd } from "@/lib/seo";
 
@@ -194,6 +195,14 @@ export default async function VehicleDetailPage({ params }: PageProps) {
       title: "Premium presentation",
       desc: "The page feels like a product story, not a spec dump.",
     },
+  ];
+  const keyFeatures = [
+    `${vehicle.type} body style with seating for ${buyingSpecs.seats}`,
+    `Listed claimed range: ${vehicle.range ?? "Awaiting official specification"}`,
+    `Listed power or battery: ${vehicle.charging ?? "Awaiting official specification"}`,
+    buyingSpecs.variants.length > 1 ? `${buyingSpecs.variants.length} verified battery configurations in PlugV` : buyingSpecs.variants.length === 1 ? "One verified battery configuration in PlugV" : "Variant-level specifications are being verified",
+    buyingSpecs.dcTime === "Awaiting official specification" ? "DC charging time awaiting manufacturer verification" : `DC fast charging: ${buyingSpecs.dcTime}`,
+    buyingSpecs.acTime === "Awaiting official specification" ? "AC charging time awaiting manufacturer verification" : `Indicative AC charging: ${buyingSpecs.acTime}`,
   ];
 
   const nextSteps = [
@@ -370,12 +379,8 @@ export default async function VehicleDetailPage({ params }: PageProps) {
       </section>
 
       <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-4 sm:px-6 lg:px-8">
-        <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 sm:p-7">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300">Available variants</p>
-          <h2 className="mt-2 text-2xl font-semibold">Choose the battery and range that fit you</h2>
-          {buyingSpecs.variants.length ? <div className="mt-5 flex flex-wrap gap-3">{buyingSpecs.variants.map((variant) => <span key={variant} className="rounded-full border border-white/10 bg-slate-950/55 px-4 py-2 text-sm font-semibold text-slate-200">{variant}</span>)}</div> : <p className="mt-4 text-sm text-slate-400">Variant-level information is awaiting verification from the manufacturer. PlugV will not infer trim names.</p>}
-          {buyingSpecs.sourceUrl ? <a href={buyingSpecs.sourceUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex text-xs font-semibold text-sky-300 hover:text-sky-200">Source: {buyingSpecs.sourceName} · checked {buyingSpecs.verifiedAt}</a> : null}
-        </div>
+        <VehicleVariantExplorer vehicleName={`${vehicle.brand} ${vehicle.name}`} bodyType={vehicle.type} seating={buyingSpecs.seats} listedRange={vehicle.range ?? "Awaiting official specification"} listedPower={vehicle.charging ?? "Awaiting official specification"} variants={buyingSpecs.variantDetails} />
+        <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 sm:p-7"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300">Key features</p><h2 className="mt-2 text-2xl font-semibold">What stands out at a glance</h2><div className="mt-5 grid gap-3 sm:grid-cols-2">{keyFeatures.map((feature) => <div key={feature} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950/45 p-4"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" /><p className="text-sm leading-6 text-slate-300">{feature}</p></div>)}</div>{buyingSpecs.sourceUrl ? <a href={buyingSpecs.sourceUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex text-xs font-semibold text-sky-300 hover:text-sky-200">Source: {buyingSpecs.sourceName} · checked {buyingSpecs.verifiedAt}</a> : <p className="mt-5 text-xs leading-5 text-slate-500">Model-wide catalogue values only. Confirm trim equipment and specifications with the manufacturer or dealer before purchase.</p>}</div>
         <OnRoadPriceEstimator vehicleName={`${vehicle.brand} ${vehicle.name}`} startingPrice={startingPriceRupees(vehicle.price)} variants={buyingSpecs.variants} />
       </section>
 
