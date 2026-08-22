@@ -501,15 +501,6 @@ function CompareContent() {
                       <MiniStat label="Price" value={vehicle.price ?? "—"} />
                     </div>
 
-                    <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                        Why it matters
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-slate-300">
-                        A premium EV profile that highlights the decision details
-                        first and gives the buyer a clear path forward.
-                      </p>
-                    </div>
                   </div>
                 </article>
               );

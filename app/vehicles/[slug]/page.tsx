@@ -188,10 +188,6 @@ export default async function VehicleDetailPage({ params }: PageProps) {
       desc: "A clearer look at charging speed and what that means for real-world use.",
     },
     {
-      title: "Decision clarity",
-      desc: "A calm premium layout that helps buyers understand the EV before they compare.",
-    },
-    {
       title: "Premium presentation",
       desc: "The page feels like a product story, not a spec dump.",
     },
@@ -320,10 +316,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
 
                 <div className="absolute inset-x-0 bottom-6 px-6">
                   <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-300/80">
-                      The PlugV take
-                    </p>
-                    <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+                    <h2 className="text-3xl font-semibold tracking-tight text-white">
                       Built to feel premium, calm, and easy to trust.
                     </h2>
                     <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">
@@ -334,17 +327,6 @@ export default async function VehicleDetailPage({ params }: PageProps) {
               </div>
 
               <div className="grid gap-4 p-6">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <InfoCard
-                    title="Why it matters"
-                    desc="This EV profile helps buyers quickly understand range, charging, and positioning."
-                  />
-                  <InfoCard
-                    title="Decision clarity"
-                    desc="The layout keeps the journey calm, premium, and focused on action."
-                  />
-                </div>
-
                 <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
                     Quick summary
