@@ -314,16 +314,6 @@ export default async function VehicleDetailPage({ params }: PageProps) {
                   PlugV concept · Actual vehicle may differ
                 </div>
 
-                <div className="absolute inset-x-0 bottom-6 px-6">
-                  <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">
-                    <h2 className="text-3xl font-semibold tracking-tight text-white">
-                      Built to feel premium, calm, and easy to trust.
-                    </h2>
-                    <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">
-                      The page highlights the details buyers care about most, without overwhelming them with noise.
-                    </p>
-                  </div>
-                </div>
               </div>
 
               <div className="grid gap-4 p-6">
