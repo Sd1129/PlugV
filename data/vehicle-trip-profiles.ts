@@ -22,6 +22,20 @@ export type VehicleTripProfile = {
 };
 
 export const vehicleTripProfiles: Record<string, VehicleTripProfile> = {
+  "tata-tiago-ev": {
+    vehicleSlug: "tata-tiago-ev",
+    defaultVariant: "Creative Plus 24 (Long Range)",
+    variants: [
+      { name: "Creative Plus 24 (Long Range)", batteryCapacityKWh: 24, certifiedRangeKm: 285, practicalRangeKm: 210, maxDcChargeKW: 30, maxAcChargeKW: 7.2, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 35 },
+      { name: "Pure Plus 24 (Long Range)", batteryCapacityKWh: 24, certifiedRangeKm: 285, practicalRangeKm: 210, maxDcChargeKW: 30, maxAcChargeKW: 7.2, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 35 },
+      { name: "Pure Plus 19 (Medium Range)", batteryCapacityKWh: 19.2, certifiedRangeKm: 223, practicalRangeKm: 165, maxDcChargeKW: 30, maxAcChargeKW: 7.2, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 35 },
+      { name: "Smart 19 (Medium Range)", batteryCapacityKWh: 19.2, certifiedRangeKm: 223, practicalRangeKm: 165, maxDcChargeKW: 30, maxAcChargeKW: 7.2, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 35 },
+    ],
+    sourceUrl: "https://ev.tatamotors.com/tiago/ev/next-gen/faqs.html",
+    sourceName: "Tata.ev",
+    verifiedAt: "2026-08-23",
+    confidence: "official",
+  },
   "hyundai-creta-electric": {
     vehicleSlug: "hyundai-creta-electric",
     defaultVariant: "Long Range 51.4 kWh",
