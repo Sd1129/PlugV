@@ -467,7 +467,7 @@ function CompareContent() {
                   >
                     <Image
                         src={vehicleVisual.src}
-                        alt={`${vehicle.brand} ${vehicle.name} electric vehicle`}
+                        alt={`PlugV concept visual representing the ${vehicle.type} category; actual ${vehicle.brand} ${vehicle.name} may differ`}
                         fill
                         sizes="(min-width: 1024px) 50vw, 100vw"
                         className="object-cover"
@@ -477,7 +477,7 @@ function CompareContent() {
                     <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200 backdrop-blur">
                       {side}
                     </div>
-                    {!vehicleVisual.modelSpecific ? <div className="absolute right-6 top-6 rounded-full border border-amber-300/20 bg-slate-950/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100 backdrop-blur">Illustrative visual</div> : null}
+                    {vehicleVisual.plugvConcept ? <div className="absolute right-6 top-6 rounded-full border border-sky-300/20 bg-slate-950/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-100 backdrop-blur">PlugV concept · Actual may differ</div> : null}
 
                     <div className="absolute inset-x-0 bottom-6 px-6">
                       <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">

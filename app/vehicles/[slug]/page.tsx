@@ -17,7 +17,7 @@ import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import TrustSummary from "@/components/vehicles/TrustSummary";
 import { vehicles } from "@/data/vehicles";
-import { getVehicleImage } from "@/data/vehicle-images";
+import { getVehicleVisual } from "@/data/vehicle-images";
 import { getCompareInsights } from "@/lib/compare/compareEngine";
 import { absoluteUrl, safeJsonLd } from "@/lib/seo";
 
@@ -32,8 +32,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = `${vehicle.brand} ${vehicle.name} Price, Range & Specs`;
   const description = `Explore ${vehicle.brand} ${vehicle.name} price in India, claimed range, available specifications and comparison tools on PlugV.`;
-  const image = getVehicleImage(vehicle.slug);
-
   return {
     title,
     description,
@@ -43,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: `/vehicles/${vehicle.slug}`,
-      images: image ? [image] : ["/images/hero/plugv-compare-hero.webp"],
+      images: ["/images/hero/plugv-compare-hero.webp"],
     },
   };
 }
@@ -125,7 +123,8 @@ export default async function VehicleDetailPage({ params }: PageProps) {
     .slice(0, 3);
 
   const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
-  const vehicleImage = getVehicleImage(vehicle.slug);
+  const vehicleVisual = getVehicleVisual(vehicle.slug);
+  const vehicleImage = vehicleVisual.src;
   const compareInsights = getCompareInsights(vehicles);
   const vehicleSchema = {
     "@context": "https://schema.org",
@@ -135,7 +134,6 @@ export default async function VehicleDetailPage({ params }: PageProps) {
     category: `Electric ${vehicle.type}`,
     description: `${vehicle.brand} ${vehicle.name} electric vehicle in India with ${vehicle.range ?? "range information"}.`,
     url: absoluteUrl(`/vehicles/${vehicle.slug}`),
-    image: vehicleImage ? absoluteUrl(vehicleImage) : undefined,
     additionalProperty: [
       { "@type": "PropertyValue", name: "Claimed range", value: vehicle.range ?? "Not listed" },
       { "@type": "PropertyValue", name: "Price", value: vehicle.price ?? "Not listed" },
@@ -279,7 +277,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
                 {vehicleImage ? (
                   <Image
                     src={vehicleImage}
-                    alt={`${vehicle.brand} ${vehicle.name} electric vehicle`}
+                    alt={`PlugV concept visual representing the ${vehicle.type} category; actual ${vehicle.brand} ${vehicle.name} may differ`}
                     fill
                     priority
                     sizes="(min-width: 1024px) 48vw, 100vw"
@@ -290,7 +288,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
                 <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(225deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:26px_26px] opacity-15" />
 
                 <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200 backdrop-blur">
-                  Spotlight vehicle
+                  PlugV concept · Actual vehicle may differ
                 </div>
 
                 <div className="absolute inset-x-0 bottom-6 px-6">

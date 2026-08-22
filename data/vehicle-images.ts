@@ -1,20 +1,16 @@
-const vehicleImages: Record<string, string> = {
-  "mahindra-be-6": "/images/vehicles/mahindra-be-6.png",
-  "tata-punch-ev": "/images/vehicles/tata-punch-ev.png",
-  "hyundai-creta-electric": "/images/vehicles/hyundai-creta-electric.png",
-  "tata-nexon-ev": "/images/vehicles/tata-nexon-ev.png",
-  "mg-windsor-ev": "/images/vehicles/mg-windsor-ev.png",
-  "tesla-model-y": "/images/vehicles/tesla-model-y.png",
-};
+const COMPACT_EV_SLUGS = new Set(["tata-tiago-ev", "mg-comet-ev", "vayve-mobility-eva"]);
+const SEDAN_EV_SLUGS = new Set(["bmw-i7", "byd-seal"]);
+const MPV_EV_SLUGS = new Set(["mg-windsor-ev", "kia-carens-clavis-ev", "mg-m9", "vinfast-vf-mpv-7"]);
+const ROADSTER_EV_SLUGS = new Set(["mg-cyberster"]);
 
 export function getVehicleImage(slug: string) {
-  return vehicleImages[slug] ?? null;
+  if (COMPACT_EV_SLUGS.has(slug)) return "/images/vehicles/plugv-concept-compact.png";
+  if (SEDAN_EV_SLUGS.has(slug)) return "/images/vehicles/plugv-concept-sedan.png";
+  if (MPV_EV_SLUGS.has(slug)) return "/images/vehicles/plugv-concept-mpv.png";
+  if (ROADSTER_EV_SLUGS.has(slug)) return "/images/vehicles/plugv-concept-roadster.png";
+  return "/images/vehicles/plugv-concept-suv.png";
 }
 
 export function getVehicleVisual(slug: string) {
-  const modelImage = getVehicleImage(slug);
-  return {
-    src: modelImage ?? "/images/vehicles/plugv-generic-ev-visual.webp",
-    modelSpecific: Boolean(modelImage),
-  };
+  return { src: getVehicleImage(slug), modelSpecific: false, plugvConcept: true };
 }

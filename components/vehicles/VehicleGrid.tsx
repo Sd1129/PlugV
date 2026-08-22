@@ -56,7 +56,7 @@ function VehicleCard({
       <div className={`relative h-[320px] overflow-hidden bg-gradient-to-br ${accent}`}>
         <Image
             src={vehicleVisual.src}
-            alt={`${vehicle.brand} ${vehicle.name} electric vehicle`}
+            alt={`PlugV concept visual representing the ${vehicle.type} category; actual ${vehicle.brand} ${vehicle.name} may differ`}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition duration-700 group-hover:scale-[1.035]"
@@ -68,7 +68,7 @@ function VehicleCard({
           #{index + 1} pick
         </div>
 
-        {!vehicleVisual.modelSpecific ? <div className="absolute right-6 top-6 rounded-full border border-amber-300/20 bg-slate-950/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100 backdrop-blur">Illustrative visual</div> : null}
+        {vehicleVisual.plugvConcept ? <div className="absolute right-6 top-6 rounded-full border border-sky-300/20 bg-slate-950/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-100 backdrop-blur">PlugV concept · Actual may differ</div> : null}
 
         {tripProfile && vehicleVisual.modelSpecific ? <div className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-100 backdrop-blur"><BadgeCheck className="h-3.5 w-3.5" />Official specs</div> : null}
 
