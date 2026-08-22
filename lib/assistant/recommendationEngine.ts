@@ -36,6 +36,12 @@ function parseNumeric(value?: string): number {
   return match ? Number(match[1]) : 0;
 }
 
+function parseMaxNumeric(value?: string): number {
+  if (!value) return 0;
+  const values = [...value.replace(/,/g, "").matchAll(/\d+(?:\.\d+)?/g)].map((match) => Number(match[0]));
+  return values.length ? Math.max(...values) : 0;
+}
+
 function getVehicleLabel(vehicle: CatalogVehicle): string {
   return `${vehicle.brand} ${vehicle.name}`.trim();
 }
@@ -72,7 +78,7 @@ function getVerifiedChargingKw(vehicle: CatalogVehicle): number {
 
 function extractBudgetLakh(input: string): number | undefined {
   const match = input.match(
-    /(?:under|below|within|upto|up to|less than|max|maximum)?\s*₹?\s*(\d+(?:\.\d+)?)\s*(lakh|lakhs|l|crore|cr|k)?/i
+    /(?:(?:budget|price|cost)\s*(?:of|is|around|under|below|within|up to|upto|less than|max(?:imum)?)?\s*|(?:under|below|within|up to|upto|less than|max(?:imum)?)\s*)₹?\s*(\d+(?:\.\d+)?)\s*(lakh|lakhs|l|crore|cr|k)?/i
   );
 
   if (!match) return undefined;
@@ -85,6 +91,18 @@ function extractBudgetLakh(input: string): number | undefined {
   return amount;
 }
 
+function extractRangeMinKm(input: string): number | undefined {
+  const match = input.match(/(?:range|at least|minimum|min)\s*(?:of|around|above|over|more than)?\s*(\d{2,4})\s*km/i)
+    ?? input.match(/(\d{2,4})\s*km\s*(?:range|or more|minimum|min)/i);
+  return match ? Number(match[1]) : undefined;
+}
+
+function extractChargingMinKw(input: string): number | undefined {
+  const match = input.match(/(?:charging|charger|dc|fast charge|fast charging)\s*(?:of|at|above|over|more than|minimum|min)?\s*(\d{2,3})\s*kw/i)
+    ?? input.match(/(\d{2,3})\s*kw\s*(?:dc|charging|charger)/i);
+  return match ? Number(match[1]) : undefined;
+}
+
 function extractBodyType(input: string): string | undefined {
   const q = safeText(input);
 
@@ -93,6 +111,7 @@ function extractBodyType(input: string): string | undefined {
     "luxury suv",
     "electric suv",
     "suv coupe",
+    "suv",
     "hatchback",
     "sedan",
     "mpv",
@@ -134,7 +153,7 @@ function extractScope(input: string): AssistantPreferences["scope"] {
     return "upcoming";
   }
 
-  if (q.includes("both") || q.includes("all")) {
+  if (/\b(?:both|all)\b/.test(q)) {
     return "both";
   }
 
@@ -149,7 +168,7 @@ function scoreVehicle(
   let score = 0;
 
   const price = parseNumeric(getVehiclePrice(vehicle));
-  const range = parseNumeric(getVehicleRange(vehicle));
+  const range = parseMaxNumeric(getVehicleRange(vehicle));
   const charging = getVerifiedChargingKw(vehicle);
 
   const vehicleType = safeText(getVehicleType(vehicle));
@@ -324,6 +343,8 @@ export function parseAssistantPrompt(prompt: string): AssistantPreferences {
   const bodyType = extractBodyType(prompt);
   const useCase = extractUseCase(prompt);
   const scope = extractScope(prompt);
+  const rangeMinKm = extractRangeMinKm(prompt);
+  const chargingMinKw = extractChargingMinKw(prompt);
   const q = safeText(prompt);
 
   const keywords: string[] = [];
@@ -344,6 +365,8 @@ export function parseAssistantPrompt(prompt: string): AssistantPreferences {
     budgetLakh,
     bodyType,
     useCase,
+    rangeMinKm,
+    chargingMinKw,
     keywords,
     scope,
   };
@@ -359,7 +382,14 @@ export function getRecommendations(prompt: string, limit = 3): AssistantResponse
         ? [...vehicles, ...upcomingEVs]
         : vehicles;
 
-  const ranked = catalog
+  const eligible = prefs.budgetLakh
+    ? catalog.filter((vehicle) => {
+        const price = parseNumeric(getVehiclePrice(vehicle));
+        return price === 0 || price <= prefs.budgetLakh!;
+      })
+    : catalog;
+
+  const ranked = eligible
     .map((vehicle) => scoreVehicle(vehicle, prefs))
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);

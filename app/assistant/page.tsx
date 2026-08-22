@@ -18,8 +18,9 @@ import {
 
 const examplePrompts = [
   "I'm looking for an SUV under ₹25 lakh for family use",
-  "Best EV for city driving with good range",
-  "Show me the best EVs with fast charging and value",
+  "City EV under ₹12 lakh with at least 250 km range",
+  "Highway EV with 450 km range and 100 kW DC charging",
+  "Show launched and upcoming family EVs under ₹30 lakh",
 ];
 
 function formatMaybe(value?: string) {
@@ -31,6 +32,7 @@ function ResultCard({
   vehicle,
   score,
   reasons,
+  href,
 }: {
   rank: number;
   vehicle: {
@@ -44,6 +46,7 @@ function ResultCard({
   };
   score: number;
   reasons: string[];
+  href: string;
 }) {
   return (
     <article className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur">
@@ -119,7 +122,7 @@ function ResultCard({
 
       <div className="mt-6 flex items-center justify-end">
         <Link
-          href={`/vehicles/${vehicle.slug}`}
+          href={href}
           className="inline-flex items-center gap-2 rounded-full bg-sky-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
         >
           View vehicle
@@ -150,6 +153,14 @@ export default function AssistantPage() {
   const response = useMemo(() => {
     return getRecommendations(submittedPrompt);
   }, [submittedPrompt]);
+
+  const preferenceLabels = [
+    assistantPrefs.budgetLakh ? `Budget: up to ₹${assistantPrefs.budgetLakh} lakh` : null,
+    assistantPrefs.bodyType ? `Body: ${assistantPrefs.bodyType}` : null,
+    assistantPrefs.useCase ? `Use: ${assistantPrefs.useCase}` : null,
+    assistantPrefs.rangeMinKm ? `Range: ${assistantPrefs.rangeMinKm}+ km` : null,
+    assistantPrefs.chargingMinKw ? `DC charging: ${assistantPrefs.chargingMinKw}+ kW` : null,
+  ].filter(Boolean) as string[];
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
@@ -215,8 +226,9 @@ export default function AssistantPage() {
               <div className="mt-5 flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setSubmittedPrompt(prompt)}
-                  className="inline-flex items-center justify-center rounded-full bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                  onClick={() => setSubmittedPrompt(prompt.trim())}
+                  disabled={!prompt.trim()}
+                  className="inline-flex items-center justify-center rounded-full bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Get recommendations
                 </button>
@@ -242,6 +254,7 @@ export default function AssistantPage() {
   <h2 className="mt-3 text-2xl font-semibold text-white">
     {response.summary}
   </h2>
+  {preferenceLabels.length ? <div className="mt-5 flex flex-wrap gap-2">{preferenceLabels.map((label) => <span key={label} className="rounded-full border border-white/10 bg-slate-950/60 px-3 py-1.5 text-xs font-semibold text-slate-300">{label}</span>)}</div> : null}
 </div>
 
               <div className="grid gap-6">
@@ -252,15 +265,16 @@ export default function AssistantPage() {
                       rank={index + 1}
                       vehicle={{
                         brand: item.vehicle.brand,
-  name: item.vehicle.name,
-  type: "EV",
-  price: "—",
-  range: "—",
-  charging: "—",
+                        name: item.vehicle.name,
+                        type: "type" in item.vehicle ? item.vehicle.type : item.vehicle.segment,
+                        price: "price" in item.vehicle ? item.vehicle.price : undefined,
+                        range: "range" in item.vehicle ? item.vehicle.range : undefined,
+                        charging: "charging" in item.vehicle ? item.vehicle.charging : undefined,
                         slug: item.vehicle.slug,
                       }}
                       score={item.score}
                       reasons={item.reasons}
+                      href={"launch" in item.vehicle ? `/upcoming/${item.vehicle.slug}` : `/vehicles/${item.vehicle.slug}`}
                     />
                   ))
                 ) : (
