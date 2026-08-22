@@ -1,4 +1,5 @@
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
+import { getCatalogueVariants } from "@/data/vehicle-variant-catalogue";
 
 const THREE_SEATERS = new Set(["vayve-mobility-eva"]);
 const TWO_SEATERS = new Set(["mg-cyberster"]);
@@ -15,9 +16,11 @@ export function getSeatingCapacity(slug: string) {
 
 export function getBuyingSpecs(slug: string) {
   const profile = getVehicleTripProfile(slug);
-  const variants = profile?.variants ?? [];
-  const dcTimes = [...new Set(variants.map((variant) => `${variant.fastChargeFromPercent}–${variant.fastChargeToPercent}% in ${variant.fastChargeMinutes} min`))];
-  const acTimes = [...new Set(variants.filter((variant) => variant.maxAcChargeKW).map((variant) => {
+  const detailedVariants = profile?.variants ?? [];
+  const catalogueVariants = getCatalogueVariants(slug);
+  const variantNames = catalogueVariants.length ? catalogueVariants : detailedVariants.map((variant) => variant.name);
+  const dcTimes = [...new Set(detailedVariants.map((variant) => `${variant.fastChargeFromPercent}–${variant.fastChargeToPercent}% in ${variant.fastChargeMinutes} min`))];
+  const acTimes = [...new Set(detailedVariants.filter((variant) => variant.maxAcChargeKW).map((variant) => {
     const hours = variant.batteryCapacityKWh / (variant.maxAcChargeKW ?? 1) / 0.9;
     return `≈${hours.toFixed(1)} hr at ${variant.maxAcChargeKW} kW`;
   }))];
@@ -26,17 +29,20 @@ export function getBuyingSpecs(slug: string) {
     seats: getSeatingCapacity(slug),
     dcTime: dcTimes.join(" / ") || "Awaiting official specification",
     acTime: acTimes.join(" / ") || "Awaiting official specification",
-    variants: variants.map((variant) => variant.name),
-    variantDetails: variants.map((variant) => ({
-      name: variant.name,
-      battery: `${variant.batteryCapacityKWh} kWh`,
-      range: `${variant.certifiedRangeKm} km`,
-      practicalRange: `${variant.practicalRangeKm} km`,
-      dcPower: `${variant.maxDcChargeKW} kW`,
-      acPower: variant.maxAcChargeKW ? `${variant.maxAcChargeKW} kW` : "Awaiting official specification",
-      dcTime: `${variant.fastChargeFromPercent}–${variant.fastChargeToPercent}% in ${variant.fastChargeMinutes} min`,
-      connector: variant.connector,
-    })),
+    variants: variantNames,
+    variantDetails: variantNames.map((name) => {
+      const variant = detailedVariants.find((item) => item.name === name);
+      return variant ? {
+        name,
+        battery: `${variant.batteryCapacityKWh} kWh`,
+        range: `${variant.certifiedRangeKm} km`,
+        practicalRange: `${variant.practicalRangeKm} km`,
+        dcPower: `${variant.maxDcChargeKW} kW`,
+        acPower: variant.maxAcChargeKW ? `${variant.maxAcChargeKW} kW` : "Awaiting official specification",
+        dcTime: `${variant.fastChargeFromPercent}–${variant.fastChargeToPercent}% in ${variant.fastChargeMinutes} min`,
+        connector: variant.connector,
+      } : { name };
+    }),
     sourceUrl: profile?.sourceUrl,
     sourceName: profile?.sourceName,
     verifiedAt: profile?.verifiedAt,

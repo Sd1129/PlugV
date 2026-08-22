@@ -1,0 +1,35 @@
+export const vehicleVariantCatalogue: Record<string, string[]> = {
+  "maruti-suzuki-e-vitara": ["Delta 49 kWh", "Zeta 61 kWh", "Alpha 61 kWh"],
+  "tata-punch-ev": ["Smart 30", "Smart Plus 30", "Smart Plus 40", "Adventure 40", "Empowered 40", "Empowered Plus S 40"],
+  "mahindra-be-6": ["Pack One 59 kWh", "Pack One Above 59 kWh", "Pack Two 59 kWh", "Pack Three Select 59 kWh", "Pack Three 59 kWh", "Pack Three 79 kWh"],
+  "tata-tiago-ev": ["Creative Plus 24 (Long Range)", "Pure Plus 24 (Long Range)", "Pure Plus 19 (Medium Range)", "Smart 19 (Medium Range)"],
+  "mahindra-xev-9e": ["Pack One 59 kWh", "Pack Two 59 kWh", "Pack Three Select 59 kWh", "Pack Three 79 kWh"],
+  "kia-syros-ev": ["HTK Plus Standard Range", "HTX Standard Range", "HTX Long Range", "HTX Plus Long Range"],
+  "mg-windsor-ev": ["Excite 38 kWh", "Exclusive 38 kWh", "Essence 38 kWh", "Exclusive Pro 52.9 kWh", "Essence Pro 52.9 kWh"],
+  "tata-sierra-ev": ["Pure 63", "Adventure 63", "Adventure Plus 63", "Empowered 75", "Empowered A 75", "Empowered QWD 75"],
+  "tata-nexon-ev": ["Creative Plus MR 30", "Fearless MR 30", "Empowered MR 30", "Creative 45", "Fearless 45", "Empowered 45", "Empowered Plus 45"],
+  "mg-comet-ev": ["Executive", "Excite", "Excite Fast Charge", "Exclusive", "Exclusive Fast Charge", "Blackstorm"],
+  "tata-harrier-ev": ["Adventure 65", "Adventure S 65", "Fearless Plus 65", "Fearless Plus 75", "Empowered 75", "Empowered AWD 75"],
+  "mg-cyberster": ["GT AWD"],
+  "hyundai-creta-electric": ["Executive 42 kWh", "Smart 42 kWh", "Smart (O) 42 kWh", "Premium 42 kWh", "Excellence 51.4 kWh"],
+  "tata-curvv-ev": ["Accomplished X 55", "Empowered X 55", "Empowered X 55 Dark"],
+  "vayve-mobility-eva": ["Nova", "Stella", "Vega"],
+  "byd-atto-3": ["Dynamic", "Premium", "Superior"],
+  "vinfast-vf7": ["Earth", "Wind", "Wind Infinity", "Sky", "Sky Infinity"],
+  "bmw-i7": ["eDrive50 M Sport", "xDrive60 M Sport", "M70 xDrive"],
+  "kia-ev6": ["GT Line AWD"],
+  "mg-zs-ev": ["Executive", "Excite Pro", "Exclusive Plus", "Essence"],
+  "byd-sealion-7": ["Premium", "Performance"],
+  "byd-seal": ["Dynamic", "Premium", "Performance"],
+  "vinfast-vf6": ["Earth", "Wind", "Wind Infinity"],
+  "kia-carens-clavis-ev": ["HTK Plus 42 kWh", "HTX 42 kWh", "HTX 51.4 kWh", "HTX Plus 51.4 kWh"],
+  "mg-m9": ["Presidential"],
+  "mahindra-xuv400-ev": ["EC Pro 34.5 kWh", "EL Pro 34.5 kWh", "EL Pro 39.4 kWh"],
+  "tesla-model-y": ["Rear-Wheel Drive", "Long Range Rear-Wheel Drive"],
+  "volvo-ex30": ["Ultra"],
+  "vinfast-vf-mpv-7": ["Plus", "Premium"],
+};
+
+export function getCatalogueVariants(slug: string) {
+  return vehicleVariantCatalogue[slug] ?? [];
+}
