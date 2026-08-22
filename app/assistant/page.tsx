@@ -22,6 +22,7 @@ const examplePrompts = [
   "Highway EV with 450 km range and 100 kW DC charging",
   "Show launched and upcoming family EVs under ₹30 lakh",
 ];
+const starterPrompt = "I'm looking for an SUV under ₹25 lakh for family use";
 
 function formatMaybe(value?: string) {
   return value && value.trim().length ? value : "—";
@@ -134,10 +135,14 @@ function ResultCard({
 }
 
 export default function AssistantPage() {
-  const [prompt, setPrompt] = useState(
-    "I'm looking for an SUV under ₹25 lakh for family use"
-  );
+  const [prompt, setPrompt] = useState(starterPrompt);
   const [submittedPrompt, setSubmittedPrompt] = useState(prompt);
+  const [isStarterPrompt, setIsStarterPrompt] = useState(true);
+
+  function submitPrompt() {
+    const question = prompt.trim();
+    if (question) setSubmittedPrompt(question);
+  }
 
   const assistantPrefs = useMemo(() => {
     return parseAssistantPrompt(submittedPrompt);
@@ -202,6 +207,7 @@ export default function AssistantPage() {
                     onClick={() => {
                       setPrompt(item);
                       setSubmittedPrompt(item);
+                      setIsStarterPrompt(true);
                     }}
                     className="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-left text-sm text-slate-200 transition hover:bg-white/10"
                   >
@@ -216,7 +222,23 @@ export default function AssistantPage() {
                 </label>
                 <textarea
                   value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
+                  onFocus={() => {
+                    if (isStarterPrompt) {
+                      setPrompt("");
+                      setIsStarterPrompt(false);
+                    }
+                  }}
+                  onChange={(e) => {
+                    setPrompt(e.target.value);
+                    setIsStarterPrompt(false);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+                      event.preventDefault();
+                      submitPrompt();
+                    }
+                  }}
+                  enterKeyHint="send"
                   rows={5}
                   className="mt-3 w-full rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-4 text-sm leading-7 text-white outline-none placeholder:text-slate-500"
                   placeholder="I'm looking for an SUV under ₹25 lakh..."
@@ -226,7 +248,7 @@ export default function AssistantPage() {
               <div className="mt-5 flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setSubmittedPrompt(prompt.trim())}
+                  onClick={submitPrompt}
                   disabled={!prompt.trim()}
                   className="inline-flex items-center justify-center rounded-full bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-50"
                 >
