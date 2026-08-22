@@ -41,6 +41,8 @@ type RouteResult = {
   distanceKm: number;
   durationMinutes: number;
   geometry: [number, number][];
+  estimated?: boolean;
+  routeSource?: "live-routing" | "fallback";
 };
 
 type NearbyStation = ChargingStation & { distanceToRouteKm: number };
@@ -308,6 +310,7 @@ export default function TravelPage() {
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           {route && origin && destination ? (
             <>
+              {route.estimated ? <div className="mb-5 rounded-2xl border border-amber-300/20 bg-amber-400/[0.08] px-5 py-4"><p className="text-sm font-semibold text-amber-100">Live road routing is temporarily unavailable—showing a planning estimate.</p><p className="mt-1 text-xs leading-5 text-slate-300">Distance and journey time use a road-distance allowance between the selected places. Confirm the exact route in your navigation app before departure.</p></div> : <div className="mb-5 rounded-2xl border border-emerald-300/20 bg-emerald-400/[0.08] px-5 py-4 text-sm font-semibold text-emerald-100">Live road route calculated successfully.</div>}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <Metric label="Driving distance" value={`${route.distanceKm.toLocaleString("en-IN")} km`} icon={Route} />
                 <Metric label="Estimated drive time" value={formatDuration(route.durationMinutes)} icon={Clock3} />

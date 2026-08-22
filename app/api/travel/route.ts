@@ -11,6 +11,25 @@ const routingProviders = [
   "https://routing.openstreetmap.de/routed-car/route/v1/driving",
 ] as const;
 
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const radians = (degrees: number) => (degrees * Math.PI) / 180;
+  const earthRadiusKm = 6371;
+  const dLat = radians(lat2 - lat1);
+  const dLon = radians(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(radians(lat1)) * Math.cos(radians(lat2)) * Math.sin(dLon / 2) ** 2;
+  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function estimatedRoute(origin: number[], destination: number[]) {
+  const directDistanceKm = haversineKm(origin[0], origin[1], destination[0], destination[1]);
+  const distanceKm = Math.max(1, Math.round(directDistanceKm * 1.28));
+  const geometry: [number, number][] = Array.from({ length: 81 }, (_, index) => {
+    const progress = index / 80;
+    return [origin[1] + (destination[1] - origin[1]) * progress, origin[0] + (destination[0] - origin[0]) * progress];
+  });
+  return { distanceKm, durationMinutes: Math.max(5, Math.round((distanceKm / 52) * 60)), geometry, estimated: true, routeSource: "fallback" };
+}
+
 async function requestRoute(provider: string, coordinates: string) {
   try {
     const response = await fetch(
@@ -55,12 +74,11 @@ export async function GET(request: NextRequest) {
         distanceKm: Math.round(route.distance / 1000),
         durationMinutes: Math.round(route.duration / 60),
         geometry: route.geometry.coordinates,
+        estimated: false,
+        routeSource: "live-routing",
       });
     }
   }
 
-  return NextResponse.json(
-    { error: "Driving directions are temporarily unavailable. Please try again in a moment." },
-    { status: 503, headers: { "Retry-After": "30" } }
-  );
+  return NextResponse.json(estimatedRoute(origin, destination));
 }
