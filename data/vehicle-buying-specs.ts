@@ -1,5 +1,6 @@
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getCatalogueVariants } from "@/data/vehicle-variant-catalogue";
+import { getVariantFeatures } from "@/data/vehicle-variant-features";
 
 const THREE_SEATERS = new Set(["vayve-mobility-eva"]);
 const TWO_SEATERS = new Set(["mg-cyberster"]);
@@ -31,9 +32,12 @@ export function getBuyingSpecs(slug: string) {
     acTime: acTimes.join(" / ") || "Awaiting official specification",
     variants: variantNames,
     variantDetails: variantNames.map((name) => {
-      const variant = detailedVariants.find((item) => item.name === name);
+      const variant = detailedVariants.find((item) => item.name === name)
+        ?? detailedVariants.find((item) => name.includes(String(item.batteryCapacityKWh)));
+      const features = getVariantFeatures(slug, name);
       return variant ? {
         name,
+        features,
         battery: `${variant.batteryCapacityKWh} kWh`,
         range: `${variant.certifiedRangeKm} km`,
         practicalRange: `${variant.practicalRangeKm} km`,
@@ -41,7 +45,7 @@ export function getBuyingSpecs(slug: string) {
         acPower: variant.maxAcChargeKW ? `${variant.maxAcChargeKW} kW` : "Awaiting official specification",
         dcTime: `${variant.fastChargeFromPercent}–${variant.fastChargeToPercent}% in ${variant.fastChargeMinutes} min`,
         connector: variant.connector,
-      } : { name };
+      } : { name, features };
     }),
     sourceUrl: profile?.sourceUrl,
     sourceName: profile?.sourceName,
