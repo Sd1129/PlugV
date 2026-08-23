@@ -197,8 +197,8 @@ export default async function VehicleDetailPage({ params }: PageProps) {
     `Listed claimed range: ${vehicle.range ?? "Awaiting official specification"}`,
     `Listed power or battery: ${vehicle.charging ?? "Awaiting official specification"}`,
     buyingSpecs.variants.length > 1 ? `${buyingSpecs.variants.length} verified battery configurations in PlugV` : buyingSpecs.variants.length === 1 ? "One verified battery configuration in PlugV" : "Variant-level specifications are being verified",
-    buyingSpecs.dcTime === "Awaiting official specification" ? "DC charging time awaiting manufacturer verification" : `DC fast charging: ${buyingSpecs.dcTime}`,
-    buyingSpecs.acTime === "Awaiting official specification" ? "AC charging time awaiting manufacturer verification" : `Indicative AC charging: ${buyingSpecs.acTime}`,
+    buyingSpecs.dcTime === "Not yet verified by PlugV" ? "DC charging time not yet verified by PlugV" : `DC fast charging: ${buyingSpecs.dcTime}`,
+    buyingSpecs.acTime === "Not yet verified by PlugV" ? "AC charging time not yet verified by PlugV" : `Indicative AC charging: ${buyingSpecs.acTime}`,
   ];
 
   const nextSteps = [

@@ -28,8 +28,8 @@ export function getBuyingSpecs(slug: string) {
 
   return {
     seats: getSeatingCapacity(slug),
-    dcTime: dcTimes.join(" / ") || "Awaiting official specification",
-    acTime: acTimes.join(" / ") || "Awaiting official specification",
+    dcTime: dcTimes.join(" / ") || "Not yet verified by PlugV",
+    acTime: acTimes.join(" / ") || "Not yet verified by PlugV",
     variants: variantNames,
     variantDetails: variantNames.map((name) => {
       const variant = detailedVariants.find((item) => item.name === name)
@@ -42,7 +42,7 @@ export function getBuyingSpecs(slug: string) {
         range: `${variant.certifiedRangeKm} km`,
         practicalRange: `${variant.practicalRangeKm} km`,
         dcPower: `${variant.maxDcChargeKW} kW`,
-        acPower: variant.maxAcChargeKW ? `${variant.maxAcChargeKW} kW` : "Awaiting official specification",
+        acPower: variant.maxAcChargeKW ? `${variant.maxAcChargeKW} kW` : "Not yet verified by PlugV",
         dcTime: `${variant.fastChargeFromPercent}–${variant.fastChargeToPercent}% in ${variant.fastChargeMinutes} min`,
         connector: variant.connector,
       } : { name, features };
