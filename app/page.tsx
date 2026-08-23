@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -90,8 +89,8 @@ export default function HomePage() {
         <div className="absolute inset-0 -z-20 bg-[#061322]" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_26%,rgba(56,189,248,0.17),transparent_25%),radial-gradient(circle_at_80%_72%,rgba(14,165,233,0.12),transparent_30%)]" />
 
-        <div className="mx-auto grid min-h-[660px] w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:px-8 lg:py-20">
-          <div className="relative z-10 max-w-2xl">
+        <div className="mx-auto flex min-h-[560px] w-full max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+          <div className="relative z-10 max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/15 bg-sky-300/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">
               <Sparkles className="h-3.5 w-3.5" />
               EV intelligence, built for India
@@ -129,31 +128,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative h-[440px] sm:h-[520px] lg:h-[590px]">
-            <div className="absolute inset-0 overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-950 shadow-[0_35px_120px_-35px_rgba(14,165,233,0.34)]">
-              <Image
-                src="/images/hero/plugv-hero-v3.webp"
-                alt="Electric SUV ready for the road"
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-cover object-[center_42%]"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,8,20,0.05)_30%,rgba(2,8,20,0.78)_100%)]" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200">
-                  One intelligent EV home
-                </p>
-                <p className="mt-2 max-w-sm text-xl font-medium tracking-tight text-white sm:text-2xl">
-                  The car is only the beginning. PlugV helps with everything around it.
-                </p>
-              </div>
-            </div>
-            <div className="absolute -bottom-5 -left-3 rounded-2xl border border-white/10 bg-slate-950/85 px-5 py-4 backdrop-blur-xl sm:left-7">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300">Made for real journeys</p>
-              <p className="mt-1 text-sm font-medium text-white">From your commute to your next road trip</p>
-            </div>
-          </div>
         </div>
       </section>
 
