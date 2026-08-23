@@ -1,28 +1,10 @@
 import Link from "next/link";
 import { Gauge, Sparkles, Zap } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
-import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 
 function parseNumeric(value?: string) {
   const values = value?.replace(/,/g, "").match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
   return values.length ? Math.max(...values) : 0;
-}
-
-function accentFor(seed: string) {
-  const accents = [
-    "from-sky-400/25 via-cyan-400/10 to-transparent",
-    "from-fuchsia-400/25 via-rose-400/10 to-transparent",
-    "from-emerald-400/25 via-teal-400/10 to-transparent",
-    "from-amber-300/25 via-orange-400/10 to-transparent",
-    "from-violet-400/25 via-indigo-400/10 to-transparent",
-  ];
-
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-
-  return accents[hash % accents.length];
 }
 
 function HeroStat({
@@ -49,15 +31,8 @@ function HeroStat({
   );
 }
 
-export default function VehiclesHero() {
+export default function VehiclesHero({ children }: { children: React.ReactNode }) {
   const launchedVehicles = vehicles.filter((vehicle) => vehicle.launched);
-
-  const spotlightVehicle =
-    [...launchedVehicles].sort(
-      (a, b) => parseNumeric(b.range) - parseNumeric(a.range)
-    )[0] ?? null;
-  const spotlightProfile = spotlightVehicle ? getVehicleTripProfile(spotlightVehicle.slug) : undefined;
-  const spotlightVariant = spotlightProfile?.variants.find((variant) => variant.name === spotlightProfile.defaultVariant);
 
   const brandsCount = new Set(launchedVehicles.map((vehicle) => vehicle.brand)).size;
 
@@ -144,103 +119,12 @@ export default function VehiclesHero() {
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative lg:self-stretch">
           <div className="absolute -inset-8 -z-10 rounded-[2.5rem] bg-sky-400/10 blur-3xl" />
-
-          <div className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 shadow-2xl shadow-black/30 backdrop-blur">
-            <div
-              className={`relative h-[340px] overflow-hidden bg-gradient-to-br ${
-                spotlightVehicle
-                  ? accentFor(`${spotlightVehicle.brand}-${spotlightVehicle.name}`)
-                  : "from-sky-400/25 via-cyan-400/10 to-transparent"
-              }`}
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(225deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:26px_26px] opacity-15" />
-
-              <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200 backdrop-blur">
-                Featured today
-              </div>
-
-              <div className="absolute inset-x-0 bottom-6 px-6">
-                <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-300/80">
-                    Spotlight vehicle
-                  </p>
-                  <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">
-                    {spotlightVehicle?.name ?? "Featured EV"}
-                  </h2>
-                  <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">
-                    {spotlightVehicle
-                      ? `${spotlightVehicle.brand} • ${spotlightVehicle.type} • ${spotlightVehicle.status}`
-                      : "A premium EV discovery surface for India."}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-4 p-6">
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-3">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
-                    Range
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-white">
-                    {spotlightVehicle?.range ?? "—"}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-3">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
-                    {spotlightVariant ? "Battery · DC charging" : "Trip specification"}
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-white">
-                    {spotlightVariant ? `${spotlightVariant.batteryCapacityKWh} kWh · ${spotlightVariant.maxDcChargeKW} kW` : "Awaiting verification"}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-3">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
-                    Price
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-white">
-                    {spotlightVehicle?.price ?? "—"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                      Why this matters
-                    </p>
-                    <h3 className="mt-2 text-xl font-semibold text-white">
-                      Explore EVs with more confidence, less friction.
-                    </h3>
-                  </div>
-                  <div className="rounded-full border border-sky-400/15 bg-sky-400/10 px-3 py-1 text-xs font-medium text-sky-200">
-                    PlugV
-                  </div>
-                </div>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  {[
-                    "Compare EVs side by side",
-                    "Discover charging stations",
-                    "Track upcoming launches",
-                  ].map((item) => (
-                    <div
-                      key={item}
-                      className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-sm text-slate-200"
-                    >
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          {children}
         </div>
       </div>
     </section>
   );
 }
+

@@ -27,6 +27,7 @@ type VehicleFiltersProps = {
   verifiedOnly: boolean;
   onVerifiedOnly: (value: boolean) => void;
   onReset: () => void;
+  embedded?: boolean;
 };
 
 const DEFAULT_SORT_OPTIONS: readonly SortOption[] = [
@@ -54,23 +55,24 @@ export default function VehicleFilters({
   verifiedOnly,
   onVerifiedOnly,
   onReset,
+  embedded = false,
 }: VehicleFiltersProps) {
   const featuredTypes = types.slice(1, 5);
 
   return (
-    <section className="border-y border-white/10 bg-white/[0.02]">
-      <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <section className={embedded ? "overflow-hidden rounded-[2rem] border border-white/10 bg-[#071321]/90 shadow-2xl shadow-black/30 backdrop-blur" : "border-y border-white/10 bg-white/[0.02]"}>
+      <div className={embedded ? "p-5 sm:p-7" : "mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8"}>
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">
               Search and filter
             </div>
 
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            <h2 className={`mt-4 font-semibold tracking-tight text-white ${embedded ? "text-2xl" : "text-3xl sm:text-4xl"}`}>
               Find the right EV, faster.
             </h2>
 
-            <p className="mt-4 text-base leading-7 text-slate-400">
+            <p className={`${embedded ? "mt-3 text-sm leading-6" : "mt-4 text-base leading-7"} text-slate-400`}>
               Search by brand, type, charging, price, or range. Then narrow the
               lineup with premium filters and sort by what matters most.
             </p>
@@ -80,7 +82,7 @@ export default function VehicleFilters({
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className={`flex flex-wrap gap-3 ${embedded ? "lg:hidden" : ""}`}>
             {featuredTypes.map((type) => (
               <button
                 key={type}
@@ -99,8 +101,8 @@ export default function VehicleFilters({
           </div>
         </div>
 
-        <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/20 backdrop-blur lg:p-5">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1.3fr_0.7fr_0.7fr_0.7fr_0.7fr]">
+        <div className={`${embedded ? "mt-6 rounded-2xl" : "mt-8 rounded-[2rem]"} border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/20 backdrop-blur lg:p-5`}>
+          <div className={`grid gap-4 md:grid-cols-2 ${embedded ? "" : "xl:grid-cols-[1.3fr_0.7fr_0.7fr_0.7fr_0.7fr]"}`}>
             <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
               <Search className="h-4 w-4 text-sky-300" />
               <input
@@ -177,3 +179,4 @@ export default function VehicleFilters({
     </section>
   );
 }
+

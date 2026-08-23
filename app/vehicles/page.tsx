@@ -96,9 +96,8 @@ function VehiclesContent() {
       <SiteHeader />
       <DataTrustNotice message="Prices are generally ex-showroom; range figures are manufacturer-claimed unless a practical estimate is explicitly labelled." />
 
-      <VehiclesHero />
-
-      <VehicleFilters
+      <VehiclesHero>
+        <VehicleFilters
         query={query}
         onQueryChange={setQuery}
         selectedType={selectedType}
@@ -122,7 +121,9 @@ function VehiclesContent() {
           setMinimumRange(0);
           setVerifiedOnly(false);
         }}
-      />
+          embedded
+        />
+      </VehiclesHero>
 
       <VehicleGrid vehicles={filteredVehicles} />
 
@@ -140,3 +141,4 @@ export default function VehiclesPage() {
     </Suspense>
   );
 }
+
