@@ -63,7 +63,7 @@ export const vehicleTripProfiles: Record<string, VehicleTripProfile> = {
     vehicleSlug: "tata-punch-ev",
     defaultVariant: "40 kWh",
     variants: [
-      { name: "40 kWh", batteryCapacityKWh: 40, certifiedRangeKm: 468, practicalRangeKm: 355, maxDcChargeKW: 60, connector: "CCS2", fastChargeFromPercent: 20, fastChargeToPercent: 80, fastChargeMinutes: 26 },
+      { name: "40 kWh", batteryCapacityKWh: 40, certifiedRangeKm: 468, practicalRangeKm: 355, maxDcChargeKW: 60, maxAcChargeKW: 7.2, connector: "CCS2", fastChargeFromPercent: 20, fastChargeToPercent: 80, fastChargeMinutes: 26 },
     ],
     sourceUrl: "https://ev.tatamotors.com/punch/ev/specifications.html",
     sourceName: "Tata.ev",

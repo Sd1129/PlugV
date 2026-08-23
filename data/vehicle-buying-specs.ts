@@ -1,6 +1,7 @@
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getCatalogueVariants } from "@/data/vehicle-variant-catalogue";
 import { getVariantFeatures } from "@/data/vehicle-variant-features";
+import { getVehicleChargingFact } from "@/data/vehicle-charging-facts";
 
 const THREE_SEATERS = new Set(["vayve-mobility-eva"]);
 const TWO_SEATERS = new Set(["mg-cyberster"]);
@@ -17,6 +18,7 @@ export function getSeatingCapacity(slug: string) {
 
 export function getBuyingSpecs(slug: string) {
   const profile = getVehicleTripProfile(slug);
+  const chargingFact = getVehicleChargingFact(slug);
   const detailedVariants = profile?.variants ?? [];
   const catalogueVariants = getCatalogueVariants(slug);
   const variantNames = catalogueVariants.length ? catalogueVariants : detailedVariants.map((variant) => variant.name);
@@ -28,8 +30,8 @@ export function getBuyingSpecs(slug: string) {
 
   return {
     seats: getSeatingCapacity(slug),
-    dcTime: dcTimes.join(" / ") || "Not yet verified by PlugV",
-    acTime: acTimes.join(" / ") || "Not yet verified by PlugV",
+    dcTime: dcTimes.join(" / ") || chargingFact?.dcTime || "Not yet verified by PlugV",
+    acTime: acTimes.join(" / ") || chargingFact?.acTime || "Not yet verified by PlugV",
     variants: variantNames,
     variantDetails: variantNames.map((name) => {
       const variant = detailedVariants.find((item) => item.name === name)
@@ -47,9 +49,9 @@ export function getBuyingSpecs(slug: string) {
         connector: variant.connector,
       } : { name, features };
     }),
-    sourceUrl: profile?.sourceUrl,
-    sourceName: profile?.sourceName,
-    verifiedAt: profile?.verifiedAt,
+    sourceUrl: profile?.sourceUrl ?? chargingFact?.sourceUrl,
+    sourceName: profile?.sourceName ?? chargingFact?.sourceName,
+    verifiedAt: profile?.verifiedAt ?? chargingFact?.verifiedAt,
   };
 }
 
