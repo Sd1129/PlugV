@@ -94,6 +94,54 @@ export const vehicleTripProfiles: Record<string, VehicleTripProfile> = {
     verifiedAt: "2026-08-21",
     confidence: "official",
   },
+  "kia-syros-ev": {
+    vehicleSlug: "kia-syros-ev", defaultVariant: "HTX Long Range",
+    variants: [
+      { name: "HTK Plus Standard Range", batteryCapacityKWh: 42, certifiedRangeKm: 443, practicalRangeKm: 354, maxDcChargeKW: 100, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
+      { name: "HTX Standard Range", batteryCapacityKWh: 42, certifiedRangeKm: 443, practicalRangeKm: 354, maxDcChargeKW: 100, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
+      { name: "HTX Long Range", batteryCapacityKWh: 51.4, certifiedRangeKm: 526, practicalRangeKm: 421, maxDcChargeKW: 100, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
+      { name: "HTX Plus Long Range", batteryCapacityKWh: 51.4, certifiedRangeKm: 526, practicalRangeKm: 421, maxDcChargeKW: 100, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
+    ],
+    sourceUrl: "https://www.kia.com/in/our-vehicles/syros-ev/showroom.html", sourceName: "Kia India", verifiedAt: "2026-08-23", confidence: "official",
+  },
+  "kia-carens-clavis-ev": {
+    vehicleSlug: "kia-carens-clavis-ev", defaultVariant: "HTX Plus 51.4 kWh",
+    variants: [
+      { name: "HTK Plus 42 kWh", batteryCapacityKWh: 42, certifiedRangeKm: 404, practicalRangeKm: 323, maxDcChargeKW: 100, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
+      { name: "HTX 42 kWh", batteryCapacityKWh: 42, certifiedRangeKm: 404, practicalRangeKm: 323, maxDcChargeKW: 100, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
+      { name: "HTX 51.4 kWh", batteryCapacityKWh: 51.4, certifiedRangeKm: 490, practicalRangeKm: 392, maxDcChargeKW: 100, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
+      { name: "HTX Plus 51.4 kWh", batteryCapacityKWh: 51.4, certifiedRangeKm: 490, practicalRangeKm: 392, maxDcChargeKW: 100, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
+    ],
+    sourceUrl: "https://www.kia.com/content/dam/kia2/in/en/our-vehicles/kia-carens-clavis-ev/showroom/Carens_Clavis_EV_Brochure_Desktop.pdf", sourceName: "Kia India brochure", verifiedAt: "2026-08-23", confidence: "official",
+  },
+  "vinfast-vf6": {
+    vehicleSlug: "vinfast-vf6", defaultVariant: "Wind",
+    variants: [
+      { name: "Earth", batteryCapacityKWh: 59.6, certifiedRangeKm: 468, practicalRangeKm: 374, maxDcChargeKW: 100, maxAcChargeKW: 7.2, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 70, fastChargeMinutes: 25 },
+      { name: "Wind", batteryCapacityKWh: 59.6, certifiedRangeKm: 463, practicalRangeKm: 370, maxDcChargeKW: 100, maxAcChargeKW: 7.2, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 70, fastChargeMinutes: 25 },
+      { name: "Wind Infinity", batteryCapacityKWh: 59.6, certifiedRangeKm: 463, practicalRangeKm: 370, maxDcChargeKW: 100, maxAcChargeKW: 7.2, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 70, fastChargeMinutes: 25 },
+    ],
+    sourceUrl: "https://vinfastauto.in/en/vf6", sourceName: "VinFast India", verifiedAt: "2026-08-23", confidence: "official",
+  },
+  "bmw-i7": {
+    vehicleSlug: "bmw-i7", defaultVariant: "xDrive60 M Sport",
+    variants: [
+      { name: "eDrive50 M Sport", batteryCapacityKWh: 101.7, certifiedRangeKm: 603, practicalRangeKm: 482, maxDcChargeKW: 200, maxAcChargeKW: 22, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 34 },
+      { name: "xDrive60 M Sport", batteryCapacityKWh: 101.7, certifiedRangeKm: 624, practicalRangeKm: 499, maxDcChargeKW: 200, maxAcChargeKW: 22, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 34 },
+      { name: "M70 xDrive", batteryCapacityKWh: 101.7, certifiedRangeKm: 560, practicalRangeKm: 448, maxDcChargeKW: 200, maxAcChargeKW: 22, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 34 },
+    ],
+    sourceUrl: "https://www.bmw.in/en/all-models/bmw-i/i7/bmw-i7-sedan-technical-data.html", sourceName: "BMW India", verifiedAt: "2026-08-23", confidence: "official",
+  },
+  "kia-ev6": {
+    vehicleSlug: "kia-ev6", defaultVariant: "GT Line AWD",
+    variants: [{ name: "GT Line AWD", batteryCapacityKWh: 84, certifiedRangeKm: 663, practicalRangeKm: 530, maxDcChargeKW: 350, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 18 }],
+    sourceUrl: "https://www.kia.com/in/our-vehicles/ev6/specs.html", sourceName: "Kia India", verifiedAt: "2026-08-23", confidence: "official",
+  },
+  "volvo-ex30": {
+    vehicleSlug: "volvo-ex30", defaultVariant: "Ultra",
+    variants: [{ name: "Ultra", batteryCapacityKWh: 69, certifiedRangeKm: 480, practicalRangeKm: 384, maxDcChargeKW: 175, maxAcChargeKW: 11, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 28 }],
+    sourceUrl: "https://www.volvocars.com/in/cars/ex30-electric/specifications/", sourceName: "Volvo Cars India", verifiedAt: "2026-08-23", confidence: "official",
+  },
 };
 
 export function getVehicleTripProfile(vehicleSlug: string) {
