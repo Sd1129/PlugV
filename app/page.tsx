@@ -32,12 +32,31 @@ function highestNumber(value?: string) {
   return numbers.length ? Math.max(...numbers) : 0;
 }
 
-function matchesForPriority(label: string) {
-  const ranked = [...vehicles].sort((a, b) => highestNumber(b.range) - highestNumber(a.range));
-  if (label === "Daily city driving") return ranked.filter((vehicle) => ["Hatchback", "Microcar"].includes(vehicle.type)).slice(0, 3);
-  if (label === "Family & weekends") return ranked.filter((vehicle) => ["SUV", "MPV"].includes(vehicle.type)).slice(0, 3);
-  if (label === "Long highway runs") return ranked.filter((vehicle) => highestNumber(vehicle.range) >= 500 && vehicleTripProfiles[vehicle.slug]).slice(0, 3);
-  return ranked.filter((vehicle) => ["Roadster", "Luxury Sedan", "SUV Coupe", "Crossover"].includes(vehicle.type)).slice(0, 3);
+function startingPriceLakh(value?: string) {
+  const amount = Number(value?.replace(/,/g, "").match(/\d+(?:\.\d+)?/)?.[0] ?? 0);
+  return value && /\b(?:cr|crore)\b/i.test(value) ? amount * 100 : amount;
+}
+
+function matchesForProfile(priority: string, budget: number, bodyType: string, dailyDistance: number, homeCharging: string, highwayUse: string) {
+  const candidates = vehicles.filter((vehicle) => {
+    const price = startingPriceLakh(vehicle.price);
+    if (price && price > budget) return false;
+    if (bodyType !== "Any" && !vehicle.type.toLowerCase().includes(bodyType.toLowerCase())) return false;
+    return highestNumber(vehicle.range) >= Math.max(180, dailyDistance * 2);
+  });
+  const ranked = candidates.map((vehicle) => {
+    const range = highestNumber(vehicle.range);
+    const profile = vehicleTripProfiles[vehicle.slug];
+    let score = range / 25;
+    if (priority === "Daily city driving" && ["Hatchback", "Microcar"].includes(vehicle.type)) score += 24;
+    if (priority === "Family & weekends" && ["SUV", "MPV"].includes(vehicle.type)) score += 24;
+    if (priority === "Long highway runs" && range >= 450) score += 28;
+    if (priority === "Performance & design" && ["Roadster", "Luxury Sedan", "SUV Coupe", "Crossover"].includes(vehicle.type)) score += 24;
+    if (highwayUse === "Often" && range >= 450) score += 18;
+    if (homeCharging === "No" && profile) score += Math.max(...profile.variants.map((variant) => variant.maxDcChargeKW)) / 8;
+    return { vehicle, score };
+  }).sort((a, b) => b.score - a.score).map((item) => item.vehicle);
+  return ranked.slice(0, 3);
 }
 
 const capabilities = [
@@ -77,7 +96,13 @@ const capabilities = [
 
 export default function HomePage() {
   const [priority, setPriority] = useState(priorities[0]);
-  const matchedVehicles = matchesForPriority(priority.label);
+  const [city, setCity] = useState("");
+  const [budget, setBudget] = useState(25);
+  const [dailyDistance, setDailyDistance] = useState(40);
+  const [homeCharging, setHomeCharging] = useState("Yes");
+  const [bodyType, setBodyType] = useState("Any");
+  const [highwayUse, setHighwayUse] = useState("Sometimes");
+  const matchedVehicles = matchesForProfile(priority.label, budget, bodyType, dailyDistance, homeCharging, highwayUse);
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#030914] text-white">
@@ -87,7 +112,7 @@ export default function HomePage() {
         <div className="absolute inset-0 -z-20 bg-[#061322]" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_26%,rgba(56,189,248,0.17),transparent_25%),radial-gradient(circle_at_80%_72%,rgba(14,165,233,0.12),transparent_30%)]" />
 
-        <div className="mx-auto flex min-h-[560px] w-full max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="mx-auto flex min-h-[480px] w-full max-w-7xl items-center px-4 py-12 sm:min-h-[500px] sm:px-6 lg:px-8 lg:py-16">
           <div className="relative z-10 max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/15 bg-sky-300/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">
               <Sparkles className="h-3.5 w-3.5" />
@@ -166,11 +191,21 @@ export default function HomePage() {
               })}
             </div>
 
+            <div className="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-slate-950/45 p-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ProfileInput label="City" value={city} placeholder="e.g. Bengaluru" onChange={setCity} />
+              <ProfileNumber label="Maximum budget (₹ lakh)" value={budget} min={4} max={300} onChange={setBudget} />
+              <ProfileNumber label="Daily travel (km)" value={dailyDistance} min={5} max={500} onChange={setDailyDistance} />
+              <ProfileSelect label="Home charging" value={homeCharging} options={["Yes", "No", "Not sure"]} onChange={setHomeCharging} />
+              <ProfileSelect label="Body style" value={bodyType} options={["Any", "SUV", "Hatchback", "MPV", "Sedan", "Crossover"]} onChange={setBodyType} />
+              <ProfileSelect label="Highway travel" value={highwayUse} options={["Rarely", "Sometimes", "Often"]} onChange={setHighwayUse} />
+            </div>
+
             <div className="mt-6 rounded-2xl border border-sky-300/15 bg-sky-300/[0.06] p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-300">Your starting profile</p>
                 <p className="mt-1 text-lg font-semibold text-white">{priority.label}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-400">Up to ₹{budget} lakh · {dailyDistance} km/day{city.trim() ? ` · ${city.trim()}` : ""} · {homeCharging === "Yes" ? "Home charging" : homeCharging === "No" ? "Public charging" : "Charging undecided"}</p>
                 </div>
                 <Link href="/vehicles" className="inline-flex items-center gap-2 text-sm font-semibold text-sky-200 hover:text-white">
                 Explore the full catalog
@@ -178,7 +213,7 @@ export default function HomePage() {
                 </Link>
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                {matchedVehicles.map((vehicle) => <Link key={vehicle.slug} href={`/vehicles/${vehicle.slug}`} className="rounded-xl border border-white/10 bg-slate-950/55 p-4 transition hover:border-sky-300/30 hover:bg-slate-950/75"><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-300">{vehicle.brand}</p><p className="mt-1 text-sm font-semibold text-white">{vehicle.name}</p><p className="mt-2 text-xs text-slate-400">{vehicle.range ?? "Range not listed"}</p></Link>)}
+                {matchedVehicles.length ? matchedVehicles.map((vehicle) => <Link key={vehicle.slug} href={`/vehicles/${vehicle.slug}`} className="rounded-xl border border-white/10 bg-slate-950/55 p-4 transition hover:border-sky-300/30 hover:bg-slate-950/75"><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-300">{vehicle.brand}</p><p className="mt-1 text-sm font-semibold text-white">{vehicle.name}</p><p className="mt-2 text-xs text-slate-400">{vehicle.range ?? "Range not listed"} · {vehicle.price ?? "Price not listed"}</p></Link>) : <p className="sm:col-span-3 rounded-xl border border-amber-300/15 bg-amber-400/[0.06] p-4 text-sm text-amber-100">No exact match found. Increase the budget or choose Any body style.</p>}
               </div>
             </div>
           </div>
@@ -254,4 +289,16 @@ export default function HomePage() {
       <SiteFooter />
     </main>
   );
+}
+
+function ProfileInput({ label, value, placeholder, onChange }: { label: string; value: string; placeholder: string; onChange: (value: string) => void }) {
+  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</span><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none placeholder:font-normal placeholder:text-slate-600 focus:border-sky-300/40" /></label>;
+}
+
+function ProfileNumber({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void }) {
+  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</span><input type="number" value={value} min={min} max={max} onChange={(event) => onChange(Math.min(max, Math.max(min, Number(event.target.value) || min)))} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/40" /></label>;
+}
+
+function ProfileSelect({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {
+  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/40">{options.map((option) => <option key={option}>{option}</option>)}</select></label>;
 }

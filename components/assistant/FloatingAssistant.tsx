@@ -41,9 +41,9 @@ export default function FloatingAssistant() {
           </div>
         </div>
       ) : null}
-      <button type="button" onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-controls="plugv-assistant-popup" className="group flex min-h-14 items-center gap-3 rounded-full border border-sky-200/30 bg-sky-300 px-4 text-sm font-semibold text-slate-950 shadow-[0_16px_45px_-14px_rgba(56,189,248,0.9)] transition hover:-translate-y-0.5 hover:bg-sky-200 sm:px-5">
+      <button type="button" onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-controls="plugv-assistant-popup" aria-label="Ask PlugV" className="group flex h-12 w-12 items-center justify-center gap-3 rounded-full border border-sky-200/30 bg-sky-300 p-0 text-sm font-semibold text-slate-950 shadow-[0_16px_45px_-14px_rgba(56,189,248,0.9)] transition hover:-translate-y-0.5 hover:bg-sky-200 sm:h-14 sm:w-auto sm:px-5">
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-sky-300"><MessageCircle className="h-4 w-4" /></span>
-        <span>Ask PlugV</span>
+        <span className="hidden sm:inline">Ask PlugV</span>
       </button>
     </aside>
   );
