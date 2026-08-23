@@ -18,7 +18,6 @@ import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
 import { upcomingEVs } from "@/data/upcoming";
 import { vehicles } from "@/data/vehicles";
-import { chargingStations } from "@/data/charging/stations";
 import { vehicleTripProfiles } from "@/data/vehicle-trip-profiles";
 
 const priorities = [
@@ -79,7 +78,6 @@ const capabilities = [
 export default function HomePage() {
   const [priority, setPriority] = useState(priorities[0]);
   const matchedVehicles = matchesForPriority(priority.label);
-  const brandsCount = new Set(vehicles.map((vehicle) => vehicle.brand)).size;
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#030914] text-white">
@@ -119,26 +117,11 @@ export default function HomePage() {
                 <MapPinned className="h-4 w-4" />
               </Link>
             </div>
-            <div className="mt-12 flex flex-wrap gap-x-7 gap-y-3 text-sm text-slate-400">
-              <span>Built around your life</span>
-              <span>•</span>
-              <span>India-first charging context</span>
-              <span>•</span>
-              <span>Useful before and after purchase</span>
-            </div>
           </div>
 
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-white/[0.02]">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-px bg-white/10 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
-          <PlatformMetric value={`${vehicles.length}`} label="Launched EVs tracked" />
-          <PlatformMetric value={`${brandsCount}`} label="EV brands" />
-          <PlatformMetric value={`${chargingStations.length}`} label="Known charging stations" />
-          <PlatformMetric value={`${Object.keys(vehicleTripProfiles).length}`} label="Official trip profiles" />
-        </div>
-      </section>
 
       <section id="ev-match" className="scroll-mt-24 bg-[#030914] py-20 sm:py-28">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 lg:px-8">
@@ -271,8 +254,4 @@ export default function HomePage() {
       <SiteFooter />
     </main>
   );
-}
-
-function PlatformMetric({ value, label }: { value: string; label: string }) {
-  return <div className="bg-[#050d19] px-4 py-6 text-center sm:px-6"><p className="text-2xl font-semibold text-white sm:text-3xl">{value}</p><p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p></div>;
 }
