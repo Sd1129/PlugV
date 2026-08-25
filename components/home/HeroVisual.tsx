@@ -57,7 +57,7 @@ export default function HeroVisual({
   availability = "Available",
   ctaLabel = "View Vehicle",
   ctaHref = "/vehicles",
-  imageSrc = "/images/hero/plugv-hero-v3.webp",
+  imageSrc = "/images/plugv-owned/plugv-home-hero-2026-08.png",
   imageAlt = "Mahindra BE 6 hero",
   className = "",
 }: HeroVisualProps) {

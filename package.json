@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "audit:data": "node scripts/launch-audit.mjs",
+    "audit:freshness": "node scripts/data-freshness-audit.mjs",
+    "audit:site": "node scripts/site-health-audit.mjs",
+    "audit:sources": "node scripts/source-link-audit.mjs",
+    "audit:security": "node scripts/security-audit.mjs",
+    "audit:maintenance": "npm run audit:data && npm run audit:freshness",
+    "audit:release": "npm run lint && npm run build && npm run audit:maintenance && npm run audit:security"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -21,11 +28,9 @@
     "framer-motion": "^12.43.0",
     "lucide-react": "^1.27.0",
     "mapbox-gl": "^3.28.0",
-    "next": "16.2.12",
-    "prisma": "^7.9.1",
+    "next": "16.3.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "shadcn": "^4.16.0",
     "tailwind-merge": "^3.6.0",
     "tw-animate-css": "^1.4.0"
   },
@@ -35,7 +40,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.12",
+    "eslint-config-next": "16.3.2",
+    "prisma": "^7.9.1",
     "tailwindcss": "^4",
     "tsx": "^4.19.0",
     "typescript": "^5"

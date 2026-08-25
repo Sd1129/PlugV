@@ -21,6 +21,10 @@ function getNumber(value: string | null, fallback: number) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function clamp(value: number, minimum: number, maximum: number) {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -45,8 +49,8 @@ export async function GET(request: Request) {
       ccs2Only: getBoolean(searchParams.get("ccs2Only")),
       chademoOnly: getBoolean(searchParams.get("chademoOnly")),
       sortBy,
-      limit: getNumber(searchParams.get("limit"), 12),
-      offset: getNumber(searchParams.get("offset"), 0),
+      limit: clamp(getNumber(searchParams.get("limit"), 12), 1, 100),
+      offset: clamp(getNumber(searchParams.get("offset"), 0), 0, 10_000),
       originLat: Number.isFinite(originLat) ? originLat : undefined,
       originLng: Number.isFinite(originLng) ? originLng : undefined,
     });

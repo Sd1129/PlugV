@@ -8,6 +8,7 @@ import {
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/adminAuth";
 
 type SeedStation = {
   id: string;
@@ -148,6 +149,7 @@ async function upsertSeedStation(
 }
 
 export async function bulkImportStations(formData: FormData) {
+  await requireAdmin();
   const importJson = asString(formData.get("importJson"));
   const sourceName = asString(formData.get("sourceName")) || "Manual import";
   const sourceUrl = asString(formData.get("sourceUrl"));
@@ -191,6 +193,7 @@ export async function bulkImportStations(formData: FormData) {
 }
 
 export async function addStationSource(formData: FormData) {
+  await requireAdmin();
   const stationId = asString(formData.get("stationId"));
   const sourceName = asString(formData.get("sourceName"));
   const sourceUrl = asString(formData.get("sourceUrl"));
@@ -225,6 +228,7 @@ export async function addStationSource(formData: FormData) {
 }
 
 export async function verifyStation(formData: FormData) {
+  await requireAdmin();
   const stationId = asString(formData.get("stationId"));
   const verifiedBy = asString(formData.get("verifiedBy")) || "Admin";
   const notes = asString(formData.get("notes"));
@@ -253,6 +257,7 @@ export async function verifyStation(formData: FormData) {
 }
 
 export async function rejectStation(formData: FormData) {
+  await requireAdmin();
   const stationId = asString(formData.get("stationId"));
   const verifiedBy = asString(formData.get("verifiedBy")) || "Admin";
   const notes = asString(formData.get("notes"));

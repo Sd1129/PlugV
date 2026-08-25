@@ -1,5 +1,0 @@
-DATABASE_URL="postgresql://neondb_owner:npg_eftGNS63kgVD@ep-twilight-shape-ayzmaa0p-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-DIRECT_URL="postgresql://neondb_owner:npg_eftGNS63kgVD@ep-twilight-shape-ayzmaa0p.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-
-ADMIN_USER=plugv-admin
-ADMIN_PASSWORD=Plugv@1129

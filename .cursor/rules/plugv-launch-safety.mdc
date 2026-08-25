@@ -1,0 +1,17 @@
+---
+description: Mandatory PlugV India launch-readiness gates for every project change
+alwaysApply: true
+---
+
+# PlugV Launch Safety Rule
+
+- Treat PlugV as an independent India-focused EV information platform; never imply government or manufacturer endorsement.
+- Do not publish a vehicle, charger, price, launch, range, feature, availability or charging claim without a traceable source, verification date and honest confidence label.
+- Never convert an estimate, fallback route, model output or partial source into an official/live fact.
+- Use only PlugV-owned, generated, commissioned or explicitly licensed visual assets. Record every public asset in the asset-rights register.
+- Preserve privacy-by-design: minimise personal data, obtain user action before location access, document external processors and never log secrets or sensitive user input.
+- Protect every mutation/admin path with server-side authorization. Validate and bound all API inputs.
+- Avoid unsupported “best”, “official”, “guaranteed”, “live” and superlative claims.
+- Before completion run `npm run audit:release`. Do not describe a change as launch-ready when the command fails.
+- Any legal/compliance conclusion requires qualified Indian counsel; record unresolved review items as launch blockers.
+

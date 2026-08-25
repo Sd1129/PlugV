@@ -9,7 +9,7 @@ export default function ChargingHero() {
     <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-b border-white/10">
       <div className="absolute inset-0">
       <Image
-  src="/images/hero/plugv-charging-hero-v2.webp"
+  src="/images/plugv-owned/plugv-charging-hero-2026-08.png"
   alt="PlugV charging station hero"
   fill
   priority

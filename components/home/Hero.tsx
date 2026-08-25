@@ -98,7 +98,7 @@ export default function Hero({
             ctaLabel={visualCtaLabel}
             ctaHref={visualCtaHref}
             imageSrc={
-              backgroundImageSrc ?? "/images/hero/plugv-hero-v3.webp"
+              backgroundImageSrc ?? "/images/plugv-owned/plugv-home-hero-2026-08.png"
             }
             imageAlt={backgroundImageAlt ?? visualTitle}
           />
