@@ -33,10 +33,10 @@ export default function FounderPage() {
               <p>PlugV is being built around accuracy, transparency and practical everyday value—not paid rankings or unsupported claims. As India&apos;s electric mobility ecosystem grows, PlugV will continue evolving with the needs of buyers and owners.</p>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300"><Mail className="h-4 w-4 text-sky-300" /><span>founder@plugv.in</span><span className="rounded-full bg-amber-400/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-200">Preview</span></div>
+              <a href="mailto:support@plugv.in?subject=Message%20for%20the%20PlugV%20Founder" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300 hover:border-sky-300/25 hover:text-white"><Mail className="h-4 w-4 text-sky-300" /><span>support@plugv.in</span></a>
               <Link href="/about" className="inline-flex items-center gap-2 rounded-full bg-sky-300 px-5 py-3 text-sm font-semibold text-slate-950">About PlugV <ArrowRight className="h-4 w-4" /></Link>
             </div>
-            <p className="mt-3 text-xs leading-5 text-slate-500">Contact email shown as a preview until the mailbox is activated.</p>
+            <p className="mt-3 text-xs leading-5 text-slate-500">Founder-related messages are received through the official PlugV support mailbox.</p>
           </div>
         </div>
       </section>

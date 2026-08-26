@@ -262,6 +262,48 @@ export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
   _max?: Prisma.NestedJsonNullableFilter<$PrismaModel>
 }
 
+export type DateTimeNullableFilter<$PrismaModel = never> = {
+  equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
+  in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  notIn?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  lt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  lte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+}
+
+export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
+  in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  notIn?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  lt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  lte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type EnumReminderTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReminderType | Prisma.EnumReminderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel> | $Enums.ReminderType
+}
+
+export type EnumReminderTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReminderType | Prisma.EnumReminderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReminderTypeWithAggregatesFilter<$PrismaModel> | $Enums.ReminderType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -483,6 +525,48 @@ export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
   gt?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   gte?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
+}
+
+export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+  equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
+  in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  notIn?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  lt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  lte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+}
+
+export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
+  in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  notIn?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  lt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  lte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumReminderTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReminderType | Prisma.EnumReminderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel> | $Enums.ReminderType
+}
+
+export type NestedEnumReminderTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReminderType | Prisma.EnumReminderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReminderType[] | Prisma.ListEnumReminderTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReminderTypeWithAggregatesFilter<$PrismaModel> | $Enums.ReminderType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumReminderTypeFilter<$PrismaModel>
 }
 
 

@@ -102,3 +102,41 @@ model StationVerification {
 
   @@index([stationId])
 }
+
+enum ReminderType {
+  SERVICE
+  INSURANCE
+}
+
+model ReminderSubscriber {
+  id                    String   @id @default(cuid())
+  email                 String   @unique
+  verifiedAt            DateTime?
+  verificationTokenHash String?  @unique
+  verificationExpiresAt DateTime?
+  verificationSentAt    DateTime?
+  sessionTokenHash      String?  @unique
+  consentedAt           DateTime?
+  consentVersion        String?
+  unsubscribedAt        DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  reminders             EmailReminder[]
+}
+
+model EmailReminder {
+  id           String             @id @default(cuid())
+  subscriberId String
+  subscriber   ReminderSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  type         ReminderType
+  title        String
+  dueDate      DateTime
+  noticeDays   Int
+  active       Boolean            @default(true)
+  lastSentKey  String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([subscriberId, active])
+  @@index([dueDate, active])
+}

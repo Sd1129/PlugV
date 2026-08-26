@@ -26,3 +26,11 @@ export const VerificationStatus = {
 } as const
 
 export type VerificationStatus = (typeof VerificationStatus)[keyof typeof VerificationStatus]
+
+
+export const ReminderType = {
+  SERVICE: 'SERVICE',
+  INSURANCE: 'INSURANCE'
+} as const
+
+export type ReminderType = (typeof ReminderType)[keyof typeof ReminderType]

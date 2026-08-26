@@ -37,3 +37,13 @@ export type StationSource = Prisma.StationSourceModel
  * 
  */
 export type StationVerification = Prisma.StationVerificationModel
+/**
+ * Model ReminderSubscriber
+ * 
+ */
+export type ReminderSubscriber = Prisma.ReminderSubscriberModel
+/**
+ * Model EmailReminder
+ * 
+ */
+export type EmailReminder = Prisma.EmailReminderModel

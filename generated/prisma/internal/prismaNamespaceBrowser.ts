@@ -54,7 +54,9 @@ export const ModelName = {
   City: 'City',
   Station: 'Station',
   StationSource: 'StationSource',
-  StationVerification: 'StationVerification'
+  StationVerification: 'StationVerification',
+  ReminderSubscriber: 'ReminderSubscriber',
+  EmailReminder: 'EmailReminder'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -137,6 +139,40 @@ export const StationVerificationScalarFieldEnum = {
 } as const
 
 export type StationVerificationScalarFieldEnum = (typeof StationVerificationScalarFieldEnum)[keyof typeof StationVerificationScalarFieldEnum]
+
+
+export const ReminderSubscriberScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  verifiedAt: 'verifiedAt',
+  verificationTokenHash: 'verificationTokenHash',
+  verificationExpiresAt: 'verificationExpiresAt',
+  verificationSentAt: 'verificationSentAt',
+  sessionTokenHash: 'sessionTokenHash',
+  consentedAt: 'consentedAt',
+  consentVersion: 'consentVersion',
+  unsubscribedAt: 'unsubscribedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReminderSubscriberScalarFieldEnum = (typeof ReminderSubscriberScalarFieldEnum)[keyof typeof ReminderSubscriberScalarFieldEnum]
+
+
+export const EmailReminderScalarFieldEnum = {
+  id: 'id',
+  subscriberId: 'subscriberId',
+  type: 'type',
+  title: 'title',
+  dueDate: 'dueDate',
+  noticeDays: 'noticeDays',
+  active: 'active',
+  lastSentKey: 'lastSentKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmailReminderScalarFieldEnum = (typeof EmailReminderScalarFieldEnum)[keyof typeof EmailReminderScalarFieldEnum]
 
 
 export const SortOrder = {

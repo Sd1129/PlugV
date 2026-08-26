@@ -9,10 +9,11 @@
     "lint": "eslint",
     "audit:data": "node scripts/launch-audit.mjs",
     "audit:freshness": "node scripts/data-freshness-audit.mjs",
+    "audit:upcoming": "node scripts/upcoming-catalog-audit.mjs",
     "audit:site": "node scripts/site-health-audit.mjs",
     "audit:sources": "node scripts/source-link-audit.mjs",
     "audit:security": "node scripts/security-audit.mjs",
-    "audit:maintenance": "npm run audit:data && npm run audit:freshness",
+    "audit:maintenance": "npm run audit:data && npm run audit:freshness && npm run audit:upcoming",
     "audit:release": "npm run lint && npm run build && npm run audit:maintenance && npm run audit:security"
   },
   "prisma": {
@@ -29,6 +30,7 @@
     "lucide-react": "^1.27.0",
     "mapbox-gl": "^3.28.0",
     "next": "16.3.2",
+    "nodemailer": "^9.0.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tailwind-merge": "^3.6.0",
@@ -37,6 +39,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

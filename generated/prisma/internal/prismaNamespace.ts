@@ -400,7 +400,9 @@ export const ModelName = {
   City: 'City',
   Station: 'Station',
   StationSource: 'StationSource',
-  StationVerification: 'StationVerification'
+  StationVerification: 'StationVerification',
+  ReminderSubscriber: 'ReminderSubscriber',
+  EmailReminder: 'EmailReminder'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -416,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "city" | "station" | "stationSource" | "stationVerification"
+    modelProps: "city" | "station" | "stationSource" | "stationVerification" | "reminderSubscriber" | "emailReminder"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -716,6 +718,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ReminderSubscriber: {
+      payload: Prisma.$ReminderSubscriberPayload<ExtArgs>
+      fields: Prisma.ReminderSubscriberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReminderSubscriberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReminderSubscriberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload>
+        }
+        findFirst: {
+          args: Prisma.ReminderSubscriberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReminderSubscriberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload>
+        }
+        findMany: {
+          args: Prisma.ReminderSubscriberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload>[]
+        }
+        create: {
+          args: Prisma.ReminderSubscriberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload>
+        }
+        createMany: {
+          args: Prisma.ReminderSubscriberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ReminderSubscriberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload>[]
+        }
+        delete: {
+          args: Prisma.ReminderSubscriberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload>
+        }
+        update: {
+          args: Prisma.ReminderSubscriberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReminderSubscriberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReminderSubscriberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ReminderSubscriberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload>[]
+        }
+        upsert: {
+          args: Prisma.ReminderSubscriberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderSubscriberPayload>
+        }
+        aggregate: {
+          args: Prisma.ReminderSubscriberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReminderSubscriber>
+        }
+        groupBy: {
+          args: Prisma.ReminderSubscriberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReminderSubscriberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReminderSubscriberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReminderSubscriberCountAggregateOutputType> | number
+        }
+      }
+    }
+    EmailReminder: {
+      payload: Prisma.$EmailReminderPayload<ExtArgs>
+      fields: Prisma.EmailReminderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmailReminderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmailReminderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload>
+        }
+        findFirst: {
+          args: Prisma.EmailReminderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmailReminderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload>
+        }
+        findMany: {
+          args: Prisma.EmailReminderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload>[]
+        }
+        create: {
+          args: Prisma.EmailReminderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload>
+        }
+        createMany: {
+          args: Prisma.EmailReminderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmailReminderCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload>[]
+        }
+        delete: {
+          args: Prisma.EmailReminderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload>
+        }
+        update: {
+          args: Prisma.EmailReminderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmailReminderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmailReminderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmailReminderUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmailReminderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailReminderPayload>
+        }
+        aggregate: {
+          args: Prisma.EmailReminderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmailReminder>
+        }
+        groupBy: {
+          args: Prisma.EmailReminderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmailReminderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmailReminderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmailReminderCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -819,6 +969,40 @@ export const StationVerificationScalarFieldEnum = {
 } as const
 
 export type StationVerificationScalarFieldEnum = (typeof StationVerificationScalarFieldEnum)[keyof typeof StationVerificationScalarFieldEnum]
+
+
+export const ReminderSubscriberScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  verifiedAt: 'verifiedAt',
+  verificationTokenHash: 'verificationTokenHash',
+  verificationExpiresAt: 'verificationExpiresAt',
+  verificationSentAt: 'verificationSentAt',
+  sessionTokenHash: 'sessionTokenHash',
+  consentedAt: 'consentedAt',
+  consentVersion: 'consentVersion',
+  unsubscribedAt: 'unsubscribedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReminderSubscriberScalarFieldEnum = (typeof ReminderSubscriberScalarFieldEnum)[keyof typeof ReminderSubscriberScalarFieldEnum]
+
+
+export const EmailReminderScalarFieldEnum = {
+  id: 'id',
+  subscriberId: 'subscriberId',
+  type: 'type',
+  title: 'title',
+  dueDate: 'dueDate',
+  noticeDays: 'noticeDays',
+  active: 'active',
+  lastSentKey: 'lastSentKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmailReminderScalarFieldEnum = (typeof EmailReminderScalarFieldEnum)[keyof typeof EmailReminderScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -970,6 +1154,20 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'ReminderType'
+ */
+export type EnumReminderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderType'>
+    
+
+
+/**
+ * Reference to a field of type 'ReminderType[]'
+ */
+export type ListEnumReminderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReminderType[]'>
     
 
 /**
@@ -1127,6 +1325,8 @@ export type GlobalOmitConfig = {
   station?: Prisma.StationOmit
   stationSource?: Prisma.StationSourceOmit
   stationVerification?: Prisma.StationVerificationOmit
+  reminderSubscriber?: Prisma.ReminderSubscriberOmit
+  emailReminder?: Prisma.EmailReminderOmit
 }
 
 /* Types for Logging */

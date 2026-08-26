@@ -1,8 +1,10 @@
 "use client";
 
-import { ArrowRight, MapPin, Phone, Zap } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Bookmark, CheckCircle2, MapPin, Phone, Zap } from "lucide-react";
 import type { ChargingStation } from "@/data/charging/stations";
 import StationTrustRow from "@/components/charging/StationTrustRow";
+import { readOwnerSavedItems, toggleTrustedCharger } from "@/lib/owner-saved-items";
 type StationCardProps = {
   station: ChargingStation;
   distanceLabel?: string | null;
@@ -13,6 +15,19 @@ export default function StationCard({
   distanceLabel,
 }: StationCardProps) {
   const hasPower = station.charging.maxPowerKW > 0;
+  const [isTrusted, setIsTrusted] = useState(() => typeof window !== "undefined" && readOwnerSavedItems().some((item) => item.type === "Charger" && item.stationId === station.id));
+
+  function toggleSaved(event: React.MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    const connectors = [station.connectors.ccs2 ? "CCS2" : null, station.connectors.chademo ? "CHAdeMO" : null, station.connectors.acType2 ? "Type 2" : null, station.connectors.gbt ? "GB/T" : null].filter(Boolean).join(" · ");
+    setIsTrusted(toggleTrustedCharger({
+      id: crypto.randomUUID(), type: "Charger", stationId: station.id, trustedByOwner: true,
+      title: station.name,
+      detail: `${station.operator} · ${station.address} · ${station.charging.maxPowerKW} kW${connectors ? ` · ${connectors}` : ""}`,
+      href: station.directionsUrl,
+      createdAt: new Date().toISOString(),
+    }));
+  }
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-lg shadow-black/10 transition duration-200 hover:-translate-y-0.5 hover:border-sky-400/30 hover:bg-white/[0.06]">
@@ -182,6 +197,10 @@ export default function StationCard({
                 Call
               </a>
             ) : null}
+            <button type="button" onClick={toggleSaved} className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${isTrusted ? "border-emerald-300/25 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5 text-white hover:bg-white/10"}`} aria-pressed={isTrusted} aria-label={`${isTrusted ? "Remove" : "Save"} ${station.name} as a trusted charger`}>
+              {isTrusted ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Bookmark className="h-3.5 w-3.5" />}
+              {isTrusted ? "My trusted charger" : "Save charger"}
+            </button>
           </div>
         </div>
       </div>

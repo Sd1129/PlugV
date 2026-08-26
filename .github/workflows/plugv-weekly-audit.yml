@@ -26,6 +26,8 @@ jobs:
       - run: npm run lint
       - run: npm run build
       - run: npm run audit:maintenance
+      - name: Verify current-year and next-year upcoming EV catalogue
+        run: npm run audit:upcoming
       - name: Check official source links
         run: npm run audit:sources
       - name: Audit production dependencies

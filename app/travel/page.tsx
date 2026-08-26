@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeftRight,
   ArrowRight,
   BatteryCharging,
+  Bookmark,
+  CheckCircle2,
   CircleHelp,
   Clock3,
   MapPin,
@@ -25,6 +27,7 @@ import TravelRouteMap from "@/components/travel/TravelRouteMap";
 import { chargingStations, type ChargingStation } from "@/data/charging/stations";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
+import { readOwnerSavedItems, toggleTrustedCharger } from "@/lib/owner-saved-items";
 
 type Field = "origin" | "destination";
 
@@ -46,6 +49,17 @@ type RouteResult = {
 };
 
 type NearbyStation = ChargingStation & { distanceToRouteKm: number };
+
+type SavedTrip = {
+  id: string;
+  type: "Trip";
+  title: string;
+  detail: string;
+  href: string;
+  createdAt: string;
+};
+
+const SAVED_ITEMS_KEY = "plugv-owner-saved";
 
 function formatDuration(minutes: number) {
   const hours = Math.floor(minutes / 60);
@@ -107,6 +121,7 @@ export default function TravelPage() {
   const [energyRate, setEnergyRate] = useState(18);
   const [isPlanning, setIsPlanning] = useState(false);
   const [error, setError] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saved">("idle");
   const searchTimers = useRef<Record<Field, ReturnType<typeof setTimeout> | null>>({ origin: null, destination: null });
   const searchSequence = useRef<Record<Field, number>>({ origin: 0, destination: 0 });
 
@@ -127,6 +142,32 @@ export default function TravelPage() {
   const fastestRouteChargerKw = Math.max(0, ...nearbyStations.map((station) => station.charging.maxPowerKW));
   const effectiveChargePowerKw = Math.max(30, Math.min(selectedVariant?.maxDcChargeKW ?? 60, fastestRouteChargerKw || selectedVariant?.maxDcChargeKW || 60));
   const estimatedChargingMinutes = estimatedStops ? Math.round(selectedVariant ? estimatedStops * selectedVariant.fastChargeMinutes * (selectedVariant.maxDcChargeKW / effectiveChargePowerKw) : (estimatedStops * usableRechargeRangeKm * efficiencyKWhPerKm * 60) / effectiveChargePowerKw) : 0;
+
+  useEffect(() => {
+    let cancelled = false;
+    const timeout = window.setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("saved") !== "1") return;
+      const fromLat = Number(params.get("fromLat")); const fromLng = Number(params.get("fromLng"));
+      const toLat = Number(params.get("toLat")); const toLng = Number(params.get("toLng"));
+      const fromLabel = params.get("from") ?? "Saved origin"; const toLabel = params.get("to") ?? "Saved destination";
+      if (![fromLat, fromLng, toLat, toLng].every(Number.isFinite)) return;
+      setOrigin({ id: `saved-origin-${fromLat}-${fromLng}`, label: fromLabel, detail: "Restored from My EV", latitude: fromLat, longitude: fromLng, type: "saved_place" });
+      setDestination({ id: `saved-destination-${toLat}-${toLng}`, label: toLabel, detail: "Restored from My EV", latitude: toLat, longitude: toLng, type: "saved_place" });
+      setOriginInput(fromLabel); setDestinationInput(toLabel);
+      const savedVehicle = params.get("vehicle");
+      if (savedVehicle && vehicles.some((vehicle) => vehicle.slug === savedVehicle)) setVehicleSlug(savedVehicle);
+      setVariantName(params.get("variant") ?? "");
+      setStartingCharge(Math.min(100, Math.max(20, Number(params.get("charge")) || 90)));
+      setEnergyRate(Math.min(100, Math.max(1, Number(params.get("rate")) || 18)));
+      setIsPlanning(true);
+      fetch(`/api/travel?origin=${fromLat},${fromLng}&destination=${toLat},${toLng}`)
+        .then(async (response) => { const payload = (await response.json()) as RouteResult & { error?: string }; if (!response.ok || payload.error) throw new Error(payload.error ?? "The saved route could not be calculated."); if (!cancelled) setRoute(payload); })
+        .catch((routeError: unknown) => { if (!cancelled) setError(routeError instanceof Error ? routeError.message : "The saved route could not be calculated."); })
+        .finally(() => { if (!cancelled) setIsPlanning(false); });
+    }, 0);
+    return () => { cancelled = true; window.clearTimeout(timeout); };
+  }, []);
 
   function updateInput(field: Field, value: string) {
     if (field === "origin") {
@@ -217,6 +258,41 @@ export default function TravelPage() {
     setDestinationInput(currentOriginInput);
     setRoute(null);
     setError("");
+  }
+
+  function saveTrip() {
+    if (!route || !origin || !destination || !selectedVehicle) return;
+    const params = new URLSearchParams({
+      saved: "1",
+      from: origin.label,
+      fromLat: String(origin.latitude),
+      fromLng: String(origin.longitude),
+      to: destination.label,
+      toLat: String(destination.latitude),
+      toLng: String(destination.longitude),
+      vehicle: vehicleSlug,
+      variant: selectedVariant?.name ?? "",
+      charge: String(startingCharge),
+      rate: String(energyRate),
+    });
+    const href = `/travel?${params.toString()}`;
+    const savedTrip: SavedTrip = {
+      id: crypto.randomUUID(),
+      type: "Trip",
+      title: `${origin.label} to ${destination.label}`,
+      detail: `${Math.round(route.distanceKm)} km · ${formatDuration(route.durationMinutes)} · ${selectedVehicle.brand} ${selectedVehicle.name}${selectedVariant ? ` · ${selectedVariant.name}` : ""} · ${estimatedStops} charging stop${estimatedStops === 1 ? "" : "s"}`,
+      href,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const existing = JSON.parse(localStorage.getItem(SAVED_ITEMS_KEY) ?? "[]") as Array<SavedTrip | Record<string, unknown>>;
+      const withoutDuplicate = existing.filter((item) => !("href" in item) || item.href !== href);
+      localStorage.setItem(SAVED_ITEMS_KEY, JSON.stringify([savedTrip, ...withoutDuplicate]));
+      setSaveStatus("saved");
+    } catch {
+      setError("This trip could not be saved in your browser. Check browser storage permissions and try again.");
+    }
   }
 
   const placeInput = (field: Field, label: string, value: string, selected: Place | null) => (
@@ -325,6 +401,14 @@ export default function TravelPage() {
                 <p className="mt-1 text-xs leading-5 text-slate-300">{nearbyStations.length >= estimatedStops ? `${nearbyStations.length} known stations are near this corridor, enough to review against the estimated ${estimatedStops} stop${estimatedStops === 1 ? "" : "s"}.` : `Only ${nearbyStations.length} known stations are close to this corridor. Review operator coverage before departure.`}</p>
               </div>
 
+              <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-sky-300/15 bg-sky-400/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div><p className="text-sm font-semibold text-white">Keep this route in My EV</p><p className="mt-1 text-xs leading-5 text-slate-400">Save the places, vehicle, variant, distance, duration and charging-stop estimate in this browser.</p></div>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <button type="button" onClick={saveTrip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-sky-300 px-5 text-sm font-semibold text-slate-950 hover:bg-sky-200">{saveStatus === "saved" ? <CheckCircle2 className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}{saveStatus === "saved" ? "Saved to My EV" : "Save trip"}</button>
+                  {saveStatus === "saved" ? <Link href="/my-ev#owner-saved" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 px-5 text-sm font-semibold text-white hover:bg-white/5">View saved trips<ArrowRight className="h-4 w-4" /></Link> : null}
+                </div>
+              </div>
+
               <div className="mt-14 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Charging coverage</p><h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Known stations near your route.</h2><p className="mt-3 max-w-2xl text-base leading-7 text-slate-400">Compare detour distance, charging speed, connectors, and live status where an operator feed is available.</p><div className="mt-4 flex flex-wrap gap-3 text-xs font-semibold"><span className="inline-flex items-center gap-2 text-emerald-200"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />Green: DC Fast</span><span className="inline-flex items-center gap-2 text-yellow-100"><span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />Yellow: AC Fast</span></div></div><span className="inline-flex items-center gap-2 text-sm text-slate-400"><Navigation className="h-4 w-4 text-sky-300" />{origin.label} → {destination.label}</span></div>
 
               {nearbyStations.length ? (
@@ -352,6 +436,7 @@ function Metric({ label, value, icon: Icon }: { label: string; value: string; ic
 }
 
 function StationCard({ station }: { station: NearbyStation }) {
+  const [isTrusted, setIsTrusted] = useState(() => typeof window !== "undefined" && readOwnerSavedItems().some((item) => item.type === "Charger" && item.stationId === station.id));
   const connectors = [
     station.connectors.ccs2 ? "CCS2" : null,
     station.connectors.chademo ? "CHAdeMO" : null,
@@ -374,6 +459,16 @@ function StationCard({ station }: { station: NearbyStation }) {
     unknown: "Live status unavailable",
   }[availability];
 
+  function toggleSaved() {
+    setIsTrusted(toggleTrustedCharger({
+      id: crypto.randomUUID(), type: "Charger", stationId: station.id, trustedByOwner: true,
+      title: station.name,
+      detail: `${station.operator} · ${station.address} · ${station.charging.maxPowerKW} kW${connectors.length ? ` · ${connectors.join(" · ")}` : ""}`,
+      href: station.directionsUrl,
+      createdAt: new Date().toISOString(),
+    }));
+  }
+
   return (
     <article className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-sky-300/25 hover:bg-white/[0.06]">
       <div className="flex items-start justify-between gap-4">
@@ -390,6 +485,9 @@ function StationCard({ station }: { station: NearbyStation }) {
         <div className="rounded-xl bg-slate-950/60 p-3"><p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Connectors</p><p className="mt-1 text-sm font-semibold text-white">{connectors.join(" · ") || "Not listed"}</p></div>
       </div>
       {station.availability?.availableConnectors !== undefined ? <p className="mt-4 text-xs text-slate-400"><span className="font-semibold text-white">{station.availability.availableConnectors}</span>{station.availability.totalConnectors ? ` of ${station.availability.totalConnectors}` : ""} connectors available</p> : <p className="mt-4 text-xs leading-5 text-slate-500">Availability requires a live operator feed. Check the operator app before arriving.</p>}
+      <button type="button" onClick={toggleSaved} className={`mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border px-4 text-xs font-semibold transition ${isTrusted ? "border-emerald-300/25 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5 text-white hover:bg-white/10"}`} aria-pressed={isTrusted}>
+        {isTrusted ? <CheckCircle2 className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}{isTrusted ? "My trusted charger" : "Save charger"}
+      </button>
     </article>
   );
 }

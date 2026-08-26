@@ -8,8 +8,9 @@ import SiteFooter from "@/components/home/SiteFooter";
 import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import { vehicles } from "@/data/vehicles";
 
-type Reminder = { id: string; type: "Service" | "Insurance"; title: string; date: string };
-type SavedItem = { id: string; type: "Trip" | "Charger"; title: string; detail: string };
+type Reminder = { id: string; type: "Service" | "Insurance"; title: string; date: string; notifyDays?: number; createdAt?: string; email?: boolean };
+type EmailStatus = { verified: boolean; email?: string; reminders: Reminder[] };
+type SavedItem = { id: string; type: "Trip" | "Charger"; title: string; detail: string; href?: string; createdAt?: string; stationId?: string; trustedByOwner?: boolean };
 type AlertKey = "recalls" | "software" | "chargers" | "network";
 type DriveCondition = "city" | "highway" | "difficult";
 type OwnerProfile = { vehicleSlug: string; batteryPercent: number; distance: number; condition: DriveCondition };
@@ -41,6 +42,11 @@ export default function MyEvPage() {
   const [reminderType, setReminderType] = useState<Reminder["type"]>("Service");
   const [reminderTitle, setReminderTitle] = useState("");
   const [reminderDate, setReminderDate] = useState("");
+  const [reminderNotice, setReminderNotice] = useState(7);
+  const [emailStatus, setEmailStatus] = useState<EmailStatus>({ verified: false, reminders: [] });
+  const [reminderEmail, setReminderEmail] = useState(""); const [emailConsent, setEmailConsent] = useState(false); const [sendByEmail, setSendByEmail] = useState(false); const [emailFeedback, setEmailFeedback] = useState(""); const [emailBusy, setEmailBusy] = useState(false);
+  const [reminderFormFeedback, setReminderFormFeedback] = useState("");
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | "unsupported">("default");
   const [savedType, setSavedType] = useState<SavedItem["type"]>("Trip");
   const [savedTitle, setSavedTitle] = useState("");
   const [savedDetail, setSavedDetail] = useState("");
@@ -51,14 +57,33 @@ export default function MyEvPage() {
       setSaved(readLocal(STORAGE.saved, []));
       setAlerts(readLocal(STORAGE.alerts, defaultAlerts));
       setProfile(readLocal(STORAGE.profile, defaultProfile));
+      setNotificationPermission("Notification" in window ? Notification.permission : "unsupported");
       setReady(true);
     }, 0);
     return () => window.clearTimeout(timeout);
   }, []);
+  useEffect(() => { fetch("/api/reminders/email", { cache: "no-store" }).then((response) => response.json()).then((data: EmailStatus) => { setEmailStatus(data); setSendByEmail(data.verified); if (data.reminders?.length) setReminders((items) => [...items.filter((item) => !data.reminders.some((remote) => remote.id === item.id)), ...data.reminders].sort((a,b) => a.date.localeCompare(b.date))); }).catch(() => undefined); }, []);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.reminders, JSON.stringify(reminders)); }, [ready, reminders]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.saved, JSON.stringify(saved)); }, [ready, saved]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.alerts, JSON.stringify(alerts)); }, [ready, alerts]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.profile, JSON.stringify(profile)); }, [ready, profile]);
+  useEffect(() => {
+    if (!ready || notificationPermission !== "granted") return;
+    const timeout = window.setTimeout(() => {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      reminders.forEach((item) => {
+        const due = new Date(`${item.date}T00:00:00`);
+        const days = Math.ceil((due.getTime() - today.getTime()) / 86_400_000);
+        const notice = item.notifyDays ?? 7;
+        const notificationKey = `plugv-reminder-notified-${item.id}-${item.date}`;
+        if (days <= notice && days >= 0 && !localStorage.getItem(notificationKey)) {
+          new Notification(`PlugV ${item.type} reminder`, { body: days === 0 ? `${item.title} is due today.` : `${item.title} is due in ${days} day${days === 1 ? "" : "s"}.` });
+          localStorage.setItem(notificationKey, new Date().toISOString());
+        }
+      });
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [notificationPermission, ready, reminders]);
 
   const selectedVehicle = vehicles.find((vehicle) => vehicle.slug === profile.vehicleSlug) ?? vehicles[0];
   const readiness = useMemo(() => {
@@ -86,11 +111,31 @@ export default function MyEvPage() {
     return { batteryEnergy, gridEnergy, cost: gridEnergy * tariff };
   }, [battery, loss, startCharge, targetCharge, tariff]);
 
-  function addReminder(event: FormEvent) {
+  async function addReminder(event: FormEvent) {
     event.preventDefault();
-    if (!reminderTitle.trim() || !reminderDate) return;
-    setReminders((items) => [...items, { id: crypto.randomUUID(), type: reminderType, title: reminderTitle.trim(), date: reminderDate }].sort((a, b) => a.date.localeCompare(b.date)));
+    if (!reminderTitle.trim() || !reminderDate) { setReminderFormFeedback("Enter a reminder name and choose a due date."); return; }
+    setReminderFormFeedback("");
+    let reminder: Reminder = { id: crypto.randomUUID(), type: reminderType, title: reminderTitle.trim(), date: reminderDate, notifyDays: reminderNotice, createdAt: new Date().toISOString() };
+    if (sendByEmail && emailStatus.verified) { setEmailBusy(true); setEmailFeedback(""); const response = await fetch("/api/reminders/email", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(reminder) }); const data = await response.json(); setEmailBusy(false); if (!response.ok) { setEmailFeedback(data.error || "Could not schedule the email reminder."); return; } reminder = { ...reminder, id: data.id, email: true }; setEmailFeedback("Email reminder scheduled."); }
+    setReminders((items) => [...items.filter((item) => item.id !== reminder.id), reminder].sort((a,b) => a.date.localeCompare(b.date)));
     setReminderTitle(""); setReminderDate("");
+  }
+  async function requestEmailVerification(event: FormEvent) { event.preventDefault(); setEmailBusy(true); setEmailFeedback(""); const response = await fetch("/api/reminders/email/request-verification", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: reminderEmail, consent: emailConsent }) }); const data = await response.json(); setEmailBusy(false); setEmailFeedback(response.ok ? "Verification email sent. Open it within 30 minutes to confirm." : data.error || "Could not send the verification email."); }
+  async function deleteReminder(id: string) { const item = reminders.find((reminder) => reminder.id === id); if (item?.email) await fetch(`/api/reminders/email?id=${encodeURIComponent(id)}`, { method: "DELETE" }); setReminders((items) => items.filter((reminder) => reminder.id !== id)); }
+
+  async function enableNotifications() {
+    if (!("Notification" in window)) { setNotificationPermission("unsupported"); return; }
+    setNotificationPermission(await Notification.requestPermission());
+  }
+
+  function downloadReminder(item: Reminder) {
+    const compactDate = item.date.replaceAll("-", "");
+    const nextDay = new Date(`${item.date}T00:00:00`); nextDay.setDate(nextDay.getDate() + 1);
+    const endDate = nextDay.toISOString().slice(0, 10).replaceAll("-", "");
+    const safeTitle = `${item.type}: ${item.title}`.replace(/[\\,;]/g, " ");
+    const calendar = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//PlugV//My EV Reminders//EN", "BEGIN:VEVENT", `UID:${item.id}@plugv.in`, `DTSTART;VALUE=DATE:${compactDate}`, `DTEND;VALUE=DATE:${endDate}`, `SUMMARY:${safeTitle}`, `DESCRIPTION:Saved in PlugV My EV. Confirm the appointment or renewal directly with your service centre or insurer.`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+    const url = URL.createObjectURL(new Blob([calendar], { type: "text/calendar;charset=utf-8" }));
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = `plugv-${item.type.toLowerCase()}-${item.date}.ics`; anchor.click(); URL.revokeObjectURL(url);
   }
   function addSaved(event: FormEvent) {
     event.preventDefault();
@@ -102,7 +147,7 @@ export default function MyEvPage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <SiteHeader />
-      <DataTrustNotice message="Your My EV information stays in this browser in this first release. PlugV does not upload it to an account." />
+      <DataTrustNotice message="Saved trips, chargers and device reminders stay in this browser. Email reminders are stored securely only after you verify and consent." />
 
       <section className="border-b border-white/10 bg-[radial-gradient(circle_at_15%_20%,rgba(56,189,248,0.18),transparent_30%),radial-gradient(circle_at_85%_60%,rgba(16,185,129,0.14),transparent_32%)]">
         <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
@@ -135,7 +180,7 @@ export default function MyEvPage() {
 
         <section aria-label="Owner overview" className="grid gap-3 sm:grid-cols-3">
           <OwnerSnapshot icon={CalendarClock} label="Reminders" value={reminderSummary.overdue ? `${reminderSummary.overdue} overdue` : reminderSummary.next ? `Next: ${new Date(`${reminderSummary.next.date}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : "None added"} href="#owner-reminders" />
-          <OwnerSnapshot icon={Bookmark} label="Saved places & trips" value={`${saved.length} saved`} href="#owner-saved" />
+          <OwnerSnapshot icon={Bookmark} label="Saved trips & chargers" value={`${saved.length} saved`} href="#owner-saved" />
           <OwnerSnapshot icon={ShieldCheck} label="Need help?" value="Safety steps & helplines" href="#emergency-help" />
         </section>
 
@@ -160,25 +205,28 @@ export default function MyEvPage() {
 
         <div className="grid gap-6 xl:grid-cols-2">
           <section id="owner-reminders" className="scroll-mt-24 rounded-[2rem] border border-white/10 bg-white/[0.04]">
-            <OwnerSectionHeader icon={CalendarClock} eyebrow="Reminders" title="Service and insurance dates" copy="Saved privately in this browser. Browser notifications are not enabled yet." />
+            <OwnerSectionHeader icon={CalendarClock} eyebrow="Reminders" title="Service & insurance reminders" copy="Use a device reminder without signing in, or verify your email to receive one private reminder on your chosen schedule." />
+            <div className="border-t border-white/10 p-5">{emailStatus.verified ? <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/[0.07] p-4"><div className="flex items-center gap-2 text-sm font-semibold text-emerald-200"><CheckCircle2 className="h-4 w-4" />Email verified</div><p className="mt-2 text-xs leading-5 text-slate-400">New reminders can be emailed to {emailStatus.email}. Emails are used only for reminders, never marketing. Every email includes an unsubscribe link.</p></div> : <form onSubmit={requestEmailVerification} className="rounded-2xl border border-sky-300/15 bg-sky-400/[0.06] p-4"><p className="text-sm font-semibold">Activate email reminders</p><p className="mt-1 text-xs leading-5 text-slate-400">Verify your address once. No phone number is required.</p><input type="email" required autoComplete="email" value={reminderEmail} onChange={(event) => setReminderEmail(event.target.value)} placeholder="you@example.com" className="field mt-3 w-full" /><label className="mt-3 flex items-start gap-2 text-xs leading-5 text-slate-300"><input type="checkbox" required checked={emailConsent} onChange={(event) => setEmailConsent(event.target.checked)} className="mt-1 h-4 w-4 accent-sky-400" /><span>I agree that PlugV may store this email and my reminder details only to send requested reminders. I can unsubscribe at any time. See the <Link href="/privacy" className="text-sky-300 underline">Privacy Policy</Link>.</span></label><button disabled={emailBusy} className="action mt-4 w-full disabled:opacity-50">{emailBusy ? "Sending…" : "Send verification email"}</button></form>}{emailFeedback ? <p className="mt-3 text-xs text-sky-200" role="status">{emailFeedback}</p> : null}</div>
             <form onSubmit={addReminder} className="grid gap-3 border-t border-white/10 p-5 sm:grid-cols-2">
               <select value={reminderType} onChange={(e) => setReminderType(e.target.value as Reminder["type"])} className="field"><option>Service</option><option>Insurance</option></select>
-              <input type="date" value={reminderDate} onChange={(e) => setReminderDate(e.target.value)} className="field" aria-label="Reminder date" />
-              <input value={reminderTitle} onChange={(e) => setReminderTitle(e.target.value)} placeholder="e.g. Annual service" className="field sm:col-span-2" />
-              <button className="action sm:col-span-2"><Plus className="h-4 w-4" />Add reminder</button>
+              <input type="date" required value={reminderDate} min={new Date().toISOString().slice(0, 10)} onChange={(e) => setReminderDate(e.target.value)} className="field" aria-label="Reminder date" />
+              <input required maxLength={100} value={reminderTitle} onChange={(e) => setReminderTitle(e.target.value)} placeholder="e.g. Annual service" className="field sm:col-span-2" aria-label="Reminder name" />
+              <label className="sm:col-span-2"><span className="mb-2 block text-xs font-semibold text-slate-300">Remind me before</span><select value={reminderNotice} onChange={(e) => setReminderNotice(Number(e.target.value))} className="field w-full"><option value={0}>On the due date</option><option value={1}>1 day before</option><option value={3}>3 days before</option><option value={7}>7 days before</option><option value={14}>14 days before</option><option value={30}>30 days before</option></select></label>
+              {emailStatus.verified ? <label className="flex items-center gap-2 text-xs text-slate-300 sm:col-span-2"><input type="checkbox" checked={sendByEmail} onChange={(event) => setSendByEmail(event.target.checked)} className="h-4 w-4 accent-sky-400" />Send this reminder by email</label> : null}{reminderFormFeedback ? <p className="text-xs text-amber-200 sm:col-span-2" role="alert">{reminderFormFeedback}</p> : null}<button type="submit" disabled={emailBusy} className="action sm:col-span-2 disabled:cursor-wait disabled:opacity-50"><Plus className="h-4 w-4" />{emailBusy ? "Saving…" : "Add reminder"}</button>
             </form>
-            <ItemList empty="No reminders saved yet." items={reminders.map((item) => ({ id: item.id, title: item.title, meta: `${item.type} · ${new Date(`${item.date}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` }))} onDelete={(id) => setReminders((items) => items.filter((item) => item.id !== id))} />
+            <div className="border-t border-white/10 px-5 py-4"><div className="flex flex-col gap-3 rounded-2xl border border-sky-300/15 bg-sky-400/[0.06] p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-semibold">Browser reminders</p><p className="mt-1 text-xs leading-5 text-slate-400">Alerts appear on this device when you open PlugV near a due date. They are not background SMS, email or push reminders.</p></div>{notificationPermission === "granted" ? <span className="inline-flex shrink-0 items-center gap-2 text-xs font-semibold text-emerald-200"><CheckCircle2 className="h-4 w-4" />Enabled</span> : <button type="button" onClick={enableNotifications} disabled={notificationPermission === "denied" || notificationPermission === "unsupported"} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-sky-300/20 px-4 text-xs font-semibold text-sky-100 disabled:cursor-not-allowed disabled:opacity-50"><Bell className="h-4 w-4" />{notificationPermission === "denied" ? "Blocked in browser" : notificationPermission === "unsupported" ? "Not supported" : "Enable alerts"}</button>}</div></div>
+            <ReminderList reminders={reminders} onCalendar={downloadReminder} onDelete={deleteReminder} />
           </section>
 
           <section id="owner-saved" className="scroll-mt-24 rounded-[2rem] border border-white/10 bg-white/[0.04]">
-            <OwnerSectionHeader icon={Bookmark} eyebrow="Saved" title="Trips and trusted chargers" copy="Keep frequently used routes and charging locations easy to find." />
+            <OwnerSectionHeader icon={Bookmark} eyebrow="Saved" title="Saved trips & chargers" copy="Recheck familiar journeys before departure and keep charging locations you personally trust easy to find." />
             <form onSubmit={addSaved} className="grid gap-3 border-t border-white/10 p-5 sm:grid-cols-2">
               <select value={savedType} onChange={(e) => setSavedType(e.target.value as SavedItem["type"])} className="field"><option>Trip</option><option>Charger</option></select>
               <input value={savedTitle} onChange={(e) => setSavedTitle(e.target.value)} placeholder={savedType === "Trip" ? "Bengaluru to Mysuru" : "Favourite charger"} className="field" />
               <input value={savedDetail} onChange={(e) => setSavedDetail(e.target.value)} placeholder="Location, operator, connector or note" className="field sm:col-span-2" />
               <button className="action sm:col-span-2"><Plus className="h-4 w-4" />Save {savedType.toLowerCase()}</button>
             </form>
-            <ItemList empty="No trips or chargers saved yet." items={saved.map((item) => ({ id: item.id, title: item.title, meta: `${item.type}${item.detail ? ` · ${item.detail}` : ""}` }))} onDelete={(id) => setSaved((items) => items.filter((item) => item.id !== id))} />
+            <ItemList empty="No trips or chargers saved yet." items={saved.map((item) => ({ id: item.id, title: item.title, meta: `${item.trustedByOwner ? "My trusted charger" : item.type}${item.detail ? ` · ${item.detail}` : ""}`, href: item.href, actionLabel: item.type === "Trip" ? "Recheck trip" : item.href ? "Directions" : undefined, external: item.type === "Charger" }))} onDelete={(id) => setSaved((items) => items.filter((item) => item.id !== id))} />
           </section>
         </div>
 
@@ -212,5 +260,13 @@ function OwnerSectionHeader({ icon: Icon, eyebrow, title, copy }: { icon: typeof
 function NumberField({ label, value, onChange, suffix, min, max, step = 1 }: { label: string; value: number; onChange: (value: number) => void; suffix: string; min: number; max: number; step?: number }) { return <label><span className="text-xs font-semibold text-slate-300">{label}</span><span className="mt-2 flex min-h-12 items-center rounded-2xl border border-white/10 bg-slate-950/60 px-4"><input type="number" value={value} onChange={(e) => onChange(Number(e.target.value))} min={min} max={max} step={step} className="w-full bg-transparent text-base font-semibold outline-none" /><span className="text-xs text-slate-500">{suffix}</span></span></label>; }
 function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4"><p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">{label}</p><p className="mt-2 text-lg font-semibold">{value}</p></div>; }
 function OwnerSnapshot({ icon: Icon, label, value, href }: { icon: typeof Zap; label: string; value: string; href: string }) { return <a href={href} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 hover:border-sky-300/20 hover:bg-white/[0.065]"><span className="flex min-w-0 items-center gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-400/10 text-sky-300"><Icon className="h-5 w-5" /></span><span className="min-w-0"><span className="block text-xs text-slate-500">{label}</span><span className="mt-1 block truncate text-sm font-semibold">{value}</span></span></span><ChevronRight className="h-4 w-4 shrink-0 text-slate-600" /></a>; }
-function ItemList({ items, empty, onDelete }: { items: { id: string; title: string; meta: string }[]; empty: string; onDelete: (id: string) => void }) { return <div className="border-t border-white/10 p-5">{items.length ? <div className="space-y-2">{items.map((item) => <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3"><div><p className="text-sm font-semibold">{item.title}</p><p className="mt-1 text-xs text-slate-500">{item.meta}</p></div><button type="button" onClick={() => onDelete(item.id)} aria-label={`Delete ${item.title}`} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-red-400/10 hover:text-red-200"><Trash2 className="h-4 w-4" /></button></div>)}</div> : <p className="py-4 text-center text-sm text-slate-500">{empty}</p>}</div>; }
+function ReminderList({ reminders, onCalendar, onDelete }: { reminders: Reminder[]; onCalendar: (item: Reminder) => void; onDelete: (id: string) => void }) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return <div className="border-t border-white/10 p-5">{reminders.length ? <div className="space-y-2">{reminders.map((item) => {
+    const days = Math.ceil((new Date(`${item.date}T00:00:00`).getTime() - today.getTime()) / 86_400_000);
+    const status = days < 0 ? { label: `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} overdue`, style: "border-red-300/20 bg-red-400/10 text-red-200" } : days === 0 ? { label: "Due today", style: "border-amber-300/20 bg-amber-400/10 text-amber-100" } : { label: `Due in ${days} day${days === 1 ? "" : "s"}`, style: days <= (item.notifyDays ?? 7) ? "border-amber-300/20 bg-amber-400/10 text-amber-100" : "border-emerald-300/15 bg-emerald-400/[0.07] text-emerald-200" };
+    return <div key={item.id} className="rounded-2xl border border-white/10 bg-slate-950/45 p-4"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><div className="flex flex-wrap items-center gap-2"><p className="text-sm font-semibold">{item.title}</p><span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${status.style}`}>{status.label}</span></div><p className="mt-2 text-xs text-slate-500">{item.type} · {new Date(`${item.date}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })} · Alert {item.notifyDays ?? 7} day{(item.notifyDays ?? 7) === 1 ? "" : "s"} before</p></div><div className="flex shrink-0 items-center gap-2"><button type="button" onClick={() => onCalendar(item)} className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-sky-300/20 bg-sky-400/10 px-3 text-xs font-semibold text-sky-100 hover:bg-sky-400/20"><CalendarClock className="h-3.5 w-3.5" />Add to calendar</button><button type="button" onClick={() => onDelete(item.id)} aria-label={`Delete ${item.title}`} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-red-400/10 hover:text-red-200"><Trash2 className="h-4 w-4" /></button></div></div></div>;
+  })}</div> : <p className="py-4 text-center text-sm text-slate-500">No reminders saved yet.</p>}</div>;
+}
+function ItemList({ items, empty, onDelete }: { items: { id: string; title: string; meta: string; href?: string; actionLabel?: string; external?: boolean }[]; empty: string; onDelete: (id: string) => void }) { return <div className="border-t border-white/10 p-5">{items.length ? <div className="space-y-2">{items.map((item) => <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><p className="text-sm font-semibold">{item.title}</p><p className="mt-1 text-xs leading-5 text-slate-500">{item.meta}</p></div><div className="flex shrink-0 items-center gap-2">{item.href ? item.external ? <a href={item.href} target="_blank" rel="noreferrer" className="inline-flex min-h-9 items-center gap-1 rounded-full border border-sky-300/20 bg-sky-400/10 px-3 text-xs font-semibold text-sky-100 hover:bg-sky-400/20">{item.actionLabel}<ChevronRight className="h-3.5 w-3.5" /></a> : <Link href={item.href} className="inline-flex min-h-9 items-center gap-1 rounded-full border border-sky-300/20 bg-sky-400/10 px-3 text-xs font-semibold text-sky-100 hover:bg-sky-400/20">{item.actionLabel}<ChevronRight className="h-3.5 w-3.5" /></Link> : null}<button type="button" onClick={() => onDelete(item.id)} aria-label={`Delete ${item.title}`} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-red-400/10 hover:text-red-200"><Trash2 className="h-4 w-4" /></button></div></div>)}</div> : <p className="py-4 text-center text-sm text-slate-500">{empty}</p>}</div>; }
 function EmergencyLink({ number, title, detail, href }: { number: string; title: string; detail: string; href: string }) { return <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/55 p-4"><div><p className="text-sm font-semibold">{title}</p><a href={href} target="_blank" rel="noreferrer" className="mt-1 block text-xs text-slate-500 hover:text-slate-300">{detail} · Official source</a></div><a href={`tel:${number}`} className="inline-flex min-h-10 items-center gap-2 rounded-full bg-red-300 px-4 text-sm font-bold text-red-950"><Phone className="h-4 w-4" />{number}</a></div>; }

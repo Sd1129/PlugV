@@ -9,7 +9,10 @@ import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
 import { upcomingVehicles, type UpcomingVehicle } from "@/data/vehicles-upcoming";
 
-const statuses = ["All statuses", "Manufacturer target", "Official concept"] as const;
+const statuses = ["All statuses", "Official announcement", "Manufacturer target", "Official concept"] as const;
+const currentYear = new Date().getFullYear();
+const nextYear = currentYear + 1;
+const launchWindows = ["All launch windows", currentYear, nextYear, "Timing not announced"] as const;
 
 function accentFor(seed: string) {
   const accents = [
@@ -23,22 +26,25 @@ function accentFor(seed: string) {
 }
 
 function StatusBadge({ status }: { status: UpcomingVehicle["status"] }) {
-  const style = status === "Manufacturer target" ? "border-emerald-300/25 bg-emerald-400/15 text-emerald-100" : "border-violet-300/25 bg-violet-400/15 text-violet-100";
+  const style = status === "Official announcement" ? "border-sky-300/25 bg-sky-400/15 text-sky-100" : status === "Manufacturer target" ? "border-emerald-300/25 bg-emerald-400/15 text-emerald-100" : "border-violet-300/25 bg-violet-400/15 text-violet-100";
   return <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${style}`}><BadgeCheck className="h-3.5 w-3.5" />{status}</span>;
 }
 
 export default function UpcomingEVsPage() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<(typeof statuses)[number]>("All statuses");
+  const [launchWindow, setLaunchWindow] = useState<(typeof launchWindows)[number]>("All launch windows");
 
   const filteredVehicles = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return upcomingVehicles.filter((vehicle) => {
       const matchesQuery = [vehicle.brand, vehicle.name, vehicle.segment, vehicle.launch, vehicle.note, ...vehicle.features].join(" ").toLowerCase().includes(normalizedQuery);
       const matchesStatus = status === "All statuses" || vehicle.status === status;
-      return matchesQuery && matchesStatus;
+      const inActiveWindow = vehicle.launchYear === currentYear || vehicle.launchYear === nextYear || vehicle.launchYear === "Timing not announced";
+      const matchesWindow = launchWindow === "All launch windows" || vehicle.launchYear === launchWindow;
+      return inActiveWindow && matchesQuery && matchesStatus && matchesWindow;
     });
-  }, [query, status]);
+  }, [query, status, launchWindow]);
 
   const manufacturerTargets = upcomingVehicles.filter((vehicle) => vehicle.status === "Manufacturer target").length;
   const officialConcepts = upcomingVehicles.filter((vehicle) => vehicle.status === "Official concept").length;
@@ -54,7 +60,7 @@ export default function UpcomingEVsPage() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-100"><Sparkles className="h-3.5 w-3.5" />PlugV launch tracker</div>
             <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl lg:text-7xl">Upcoming electric cars in India.</h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">Track upcoming EV cars expected for India in 2026–2027, using manufacturer targets and official concepts—without presenting speculation as a confirmed launch.</p>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">Track officially announced and manufacturer-targeted electric cars for India in {currentYear} and {nextYear}. Models without a stated date are separated clearly—never presented as confirmed launches.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/vehicles" className="rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Explore EVs available now</Link>
               <Link href="/compare" className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold transition hover:bg-white/10">Compare launched EVs</Link>
@@ -65,6 +71,7 @@ export default function UpcomingEVsPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-200">How to read this page</p>
             <div className="mt-6 space-y-4">
               <TrustRow title="Manufacturer target" copy="The manufacturer has stated a market timing target. It can still change." tone="emerald" />
+              <TrustRow title="Official announcement" copy="The manufacturer has announced an India programme and a stated launch window." tone="sky" />
               <TrustRow title="Official concept" copy="The vehicle has been revealed, but production or an India launch is not confirmed." tone="violet" />
               <TrustRow title="No unsupported rumours" copy="Unverified launch dates and invented prices are intentionally excluded." tone="slate" />
             </div>
@@ -80,10 +87,11 @@ export default function UpcomingEVsPage() {
       <section className="border-b border-white/10 bg-white/[0.02] py-12">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-white/10 bg-white/5 p-4 shadow-xl shadow-black/20 sm:p-5">
-            <div className="grid gap-4 md:grid-cols-[1fr_0.45fr_auto]">
+            <div className="grid gap-4 md:grid-cols-[1fr_0.42fr_0.42fr_auto]">
               <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4"><Search className="h-4 w-4 text-sky-300" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search model, brand, segment, or feature" className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500" /></label>
               <label className="relative"><Filter className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /><select value={status} onChange={(event) => setStatus(event.target.value as (typeof statuses)[number])} className="min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/70 pl-10 pr-4 text-sm font-semibold outline-none">{statuses.map((item) => <option key={item}>{item}</option>)}</select></label>
-              <button type="button" onClick={() => { setQuery(""); setStatus("All statuses"); }} className="min-h-12 rounded-full border border-white/10 px-5 text-sm font-semibold text-slate-300 hover:bg-white/5">Reset</button>
+              <label className="relative"><CalendarDays className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /><select value={String(launchWindow)} onChange={(event) => { const value = event.target.value; setLaunchWindow(value === String(currentYear) ? currentYear : value === String(nextYear) ? nextYear : value as "All launch windows" | "Timing not announced"); }} className="min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/70 pl-10 pr-4 text-sm font-semibold outline-none">{launchWindows.map((item) => <option key={item} value={String(item)}>{item}</option>)}</select></label>
+              <button type="button" onClick={() => { setQuery(""); setStatus("All statuses"); setLaunchWindow("All launch windows"); }} className="min-h-12 rounded-full border border-white/10 px-5 text-sm font-semibold text-slate-300 hover:bg-white/5">Reset</button>
             </div>
           </div>
         </div>
@@ -93,7 +101,7 @@ export default function UpcomingEVsPage() {
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Verified future watch</p><h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Upcoming EVs, without the guesswork.</h2></div><p className="text-sm text-slate-400">{filteredVehicles.length} verified result{filteredVehicles.length === 1 ? "" : "s"}</p></div>
 
-          {filteredVehicles.length ? <div className="mt-8 grid gap-6 lg:grid-cols-3">{filteredVehicles.map((vehicle) => <UpcomingCard key={vehicle.slug} vehicle={vehicle} />)}</div> : <div className="mt-8 rounded-[2rem] border border-dashed border-white/15 bg-white/[0.03] p-10 text-center"><p className="text-xl font-semibold">No verified future EV matches those filters.</p><p className="mt-2 text-sm text-slate-400">Reset the filters to view the complete verified watchlist.</p></div>}
+          {filteredVehicles.length ? <div className="mt-8 space-y-14">{launchWindows.slice(1).map((year) => { const items = filteredVehicles.filter((vehicle) => vehicle.launchYear === year); const sectionId = `launch-${String(year).replaceAll(" ", "-")}`; return items.length ? <section key={year} aria-labelledby={sectionId}><div className="flex items-center gap-4"><h3 id={sectionId} className="text-2xl font-semibold">{year === "Timing not announced" ? "Official India watchlist — timing not announced" : `${year} India launch targets`}</h3><span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">{items.length}</span></div><div className="mt-6 grid gap-6 lg:grid-cols-3">{items.map((vehicle) => <UpcomingCard key={vehicle.slug} vehicle={vehicle} />)}</div></section> : null; })}</div> : <div className="mt-8 rounded-[2rem] border border-dashed border-white/15 bg-white/[0.03] p-10 text-center"><p className="text-xl font-semibold">No verified future EV matches those filters.</p><p className="mt-2 text-sm text-slate-400">Reset the filters to view the complete verified watchlist.</p></div>}
         </div>
       </section>
 
@@ -110,8 +118,8 @@ function UpcomingCard({ vehicle }: { vehicle: UpcomingVehicle }) {
   </article>;
 }
 
-function TrustRow({ title, copy, tone }: { title: string; copy: string; tone: "emerald" | "violet" | "slate" }) {
-  const dot = tone === "emerald" ? "bg-emerald-400" : tone === "violet" ? "bg-violet-400" : "bg-slate-400";
+function TrustRow({ title, copy, tone }: { title: string; copy: string; tone: "sky" | "emerald" | "violet" | "slate" }) {
+  const dot = tone === "sky" ? "bg-sky-400" : tone === "emerald" ? "bg-emerald-400" : tone === "violet" ? "bg-violet-400" : "bg-slate-400";
   return <div className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950/50 p-4"><span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} /><div><p className="text-sm font-semibold">{title}</p><p className="mt-1 text-xs leading-5 text-slate-400">{copy}</p></div></div>;
 }
 
