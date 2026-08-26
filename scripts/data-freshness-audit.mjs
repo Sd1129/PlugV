@@ -10,6 +10,7 @@ const policies = [
   { file: "data/vehicle-trip-profiles.ts", field: "verifiedAt", warnDays: 60, blockDays: 120 },
   { file: "data/vehicle-charging-facts.ts", field: "verifiedAt", warnDays: 60, blockDays: 120 },
   { file: "data/vehicles-upcoming.ts", field: "verifiedAt", warnDays: 30, blockDays: 60 },
+  { file: "data/official-launched-ev-evidence.json", field: "verifiedOn", warnDays: 30, blockDays: 60 },
   { file: "data/charging/bee-official.ts", field: "lastChecked", warnDays: 90, blockDays: null },
   { file: "data/charging/bee-official.ts", field: "lastCheckedAt", warnDays: 90, blockDays: null },
 ];

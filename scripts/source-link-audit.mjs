@@ -1,9 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const files = ["data/vehicle-trip-profiles.ts", "data/vehicle-charging-facts.ts", "data/vehicles-upcoming.ts"];
+const files = [
+  "data/vehicle-trip-profiles.ts",
+  "data/vehicle-charging-facts.ts",
+  "data/vehicles-upcoming.ts",
+  "data/official-launched-ev-evidence.json",
+];
 const urls = new Set();
-for (const file of files) for (const match of fs.readFileSync(path.join(process.cwd(), file), "utf8").matchAll(/sourceUrl:\s*["'](https:\/\/[^"']+)["']/g)) urls.add(match[1]);
+for (const file of files) for (const match of fs.readFileSync(path.join(process.cwd(), file), "utf8").matchAll(/["']?sourceUrl["']?\s*:\s*["'](https:\/\/[^"']+)["']/g)) urls.add(match[1]);
 const failures = [], warnings = [], passes = [], queue = [...urls];
 
 async function check(url) {

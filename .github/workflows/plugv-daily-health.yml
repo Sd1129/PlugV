@@ -1,4 +1,4 @@
-name: PlugV daily live-site health
+name: PlugV daily catalogue and live-site maintenance
 
 on:
   schedule:
@@ -25,6 +25,10 @@ jobs:
         run: node scripts/site-health-audit.mjs
       - name: Ensure every officially verified launch is in Explore EVs
         run: node scripts/launched-catalog-audit.mjs
+      - name: Verify current-year and next-year Upcoming catalogue
+        run: node scripts/upcoming-catalog-audit.mjs
+      - name: Check catalogue freshness
+        run: node scripts/data-freshness-audit.mjs
       - name: Open or update the maintenance alert
         if: failure()
         uses: actions/github-script@v7
@@ -34,7 +38,7 @@ jobs:
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const { data: issues } = await github.rest.issues.listForRepo({ ...context.repo, state: "open", per_page: 100 });
             const existing = issues.find(issue => !issue.pull_request && issue.title === title);
-            const body = `Daily live-site checks failed on ${new Date().toISOString()}. Review the run: ${runUrl}`;
+            const body = `Daily PlugV catalogue or live-site maintenance checks failed on ${new Date().toISOString()}. Review the official-source, freshness, Upcoming, Explore EVs and live-site results: ${runUrl}`;
             if (existing) await github.rest.issues.createComment({ ...context.repo, issue_number: existing.number, body });
             else await github.rest.issues.create({ ...context.repo, title, body });
 
