@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     const originLat = originLatRaw ? Number(originLatRaw) : undefined;
     const originLng = originLngRaw ? Number(originLngRaw) : undefined;
 
-    const result = searchChargingStations({
+    const result = await searchChargingStations({
       state: searchParams.get("state") ?? undefined,
       city: searchParams.get("city") ?? undefined,
       search: searchParams.get("search") ?? "",

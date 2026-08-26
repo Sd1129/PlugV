@@ -8,5 +8,6 @@
   { "slug": "hyundai-ioniq-5", "brand": "Hyundai", "model": "IONIQ 5", "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/ioniq-5/highlights", "verifiedOn": "2026-08-26" },
   { "slug": "kia-ev9", "brand": "Kia", "model": "EV9", "sourceUrl": "https://www.kia.com/in/our-vehicles/ev9/showroom.html", "verifiedOn": "2026-08-26" },
   { "slug": "bmw-ix1-lwb", "brand": "BMW", "model": "iX1 LWB", "sourceUrl": "https://www.bmw.in/en/all-models/bmw-i/iX1/2025/bmw-ix1-highlights.html", "verifiedOn": "2026-08-26" },
-  { "slug": "bmw-i5-m60", "brand": "BMW", "model": "i5 M60", "sourceUrl": "https://www.bmw.in/en/all-models.html?bmwM=yes", "verifiedOn": "2026-08-26" }
+  { "slug": "bmw-i5-m60", "brand": "BMW", "model": "i5 M60", "sourceUrl": "https://www.bmw.in/en/all-models.html?bmwM=yes", "verifiedOn": "2026-08-26" },
+  { "slug": "mg-hector-tomahawk-ev", "brand": "MG", "model": "Hector Tomahawk EV", "sourceUrl": "https://www.mgmotor.co.in/vehicles/hector-tomahawk/ev", "verifiedOn": "2026-08-26" }
 ]

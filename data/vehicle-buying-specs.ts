@@ -6,7 +6,7 @@ import { getVehicleChargingFact } from "@/data/vehicle-charging-facts";
 const THREE_SEATERS = new Set(["vayve-mobility-eva"]);
 const TWO_SEATERS = new Set(["mg-cyberster"]);
 const SIX_SEATERS = new Set(["mg-m9"]);
-const SEVEN_SEATERS = new Set(["kia-carens-clavis-ev", "vinfast-vf-mpv-7"]);
+const SEVEN_SEATERS = new Set(["kia-carens-clavis-ev", "vinfast-vf-mpv-7", "mg-hector-tomahawk-ev"]);
 
 export function getSeatingCapacity(slug: string) {
   if (TWO_SEATERS.has(slug)) return 2;

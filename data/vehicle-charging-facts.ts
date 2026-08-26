@@ -144,6 +144,14 @@ export const vehicleChargingFacts: Record<string, VehicleChargingFact> = {
     verifiedAt: "2026-08-23",
     confidence: "partial",
   },
+  "mg-hector-tomahawk-ev": {
+    dcTime: "30–80% in approximately 35 min with a 90 kW DC charger",
+    acTime: "7.4 kW AC charging supported; charger and standard installation included",
+    sourceUrl: "https://www.mgmotor.co.in/vehicles/hector-tomahawk/ev",
+    sourceName: "JSW MG Motor India",
+    verifiedAt: "2026-08-26",
+    confidence: "official",
+  },
 };
 
 export function getVehicleChargingFact(vehicleSlug: string) {

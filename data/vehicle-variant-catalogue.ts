@@ -28,6 +28,7 @@ export const vehicleVariantCatalogue: Record<string, string[]> = {
   "tesla-model-y": ["Rear-Wheel Drive", "Long Range Rear-Wheel Drive"],
   "volvo-ex30": ["Ultra"],
   "vinfast-vf-mpv-7": ["Plus", "Premium"],
+  "mg-hector-tomahawk-ev": ["Excite", "Exclusive", "Essence"],
 };
 
 export function getCatalogueVariants(slug: string) {

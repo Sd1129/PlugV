@@ -1,5 +1,6 @@
 import { chargingStations } from "@/data/charging/stations";
 import type { ChargingStation } from "@/data/charging/types";
+import { prisma } from "@/lib/prisma";
 
 export type ChargingSort =
   | "recommended"
@@ -27,6 +28,8 @@ export type ChargingResult = {
   offset: number;
   hasMore: boolean;
   stations: ChargingStation[];
+  states: string[];
+  citiesByState: Record<string, string[]>;
 };
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
@@ -115,7 +118,8 @@ function stationDistanceKm(
   );
 }
 
-export function searchChargingStations(
+function searchStationCollection(
+  collection: ChargingStation[],
   query: ChargingQuery = {}
 ): ChargingResult {
   const {
@@ -134,8 +138,21 @@ export function searchChargingStations(
 
   const safeLimit = Math.min(Math.max(limit, 1), 500);
   const safeOffset = Math.max(offset, 0);
+  const states = Array.from(new Set(collection.map((station) => station.state))).sort();
+  const citiesByState = Object.fromEntries(
+    states.map((stateName) => [
+      stateName,
+      Array.from(
+        new Set(
+          collection
+            .filter((station) => station.state === stateName)
+            .map((station) => station.city)
+        )
+      ).sort(),
+    ])
+  );
 
-  let filtered = chargingStations.filter((station) => {
+  let filtered = collection.filter((station) => {
     if (state && station.state.toLowerCase() !== state.toLowerCase()) {
       return false;
     }
@@ -189,5 +206,79 @@ export function searchChargingStations(
     offset: safeOffset,
     hasMore: safeOffset + stations.length < total,
     stations,
+    states,
+    citiesByState,
   };
+}
+
+async function databaseStations(): Promise<ChargingStation[]> {
+  const rows = await prisma.station.findMany({
+    include: {
+      city: true,
+      sources: { orderBy: { capturedAt: "desc" }, take: 1 },
+    },
+  });
+
+  return rows.map((station) => {
+    const source = station.sources[0];
+    const sourceType =
+      source?.sourceType === "OFFICIAL"
+        ? "OFFICIAL"
+        : source?.sourceType === "MANUAL"
+          ? "MANUAL"
+          : source?.sourceType === "USER_SUBMITTED"
+            ? "USER_SUBMITTED"
+            : "CRAWLED";
+
+    return {
+      id: station.id,
+      name: station.name,
+      operator: station.operator,
+      state: station.city.state,
+      city: station.city.name,
+      address: station.address,
+      latitude: station.latitude,
+      longitude: station.longitude,
+      phone: station.phone ?? undefined,
+      website: station.website ?? undefined,
+      openingHours: station.openingHours ?? undefined,
+      directionsUrl:
+        station.directionsUrl ??
+        `https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}`,
+      connectors: {
+        ccs2: station.ccs2,
+        chademo: station.chademo,
+        acType2: station.acType2,
+        gbt: station.gbt,
+      },
+      charging: {
+        ac: station.chargingAc,
+        dcFast: station.chargingDcFast,
+        maxPowerKW: station.maxPowerKW,
+        lastChecked: source?.capturedAt.toISOString(),
+        reviewSource: source?.sourceName === "Open Charge Map" ? "community" : "plugv",
+      },
+      availability: { status: "unknown" },
+      trust: {
+        verified: station.sourceStatus === "VERIFIED",
+        sourceType,
+        sourceName: source?.sourceName,
+        lastCheckedAt: source?.capturedAt.toISOString(),
+      },
+      amenities: station.amenities,
+    } satisfies ChargingStation;
+  });
+}
+
+export async function searchChargingStations(
+  query: ChargingQuery = {}
+): Promise<ChargingResult> {
+  try {
+    const synchronized = await databaseStations();
+    if (synchronized.length > 0) return searchStationCollection(synchronized, query);
+  } catch (error) {
+    console.error("Charging database unavailable; using bundled fallback data.", error);
+  }
+
+  return searchStationCollection(chargingStations, query);
 }

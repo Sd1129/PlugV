@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getCitiesByState,
-  states,
+  states as bundledStates,
   type ChargingStation,
 } from "@/data/charging/stations";
 import type {
@@ -17,6 +17,8 @@ type ChargingApiResponse = {
   offset: number;
   hasMore: boolean;
   stations: ChargingStation[];
+  states?: string[];
+  citiesByState?: Record<string, string[]>;
 };
 
 const CITY_CENTERS: Record<string, NearbyLocation> = {
@@ -64,14 +66,16 @@ function formatDistanceLabel(distanceKm: number): string {
 }
 
 export function useChargingStations(pageSize = 12) {
-  const initialState = states[0] ?? "";
+  const initialState = bundledStates[0] ?? "";
 
+  const [states, setStates] = useState(bundledStates);
+  const [citiesByState, setCitiesByState] = useState<Record<string, string[]>>({});
   const [selectedState, setSelectedState] = useState(initialState);
   const [selectedCity, setSelectedCity] = useState("");
 
   const cities = useMemo(
-    () => getCitiesByState(selectedState),
-    [selectedState]
+    () => citiesByState[selectedState] ?? getCitiesByState(selectedState),
+    [citiesByState, selectedState]
   );
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -203,6 +207,8 @@ export function useChargingStations(pageSize = 12) {
         setStations(data.stations ?? []);
         setTotal(data.total ?? 0);
         setOffset((data.stations ?? []).length);
+        if (data.states?.length) setStates(data.states);
+        if (data.citiesByState) setCitiesByState(data.citiesByState);
       } catch (err) {
         if (cancelled) return;
 

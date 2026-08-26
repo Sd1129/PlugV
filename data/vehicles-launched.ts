@@ -441,4 +441,15 @@ export type LaunchedVehicle = {
       charging: "DC 10-80% in 30 min",
       slug: "bmw-i5-m60",
     },
+    {
+      brand: "MG",
+      name: "Hector Tomahawk EV",
+      type: "SUV",
+      status: "Launched",
+      launched: true,
+      price: "From ₹13.99 Lakh + ₹4.90/km BaaS",
+      range: "Up to 517 km (certified)",
+      charging: "69.2 kWh",
+      slug: "mg-hector-tomahawk-ev",
+    },
   ];

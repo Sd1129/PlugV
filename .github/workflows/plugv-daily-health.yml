@@ -29,6 +29,10 @@ jobs:
         run: node scripts/upcoming-catalog-audit.mjs
       - name: Check catalogue freshness
         run: node scripts/data-freshness-audit.mjs
+      - name: Discover unregistered EV links on official India manufacturer sites
+        env:
+          DISCOVERY_STRICT: "1"
+        run: node scripts/official-ev-discovery-monitor.mjs
       - name: Open or update the maintenance alert
         if: failure()
         uses: actions/github-script@v7
