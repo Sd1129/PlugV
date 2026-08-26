@@ -16,7 +16,7 @@ export type UpcomingVehicle = {
   verifiedAt: string;
 };
 
-export const upcomingVehicles: UpcomingVehicle[] = [
+export const upcomingVehicleCandidates: UpcomingVehicle[] = [
   {
     brand: "Hyundai",
     name: "India-focused A-segment EV",
@@ -146,3 +146,22 @@ export const upcomingVehicles: UpcomingVehicle[] = [
     verifiedAt: "2026-08-21",
   },
 ];
+
+const normalizeVehicleIdentity = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const launchedSlugs = new Set(launchedVehicles.map((vehicle) => vehicle.slug));
+const launchedNames = new Set(
+  launchedVehicles.map((vehicle) =>
+    normalizeVehicleIdentity(`${vehicle.brand}${vehicle.name}`)
+  )
+);
+
+// Explore EVs is the source of truth. As soon as a verified launched model is
+// added there, it is removed from every Upcoming consumer automatically.
+export const upcomingVehicles = upcomingVehicleCandidates.filter(
+  (vehicle) =>
+    !launchedSlugs.has(vehicle.slug) &&
+    !launchedNames.has(normalizeVehicleIdentity(`${vehicle.brand}${vehicle.name}`))
+);
+import { launchedVehicles } from "@/data/vehicles-launched";

@@ -3,6 +3,7 @@ import path from "node:path";
 
 const file = path.join(process.cwd(), "data", "vehicles-upcoming.ts");
 const body = fs.readFileSync(file, "utf8");
+const launchedBody = fs.readFileSync(path.join(process.cwd(), "data", "vehicles-launched.ts"), "utf8");
 const currentYear = new Date().getUTCFullYear();
 const nextYear = currentYear + 1;
 const blocks = body.split(/\n\s*\{\s*\n/).slice(1);
@@ -10,6 +11,8 @@ const blockers = [];
 const warnings = [];
 const passes = [];
 const slugs = new Set();
+const launchedSlugs = new Set([...launchedBody.matchAll(/slug:\s*"([^"]+)"/g)].map((match) => match[1]));
+const transitioned = [];
 const officialHosts = [
   "hyundai.com", "kia.com", "mgmotor.co.in", "volvocars.com", "vinfastauto.in",
   "hondacarindia.com", "tatamotors.com", "mahindra.com", "mahindraelectricsuv.com",
@@ -26,6 +29,7 @@ for (const block of blocks) {
 
   if (slugs.has(slug)) blockers.push(`${slug}: duplicate slug`);
   slugs.add(slug);
+  if (launchedSlugs.has(slug)) transitioned.push(slug);
   if (!source) blockers.push(`${slug}: missing official source URL`);
   else {
     const host = new URL(source).hostname.replace(/^www\./, "");
@@ -39,6 +43,8 @@ for (const block of blocks) {
 if (!slugs.size) blockers.push("Upcoming catalogue is empty");
 else passes.push(`${slugs.size} upcoming entries have structured launch evidence`);
 passes.push(`Active launch window is calculated automatically as ${currentYear}–${nextYear}`);
+if (transitioned.length) passes.push(`${transitioned.length} launched model(s) are automatically excluded from Upcoming: ${transitioned.join(", ")}`);
+else passes.push("No vehicle is simultaneously visible in Explore EVs and Upcoming");
 
 const lines = [
   "# PlugV upcoming-EV catalogue audit", "", `Run at: ${new Date().toISOString()}`,
