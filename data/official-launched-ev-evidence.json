@@ -1,0 +1,12 @@
+[
+  { "slug": "tata-tigor-ev", "brand": "Tata", "model": "Tigor EV", "sourceUrl": "https://ev.tatamotors.com/tigor/ev.html", "verifiedOn": "2026-08-26" },
+  { "slug": "mahindra-xev-9s", "brand": "Mahindra", "model": "XEV 9S", "sourceUrl": "https://www.mahindraelectricsuv.com/", "verifiedOn": "2026-08-26" },
+  { "slug": "mahindra-xuv-3xo-ev", "brand": "Mahindra", "model": "XUV 3XO EV", "sourceUrl": "https://auto.mahindra.com/press-release/mahindra-introduces-xuv-3xo-ev-range.html", "verifiedOn": "2026-08-26" },
+  { "slug": "byd-emax-7", "brand": "BYD", "model": "eMAX 7", "sourceUrl": "https://bydautoindia.com/bydemax7", "verifiedOn": "2026-08-26" },
+  { "slug": "volvo-ex40", "brand": "Volvo", "model": "EX40", "sourceUrl": "https://www.volvocars.com/in/cars/electric-cars/", "verifiedOn": "2026-08-26" },
+  { "slug": "volvo-ec40", "brand": "Volvo", "model": "EC40", "sourceUrl": "https://www.volvocars.com/in/cars/ec40-electric/", "verifiedOn": "2026-08-26" },
+  { "slug": "hyundai-ioniq-5", "brand": "Hyundai", "model": "IONIQ 5", "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/ioniq-5/highlights", "verifiedOn": "2026-08-26" },
+  { "slug": "kia-ev9", "brand": "Kia", "model": "EV9", "sourceUrl": "https://www.kia.com/in/our-vehicles/ev9/showroom.html", "verifiedOn": "2026-08-26" },
+  { "slug": "bmw-ix1-lwb", "brand": "BMW", "model": "iX1 LWB", "sourceUrl": "https://www.bmw.in/en/all-models/bmw-i/iX1/2025/bmw-ix1-highlights.html", "verifiedOn": "2026-08-26" },
+  { "slug": "bmw-i5-m60", "brand": "BMW", "model": "i5 M60", "sourceUrl": "https://www.bmw.in/en/all-models.html?bmwM=yes", "verifiedOn": "2026-08-26" }
+]
