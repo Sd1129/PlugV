@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+const INSTAGRAM_URL = "https://www.instagram.com/plugvplatform/";
+
 const footerLinks = [
   { label: "Explore EVs", href: "/vehicles" },
   { label: "Search", href: "/search" },
@@ -46,6 +48,17 @@ export default function SiteFooter() {
               vehicles in India with clarity, confidence, and a premium EV-first
               experience.
             </p>
+
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow PlugV on Instagram at @plugvplatform"
+              className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-pink-300/30 hover:bg-pink-400/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5 text-pink-300" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
+              <span>Follow @plugvplatform</span>
+            </a>
           </div>
 
           <div>

@@ -76,6 +76,7 @@ export default function RootLayout({
         alternateName: "PlugV",
         url: SITE_URL,
         logo: absoluteUrl("/brand/logo-icon.png"),
+        sameAs: ["https://www.instagram.com/plugvplatform/"],
       },
     ],
   };

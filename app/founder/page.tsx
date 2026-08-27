@@ -34,6 +34,7 @@ export default function FounderPage() {
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="mailto:support@plugv.in?subject=Message%20for%20the%20PlugV%20Founder" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300 hover:border-sky-300/25 hover:text-white"><Mail className="h-4 w-4 text-sky-300" /><span>support@plugv.in</span></a>
+              <a href="https://www.instagram.com/plugvplatform/" target="_blank" rel="noopener noreferrer" aria-label="Follow PlugV on Instagram at @plugvplatform" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300 hover:border-pink-300/30 hover:text-white"><svg viewBox="0 0 24 24" className="h-4 w-4 text-pink-300" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg><span>@plugvplatform</span></a>
               <Link href="/about" className="inline-flex items-center gap-2 rounded-full bg-sky-300 px-5 py-3 text-sm font-semibold text-slate-950">About PlugV <ArrowRight className="h-4 w-4" /></Link>
             </div>
             <p className="mt-3 text-xs leading-5 text-slate-500">Founder-related messages are received through the official PlugV support mailbox.</p>
