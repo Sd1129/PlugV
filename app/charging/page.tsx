@@ -50,11 +50,8 @@ export default function ChargingPage() {
 
         <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
           <ChargingControls
-            states={charging.states}
-            cities={charging.cities}
-            selectedState={charging.selectedState}
-            selectedCity={charging.selectedCity}
             searchQuery={charging.searchQuery}
+            suggestions={charging.suggestions}
             sortBy={charging.sortBy}
             fastOnly={charging.fastOnly}
             ccs2Only={charging.ccs2Only}
@@ -64,8 +61,7 @@ export default function ChargingPage() {
             locationLoading={charging.locationLoading}
             locationNote={charging.locationNote}
             onSearchQueryChange={charging.setSearchQuery}
-            onStateChange={charging.setSelectedState}
-            onCityChange={charging.setSelectedCity}
+            onSuggestionSelect={charging.setSearchQuery}
             onFastOnlyToggle={charging.toggleFastOnly}
             onCcs2OnlyToggle={charging.toggleCcs2Only}
             onChademoOnlyToggle={charging.toggleChademoOnly}
@@ -92,10 +88,10 @@ export default function ChargingPage() {
       <section className="pb-16 pt-4 sm:pb-20">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <CityBanner
-            city={charging.selectedCity || `All ${charging.selectedState}`}
-            state={charging.selectedState}
+            city={charging.searchQuery.trim() || "India"}
+            state=""
             total={charging.total}
-            imageSrc={getCityImage(charging.selectedCity, charging.selectedState)}
+            imageSrc={getCityImage(charging.searchQuery.trim(), "")}
           />
 
           {charging.loading && charging.stations.length === 0 ? (
@@ -147,7 +143,7 @@ export default function ChargingPage() {
                     stations={charging.stations}
                     selectedStation={charging.selectedStation}
                     onSelectStation={charging.setSelectedStation}
-                    city={charging.selectedCity}
+                    city={charging.searchQuery.trim()}
                     distanceByStationId={charging.distanceByStationId}
                   />
                 </div>

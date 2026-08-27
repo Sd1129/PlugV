@@ -1,11 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  getCitiesByState,
-  states as bundledStates,
-  type ChargingStation,
-} from "@/data/charging/stations";
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
+import type { ChargingStation } from "@/data/charging/stations";
 import type {
   ChargingSortMode,
   NearbyLocation,
@@ -19,17 +15,7 @@ type ChargingApiResponse = {
   stations: ChargingStation[];
   states?: string[];
   citiesByState?: Record<string, string[]>;
-};
-
-const CITY_CENTERS: Record<string, NearbyLocation> = {
-  Hyderabad: { lat: 17.385, lng: 78.4867 },
-  Bengaluru: { lat: 12.9716, lng: 77.5946 },
-  Mumbai: { lat: 19.076, lng: 72.8777 },
-  "New Delhi": { lat: 28.6139, lng: 77.209 },
-  Pune: { lat: 18.5204, lng: 73.8567 },
-  Chennai: { lat: 13.0827, lng: 80.2707 },
-  Ahmedabad: { lat: 23.0225, lng: 72.5714 },
-  Jaipur: { lat: 26.9124, lng: 75.7873 },
+  suggestions?: string[];
 };
 
 function haversineKm(
@@ -66,19 +52,9 @@ function formatDistanceLabel(distanceKm: number): string {
 }
 
 export function useChargingStations(pageSize = 12) {
-  const initialState = bundledStates[0] ?? "";
-
-  const [states, setStates] = useState(bundledStates);
-  const [citiesByState, setCitiesByState] = useState<Record<string, string[]>>({});
-  const [selectedState, setSelectedState] = useState(initialState);
-  const [selectedCity, setSelectedCity] = useState("");
-
-  const cities = useMemo(
-    () => citiesByState[selectedState] ?? getCitiesByState(selectedState),
-    [citiesByState, selectedState]
-  );
-
   const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<ChargingSortMode>("distance-asc");
   const [fastOnly, setFastOnly] = useState(false);
   const [ccs2Only, setCcs2Only] = useState(false);
@@ -99,15 +75,10 @@ export function useChargingStations(pageSize = 12) {
   const [selectedStation, setSelectedStation] =
     useState<ChargingStation | null>(null);
 
-  const selectState = useCallback((state: string) => {
-    setSelectedState(state);
-    setSelectedCity("");
-  }, []);
-
   const origin = useMemo(() => {
     if (userLocation) return userLocation;
-    return CITY_CENTERS[selectedCity] ?? null;
-  }, [selectedCity, userLocation]);
+    return null;
+  }, [userLocation]);
 
   const distanceByStationId = useMemo<Record<string, string>>(() => {
     if (!origin) return {};
@@ -135,7 +106,7 @@ export function useChargingStations(pageSize = 12) {
   const buildParams = useCallback(
     (nextOffset: number) => {
       const params = new URLSearchParams({
-        search: searchQuery,
+        search: deferredSearchQuery,
         fastOnly: String(fastOnly),
         ccs2Only: String(ccs2Only),
         chademoOnly: String(chademoOnly),
@@ -144,10 +115,7 @@ export function useChargingStations(pageSize = 12) {
         offset: String(nextOffset),
       });
 
-      if (!nearbyMode) {
-        params.set("state", selectedState);
-        if (selectedCity) params.set("city", selectedCity);
-      } else {
+      if (nearbyMode) {
         params.set("ignoreCityFilter", "true");
       }
 
@@ -164,9 +132,7 @@ export function useChargingStations(pageSize = 12) {
       fastOnly,
       nearbyMode,
       pageSize,
-      searchQuery,
-      selectedCity,
-      selectedState,
+      deferredSearchQuery,
       sortBy,
       userLocation,
     ]
@@ -176,13 +142,6 @@ export function useChargingStations(pageSize = 12) {
     let cancelled = false;
 
     async function loadStations() {
-      if (!nearbyMode && !selectedState) {
-        setStations([]);
-        setTotal(0);
-        setOffset(0);
-        return;
-      }
-
       setLoading(true);
       setError(null);
 
@@ -207,8 +166,7 @@ export function useChargingStations(pageSize = 12) {
         setStations(data.stations ?? []);
         setTotal(data.total ?? 0);
         setOffset((data.stations ?? []).length);
-        if (data.states?.length) setStates(data.states);
-        if (data.citiesByState) setCitiesByState(data.citiesByState);
+        setSuggestions(data.suggestions ?? []);
       } catch (err) {
         if (cancelled) return;
 
@@ -233,7 +191,7 @@ export function useChargingStations(pageSize = 12) {
     return () => {
       cancelled = true;
     };
-  }, [buildParams, nearbyMode, selectedState, selectedCity]);
+  }, [buildParams, nearbyMode]);
 
   const activeStation = useMemo(() => {
     if (
@@ -327,14 +285,9 @@ export function useChargingStations(pageSize = 12) {
   const canLoadMore = offset < total;
 
   return {
-    states,
-    cities,
-    selectedState,
-    selectedCity,
-    setSelectedState: selectState,
-    setSelectedCity,
     searchQuery,
     setSearchQuery,
+    suggestions,
     sortBy,
     setSortBy,
     fastOnly,

@@ -26,7 +26,7 @@ export default function CityBanner({
           </div>
 
           <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-            {city}, {state}
+            {state ? `${city}, ${state}` : city}
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-400">
@@ -47,7 +47,7 @@ export default function CityBanner({
         <div className="relative min-h-[180px] md:min-h-[190px]">
           <Image
             src={imageSrc}
-            alt={`${city}, ${state}`}
+            alt={state ? `${city}, ${state}` : city}
             fill
             priority
             sizes="(max-width: 768px) 100vw, 380px"

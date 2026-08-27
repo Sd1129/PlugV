@@ -30,6 +30,7 @@ export type ChargingResult = {
   stations: ChargingStation[];
   states: string[];
   citiesByState: Record<string, string[]>;
+  suggestions: string[];
 };
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
@@ -199,6 +200,26 @@ function searchStationCollection(
 
   const total = filtered.length;
   const stations = filtered.slice(safeOffset, safeOffset + safeLimit);
+  const suggestionQuery = search.trim().toLowerCase();
+  const suggestions = suggestionQuery
+    ? Array.from(
+        new Set(
+          collection.flatMap((station) => [
+            station.city,
+            `${station.city}, ${station.state}`,
+            station.name,
+            station.address,
+          ])
+        )
+      )
+        .filter((value) => value.toLowerCase().includes(suggestionQuery))
+        .sort((a, b) => {
+          const aStarts = a.toLowerCase().startsWith(suggestionQuery) ? 0 : 1;
+          const bStarts = b.toLowerCase().startsWith(suggestionQuery) ? 0 : 1;
+          return aStarts - bStarts || a.localeCompare(b);
+        })
+        .slice(0, 8)
+    : [];
 
   return {
     total,
@@ -208,6 +229,7 @@ function searchStationCollection(
     stations,
     states,
     citiesByState,
+    suggestions,
   };
 }
 
