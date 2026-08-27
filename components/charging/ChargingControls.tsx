@@ -60,7 +60,7 @@ export default function ChargingControls({
 
   return (
     <>
-      <div className="mt-8">
+      <div className="relative z-50 mt-8">
         <div className="relative rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
           <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-sky-300/80">
             Search station by city
@@ -84,7 +84,7 @@ export default function ChargingControls({
           </label>
 
           {showSuggestions ? (
-            <div id="charging-search-suggestions" role="listbox" className="absolute left-4 right-4 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/50 backdrop-blur-xl">
+            <div id="charging-search-suggestions" role="listbox" className="absolute left-4 right-4 top-full z-[60] mt-2 max-h-72 overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/50 backdrop-blur-xl">
               {suggestions.length ? suggestions.map((suggestion) => (
                 <button
                   key={suggestion}
@@ -109,7 +109,7 @@ export default function ChargingControls({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="relative z-0 mt-4 grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
           <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-sky-300/80">
             Filters
