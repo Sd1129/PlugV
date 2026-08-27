@@ -33,8 +33,8 @@ export default function ChargingHero() {
           </h1>
 
           <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-200/95 sm:text-base">
-            Select a state and city to see charging stations, addresses, contact details,
-            fast charging support, connector compatibility, and directions.
+            Search a city to discover charging locations across the wider city area,
+            including addresses, charging speed, connector compatibility and directions.
           </p>
 
           <div className="mt-8">

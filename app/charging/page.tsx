@@ -88,10 +88,13 @@ export default function ChargingPage() {
       <section className="pb-16 pt-4 sm:pb-20">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <CityBanner
-            city={charging.selectedCity || charging.searchQuery.trim() || "India"}
+            city={charging.selectedCity ? `${charging.selectedCity} & nearby` : charging.searchQuery.trim() || "India"}
             state=""
             total={charging.total}
             imageSrc={getCityImage(charging.selectedCity || charging.searchQuery.trim(), "")}
+            coverageNote={charging.coverage?.mode === "city-radius" && charging.coverage.radiusKm
+              ? `Includes matching public-source locations within approximately ${charging.coverage.radiusKm} km of the city centre.`
+              : undefined}
           />
 
           {charging.loading && charging.stations.length === 0 ? (

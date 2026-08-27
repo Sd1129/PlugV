@@ -1,6 +1,13 @@
 import { chargingStations } from "@/data/charging/stations";
 import type { ChargingStation } from "@/data/charging/types";
-import { prisma } from "@/lib/prisma";
+import {
+  auditChargingCoverage,
+  cityRadiusKm,
+  deduplicateStations,
+  findCityCoverage,
+  haversineKm,
+  normalizePlace,
+} from "@/lib/charging/stationCoverage";
 
 export type ChargingSort =
   | "recommended"
@@ -31,6 +38,11 @@ export type ChargingResult = {
   states: string[];
   citiesByState: Record<string, string[]>;
   suggestions: string[];
+  coverage: {
+    mode: "india" | "city-radius" | "location";
+    city?: string;
+    radiusKm?: number;
+  };
 };
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
@@ -44,27 +56,6 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
   Jaipur: { lat: 26.9124, lng: 75.7873 },
 };
 
-function haversineKm(
-  aLat: number,
-  aLng: number,
-  bLat: number,
-  bLng: number
-): number {
-  const R = 6371;
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-
-  const dLat = toRad(bLat - aLat);
-  const dLng = toRad(bLng - aLng);
-
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(aLat)) *
-      Math.cos(toRad(bLat)) *
-      Math.sin(dLng / 2) ** 2;
-
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
-
 function getOrigin(
   city: string | undefined,
   originLat?: number,
@@ -77,8 +68,9 @@ function getOrigin(
     return { lat: originLat as number, lng: originLng as number };
   }
 
-  if (city && CITY_CENTERS[city]) {
-    return CITY_CENTERS[city];
+  if (city) {
+    const known = Object.entries(CITY_CENTERS).find(([name]) => normalizePlace(name) === normalizePlace(city));
+    if (known) return known[1];
   }
 
   return undefined;
@@ -153,13 +145,23 @@ function searchStationCollection(
     ])
   );
 
+  const cityCoverage = city ? findCityCoverage(collection, city) : undefined;
+  const cityOrigin = cityCoverage
+    ? { lat: cityCoverage.latitude, lng: cityCoverage.longitude }
+    : getOrigin(city, originLat, originLng);
+  const radiusKm = city ? cityRadiusKm(city) : undefined;
+
   let filtered = collection.filter((station) => {
     if (state && station.state.toLowerCase() !== state.toLowerCase()) {
       return false;
     }
 
-    if (city && station.city.toLowerCase() !== city.toLowerCase()) {
-      return false;
+    if (city) {
+      const exactCity = normalizePlace(station.city) === normalizePlace(city);
+      const withinMetro = cityOrigin && radiusKm
+        ? haversineKm(cityOrigin.lat, cityOrigin.lng, station.latitude, station.longitude) <= radiusKm
+        : false;
+      if (!exactCity && !withinMetro) return false;
     }
 
     if (fastOnly && !station.charging.dcFast) return false;
@@ -172,7 +174,7 @@ function searchStationCollection(
 
   filtered = [...filtered];
 
-  const origin = getOrigin(city, originLat, originLng);
+  const origin = cityOrigin ?? getOrigin(city, originLat, originLng);
 
   switch (sortBy) {
     case "distance-asc":
@@ -225,10 +227,16 @@ function searchStationCollection(
     states,
     citiesByState,
     suggestions,
+    coverage: originLat !== undefined && originLng !== undefined
+      ? { mode: "location" }
+      : city
+        ? { mode: "city-radius", city, radiusKm }
+        : { mode: "india" },
   };
 }
 
 async function databaseStations(): Promise<ChargingStation[]> {
+  const { prisma } = await import("@/lib/prisma");
   const rows = await prisma.station.findMany({
     include: {
       city: true,
@@ -290,12 +298,21 @@ async function databaseStations(): Promise<ChargingStation[]> {
 export async function searchChargingStations(
   query: ChargingQuery = {}
 ): Promise<ChargingResult> {
+  let synchronized: ChargingStation[] = [];
   try {
-    const synchronized = await databaseStations();
-    if (synchronized.length > 0) return searchStationCollection(synchronized, query);
+    synchronized = await databaseStations();
   } catch (error) {
     console.error("Charging database unavailable; using bundled fallback data.", error);
   }
+  return searchStationCollection(deduplicateStations([...synchronized, ...chargingStations]), query);
+}
 
-  return searchStationCollection(chargingStations, query);
+export async function getChargingCoverageAudit() {
+  let synchronized: ChargingStation[] = [];
+  try {
+    synchronized = await databaseStations();
+  } catch (error) {
+    console.error("Charging database unavailable during coverage audit.", error);
+  }
+  return auditChargingCoverage(deduplicateStations([...synchronized, ...chargingStations]));
 }

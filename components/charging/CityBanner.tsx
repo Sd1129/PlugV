@@ -8,11 +8,13 @@ export default function CityBanner({
   state,
   total,
   imageSrc,
+  coverageNote,
 }: {
   city: string;
   state: string;
   total: number;
   imageSrc: string;
+  coverageNote?: string;
 }) {
   return (
     <div className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-xl shadow-black/20">
@@ -32,6 +34,10 @@ export default function CityBanner({
           <p className="mt-2 text-sm leading-6 text-slate-400">
             {total} station{total === 1 ? "" : "s"} match the current filters.
           </p>
+
+          {coverageNote ? (
+            <p className="mt-1 text-xs leading-5 text-slate-500">{coverageNote}</p>
+          ) : null}
 
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-300">

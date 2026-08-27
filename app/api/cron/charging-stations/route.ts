@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { syncOpenChargeMapIndia } from "@/lib/charging/openChargeMapSync";
+import { getChargingCoverageAudit } from "@/lib/charging/chargingRepository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,8 +13,10 @@ export async function GET(request: Request) {
 
   try {
     const result = await syncOpenChargeMapIndia();
+    const coverage = await getChargingCoverageAudit();
     console.info("Open Charge Map India sync completed", result);
-    return NextResponse.json({ ok: true, source: "Open Charge Map", country: "IN", ...result });
+    console.info("PlugV India charging coverage audit completed", coverage);
+    return NextResponse.json({ ok: true, source: "Open Charge Map", country: "IN", ...result, coverage });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown charging sync error";
     console.error("Open Charge Map India sync failed", { message });

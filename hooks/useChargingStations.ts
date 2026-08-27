@@ -16,6 +16,11 @@ type ChargingApiResponse = {
   states?: string[];
   citiesByState?: Record<string, string[]>;
   suggestions?: string[];
+  coverage?: {
+    mode: "india" | "city-radius" | "location";
+    city?: string;
+    radiusKm?: number;
+  };
 };
 
 function haversineKm(
@@ -55,6 +60,7 @@ export function useChargingStations(pageSize = 12) {
   const [searchQuery, setSearchQuery] = useState("");
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [coverage, setCoverage] = useState<ChargingApiResponse["coverage"]>({ mode: "india" });
   const [selectedCity, setSelectedCity] = useState("");
   const [sortBy, setSortBy] = useState<ChargingSortMode>("distance-asc");
   const [fastOnly, setFastOnly] = useState(false);
@@ -171,6 +177,7 @@ export function useChargingStations(pageSize = 12) {
         setTotal(data.total ?? 0);
         setOffset((data.stations ?? []).length);
         setSuggestions(data.suggestions ?? []);
+        setCoverage(data.coverage ?? { mode: "india" });
       } catch (err) {
         if (cancelled) return;
 
@@ -305,6 +312,7 @@ export function useChargingStations(pageSize = 12) {
     searchQuery,
     setSearchQuery: updateSearchQuery,
     suggestions,
+    coverage,
     selectedCity,
     selectCitySuggestion,
     sortBy,
