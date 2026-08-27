@@ -12,7 +12,7 @@ import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import DataTrustNotice from "@/components/trust/DataTrustNotice";
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 12;
 
 const CITY_IMAGES: Record<string, string> = {
   Hyderabad: "/images/cities/hyderabad.webp",
@@ -61,7 +61,7 @@ export default function ChargingPage() {
             locationLoading={charging.locationLoading}
             locationNote={charging.locationNote}
             onSearchQueryChange={charging.setSearchQuery}
-            onSuggestionSelect={charging.setSearchQuery}
+            onSuggestionSelect={charging.selectCitySuggestion}
             onFastOnlyToggle={charging.toggleFastOnly}
             onCcs2OnlyToggle={charging.toggleCcs2Only}
             onChademoOnlyToggle={charging.toggleChademoOnly}
@@ -88,10 +88,10 @@ export default function ChargingPage() {
       <section className="pb-16 pt-4 sm:pb-20">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <CityBanner
-            city={charging.searchQuery.trim() || "India"}
+            city={charging.selectedCity || charging.searchQuery.trim() || "India"}
             state=""
             total={charging.total}
-            imageSrc={getCityImage(charging.searchQuery.trim(), "")}
+            imageSrc={getCityImage(charging.selectedCity || charging.searchQuery.trim(), "")}
           />
 
           {charging.loading && charging.stations.length === 0 ? (
@@ -143,7 +143,7 @@ export default function ChargingPage() {
                     stations={charging.stations}
                     selectedStation={charging.selectedStation}
                     onSelectStation={charging.setSelectedStation}
-                    city={charging.searchQuery.trim()}
+                    city={charging.selectedCity || charging.searchQuery.trim()}
                     distanceByStationId={charging.distanceByStationId}
                   />
                 </div>

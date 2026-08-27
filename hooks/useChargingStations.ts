@@ -55,6 +55,7 @@ export function useChargingStations(pageSize = 12) {
   const [searchQuery, setSearchQuery] = useState("");
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState("");
   const [sortBy, setSortBy] = useState<ChargingSortMode>("distance-asc");
   const [fastOnly, setFastOnly] = useState(false);
   const [ccs2Only, setCcs2Only] = useState(false);
@@ -106,7 +107,7 @@ export function useChargingStations(pageSize = 12) {
   const buildParams = useCallback(
     (nextOffset: number) => {
       const params = new URLSearchParams({
-        search: deferredSearchQuery,
+        search: selectedCity ? "" : deferredSearchQuery,
         fastOnly: String(fastOnly),
         ccs2Only: String(ccs2Only),
         chademoOnly: String(chademoOnly),
@@ -117,6 +118,8 @@ export function useChargingStations(pageSize = 12) {
 
       if (nearbyMode) {
         params.set("ignoreCityFilter", "true");
+      } else if (selectedCity) {
+        params.set("city", selectedCity);
       }
 
       if (userLocation) {
@@ -133,6 +136,7 @@ export function useChargingStations(pageSize = 12) {
       nearbyMode,
       pageSize,
       deferredSearchQuery,
+      selectedCity,
       sortBy,
       userLocation,
     ]
@@ -284,10 +288,25 @@ export function useChargingStations(pageSize = 12) {
   const remaining = Math.max(total - showing, 0);
   const canLoadMore = offset < total;
 
+  const updateSearchQuery = useCallback((value: string) => {
+    setSelectedCity("");
+    setSearchQuery(value);
+  }, []);
+
+  const selectCitySuggestion = useCallback((city: string) => {
+    setSelectedCity(city);
+    setSearchQuery(city);
+    setNearbyMode(false);
+    setUserLocation(null);
+    setLocationNote(null);
+  }, []);
+
   return {
     searchQuery,
-    setSearchQuery,
+    setSearchQuery: updateSearchQuery,
     suggestions,
+    selectedCity,
+    selectCitySuggestion,
     sortBy,
     setSortBy,
     fastOnly,

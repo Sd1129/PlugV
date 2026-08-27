@@ -204,12 +204,7 @@ function searchStationCollection(
   const suggestions = suggestionQuery
     ? Array.from(
         new Set(
-          collection.flatMap((station) => [
-            station.city,
-            `${station.city}, ${station.state}`,
-            station.name,
-            station.address,
-          ])
+          collection.map((station) => station.city)
         )
       )
         .filter((value) => value.toLowerCase().includes(suggestionQuery))
