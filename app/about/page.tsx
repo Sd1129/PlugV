@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
+import { safeJsonLd } from "@/lib/seo";
 
 const pillars = [
   {
@@ -76,9 +77,48 @@ const principles = [
   "Scales into a real product company",
 ];
 
+const customerFaqs = [
+  {
+    question: "How do I know PlugV's vehicle information is accurate and current?",
+    answer:
+      "PlugV prioritises official manufacturer material and clearly identified authoritative sources. Vehicle records are reviewed through automated audits and manual checks, with uncertain fields labelled instead of presented as facts. Because specifications, variants and prices can change, customers should confirm the final offer with the manufacturer or authorised dealer before purchasing.",
+  },
+  {
+    question: "Are PlugV recommendations or rankings influenced by payments?",
+    answer:
+      "PlugV does not present paid placement as an independent recommendation. Comparisons are designed around practical inputs such as budget, range, charging, seating and ownership needs. If PlugV introduces sponsored content, lead-generation or commercial partnerships, they will be clearly disclosed so customers can distinguish advertising from editorial information.",
+  },
+  {
+    question: "Can I rely on the range, price and charging-time figures shown?",
+    answer:
+      "PlugV separates manufacturer-claimed figures from planning estimates and labels prices as ex-showroom or estimated on-road where applicable. Real range, charging time and ownership cost vary with the exact variant, traffic, weather, driving style, charger output, battery condition, taxes and insurance. Use PlugV to shortlist and compare, then verify the final figures before making a financial decision.",
+  },
+  {
+    question: "Does a listed charging station mean it is available and working now?",
+    answer:
+      "No. PlugV combines charging information from external data providers and available operator sources. A station listing confirms a known location, not guaranteed access, uptime or an empty charging bay. Live availability is shown only when a compatible operator feed provides it; for an important stop, check the operator app or contact the station before travelling.",
+  },
+  {
+    question: "What happens to my email, location and saved EV information?",
+    answer:
+      "PlugV requests location only when you choose a location-based feature. Saved trips, chargers and device-only reminders remain in your browser, while an email reminder stores only the information needed to deliver that reminder after verification. PlugV does not sell personal information, and users can deny location access, unsubscribe from reminders or request deletion as explained in the Privacy Policy.",
+  },
+];
+
 export default function AboutPage() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: customerFaqs.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }} />
       <SiteHeader />
 
       <section className="relative overflow-hidden">
@@ -312,6 +352,43 @@ export default function AboutPage() {
                 <h3 className="mt-3 text-xl font-semibold text-white">{item.title}</h3>
                 <p className="mt-3 text-sm leading-7 text-slate-300">{item.desc}</p>
               </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-white/[0.02] py-16 sm:py-20" aria-labelledby="customer-faq-heading">
+        <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.72fr_1.28fr] lg:px-8">
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
+              Trust questions, answered
+            </div>
+            <h2 id="customer-faq-heading" className="mt-5 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              What EV customers rightly ask before trusting a platform.
+            </h2>
+            <p className="mt-4 max-w-xl text-base leading-8 text-slate-400">
+              Clear answers about PlugV&apos;s data, independence, estimates, charging information and privacy.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/methodology" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-sky-300/25 hover:bg-white/10">
+                Data methodology <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/privacy" className="inline-flex items-center rounded-full border border-white/10 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:text-white">
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {customerFaqs.map((item, index) => (
+              <details key={item.question} className="group rounded-[1.6rem] border border-white/10 bg-slate-950/70 p-5 shadow-lg shadow-black/10 open:border-sky-300/20 open:bg-white/[0.05] sm:p-6">
+                <summary className="flex cursor-pointer list-none items-start gap-4 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300 [&::-webkit-details-marker]:hidden">
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-sky-300/20 bg-sky-400/10 text-xs font-semibold text-sky-200">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="flex-1 text-base font-semibold leading-7 text-white sm:text-lg">{item.question}</span>
+                  <span aria-hidden="true" className="mt-1 text-2xl leading-none text-sky-300 transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="ml-12 mt-4 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base sm:leading-8">{item.answer}</p>
+              </details>
             ))}
           </div>
         </div>
