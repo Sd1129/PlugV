@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, ArrowRight, Menu, X } from "lucide-react";
+import { Search, ArrowRight, BookOpen, ChevronDown, Gauge, Menu, X } from "lucide-react";
 
 import { vehicles } from "@/data/vehicles";
 
@@ -14,9 +14,6 @@ const NAV_LINKS = [
   { href: "/charging", label: "Charging" },
   { href: "/travel", label: "Travel" },
   { href: "/upcoming", label: "Upcoming" },
-  { href: "/knowledge", label: "Knowledge" },
-  { href: "/my-ev", label: "My EV" },
-  
 ];
 
 export default function SiteHeader() {
@@ -108,6 +105,47 @@ function isActiveLink(href: string) {
       </Link>
     );
   })}
+
+  <div className="group relative">
+    <Link
+      href="/my-ev"
+      aria-current={pathname === "/my-ev" ? "page" : undefined}
+      className={[
+        "flex items-center gap-1 rounded-full px-3 py-1.5 text-sm transition",
+        pathname === "/my-ev" || pathname.startsWith("/knowledge")
+          ? "bg-sky-400/10 font-semibold text-sky-400 ring-1 ring-sky-400/20"
+          : "font-medium text-slate-300 hover:bg-white/5 hover:text-white",
+      ].join(" ")}
+    >
+      My EV
+      <ChevronDown className="h-3.5 w-3.5 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
+    </Link>
+
+    <div className="invisible absolute right-0 top-full z-50 w-64 translate-y-2 pt-3 opacity-0 transition duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+      <div className="rounded-2xl border border-white/10 bg-slate-950/98 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl">
+        <Link
+          href="/my-ev"
+          className="flex items-start gap-3 rounded-xl px-3 py-3 text-slate-300 transition hover:bg-white/5 hover:text-white focus:bg-white/5 focus:text-white focus:outline-none"
+        >
+          <Gauge className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
+          <span>
+            <span className="block text-sm font-semibold">My EV Dashboard</span>
+            <span className="mt-0.5 block text-xs leading-5 text-slate-500">Ownership tools, trips and reminders</span>
+          </span>
+        </Link>
+        <Link
+          href="/knowledge"
+          className="flex items-start gap-3 rounded-xl px-3 py-3 text-slate-300 transition hover:bg-white/5 hover:text-white focus:bg-white/5 focus:text-white focus:outline-none"
+        >
+          <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+          <span>
+            <span className="block text-sm font-semibold">Knowledge Hub</span>
+            <span className="mt-0.5 block text-xs leading-5 text-slate-500">EV guides, facts and calculators</span>
+          </span>
+        </Link>
+      </div>
+    </div>
+  </div>
 </nav>
 
         <div ref={wrapRef} className="relative hidden w-full max-w-[360px] lg:block">
@@ -232,6 +270,28 @@ function isActiveLink(href: string) {
                   </Link>
                 );
               })}
+
+              <div className="mt-1 border-t border-white/10 pt-3">
+                <p className="px-4 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">My EV</p>
+                <Link
+                  href="/my-ev"
+                  onClick={() => setMobileOpen(false)}
+                  aria-current={pathname === "/my-ev" ? "page" : undefined}
+                  className={`flex min-h-12 items-center gap-3 rounded-xl px-4 text-base font-semibold ${pathname === "/my-ev" ? "bg-sky-400/10 text-sky-300" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}
+                >
+                  <Gauge className="h-4 w-4 text-sky-300" />
+                  My EV Dashboard
+                </Link>
+                <Link
+                  href="/knowledge"
+                  onClick={() => setMobileOpen(false)}
+                  aria-current={pathname.startsWith("/knowledge") ? "page" : undefined}
+                  className={`mt-1 flex min-h-12 items-center gap-3 rounded-xl px-4 text-base font-semibold ${pathname.startsWith("/knowledge") ? "bg-sky-400/10 text-sky-300" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}
+                >
+                  <BookOpen className="h-4 w-4 text-emerald-300" />
+                  Knowledge Hub
+                </Link>
+              </div>
             </nav>
           </div>
         </div>
