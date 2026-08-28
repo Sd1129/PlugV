@@ -11,11 +11,13 @@ import {
   CheckCircle2,
   CircleHelp,
   Clock3,
+  Download,
   ExternalLink,
   MapPin,
   Navigation,
   Route,
   Search,
+  Share2,
   ShieldCheck,
   Sparkles,
   Zap,
@@ -55,6 +57,20 @@ type NearbyStation = ChargingStation & {
 };
 
 type DrivingCondition = "balanced" | "highway" | "demanding";
+type ChargingStrategy = "fastest" | "reliable" | "value";
+
+type WeatherPoint = { temperatureC: number | null; feelsLikeC: number | null; precipitationMm: number | null; windKph: number | null; elevationM: number | null; observedAt: string | null };
+type TravelConditions = { origin: WeatherPoint; destination: WeatherPoint; source: string; trafficAvailable: boolean };
+
+type ItineraryStop = {
+  station: NearbyStation;
+  backup?: NearbyStation;
+  arrivalPercent: number;
+  departurePercent: number;
+  energyAddedKwh: number;
+  chargingMinutes: number;
+  chargingCost: number;
+};
 
 type SavedTrip = {
   id: string;
@@ -129,7 +145,7 @@ function getNearbyStations(route: RouteResult | null, connector?: string): Nearb
     );
 }
 
-function pickRecommendedStops(stations: NearbyStation[], count: number, distanceKm: number, firstLegKm: number, rechargeLegKm: number) {
+function pickRecommendedStops(stations: NearbyStation[], count: number, distanceKm: number, firstLegKm: number, rechargeLegKm: number, strategy: ChargingStrategy) {
   const selected: NearbyStation[] = [];
   for (let index = 0; index < count; index += 1) {
     const targetKm = Math.min(distanceKm - 20, firstLegKm + index * rechargeLegKm);
@@ -137,13 +153,29 @@ function pickRecommendedStops(stations: NearbyStation[], count: number, distance
       .filter((station) => !selected.some((item) => item.id === station.id))
       .filter((station) => Math.abs(station.routeProgressKm - targetKm) <= Math.max(70, rechargeLegKm * 0.45))
       .sort((a, b) => {
-        const aScore = Math.abs(a.routeProgressKm - targetKm) + a.distanceToRouteKm * 4 - Math.min(a.charging.maxPowerKW ?? 0, 180) / 20;
-        const bScore = Math.abs(b.routeProgressKm - targetKm) + b.distanceToRouteKm * 4 - Math.min(b.charging.maxPowerKW ?? 0, 180) / 20;
+        const score = (station: NearbyStation) => {
+          const availabilityBonus = station.availability?.status === "available" ? 22 : station.availability?.status === "limited" ? 10 : station.availability?.status === "offline" ? -50 : 0;
+          const verifiedBonus = station.trust?.verified ? 10 : 0;
+          const powerBonus = Math.min(station.charging.maxPowerKW ?? 0, 180) / (strategy === "fastest" ? 8 : 20);
+          const detourWeight = strategy === "value" ? 7 : 4;
+          const reliabilityBonus = strategy === "reliable" ? availabilityBonus + verifiedBonus : 0;
+          return Math.abs(station.routeProgressKm - targetKm) + station.distanceToRouteKm * detourWeight - powerBonus - reliabilityBonus;
+        };
+        const aScore = score(a);
+        const bScore = score(b);
         return aScore - bScore;
       })[0];
     if (candidate) selected.push(candidate);
   }
   return selected.sort((a, b) => a.routeProgressKm - b.routeProgressKm);
+}
+
+function findBackupStops(primary: NearbyStation[], stations: NearbyStation[]) {
+  return primary.map((stop) => stations.filter((station) => !primary.some((item) => item.id === station.id) && Math.abs(station.routeProgressKm - stop.routeProgressKm) <= 45).sort((a, b) => {
+    const aUnavailable = a.availability?.status === "offline" ? 100 : 0;
+    const bUnavailable = b.availability?.status === "offline" ? 100 : 0;
+    return aUnavailable - bUnavailable || a.distanceToRouteKm - b.distanceToRouteKm || b.charging.maxPowerKW - a.charging.maxPowerKW;
+  })[0]);
 }
 
 function getCorridorHighlights(stations: NearbyStation[]) {
@@ -172,7 +204,10 @@ export default function TravelPage() {
   const [startingCharge, setStartingCharge] = useState(90);
   const [arrivalReserve, setArrivalReserve] = useState(15);
   const [drivingCondition, setDrivingCondition] = useState<DrivingCondition>("balanced");
+  const [chargingStrategy, setChargingStrategy] = useState<ChargingStrategy>("reliable");
   const [energyRate, setEnergyRate] = useState(18);
+  const [conditions, setConditions] = useState<TravelConditions | null>(null);
+  const [shareStatus, setShareStatus] = useState("");
   const [isPlanning, setIsPlanning] = useState(false);
   const [error, setError] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saved">("idle");
@@ -198,12 +233,26 @@ export default function TravelPage() {
   const fastestRouteChargerKw = Math.max(0, ...nearbyStations.map((station) => station.charging.maxPowerKW));
   const effectiveChargePowerKw = Math.max(30, Math.min(selectedVariant?.maxDcChargeKW ?? 60, fastestRouteChargerKw || selectedVariant?.maxDcChargeKW || 60));
   const estimatedChargingMinutes = estimatedStops ? Math.round(selectedVariant ? estimatedStops * selectedVariant.fastChargeMinutes * (selectedVariant.maxDcChargeKW / effectiveChargePowerKw) : (estimatedStops * usableRechargeRangeKm * efficiencyKWhPerKm * 60) / effectiveChargePowerKw) : 0;
-  const recommendedStops = route ? pickRecommendedStops(nearbyStations, estimatedStops, route.distanceKm, usableStartRangeKm, usableRechargeRangeKm) : [];
+  const recommendedStops = route ? pickRecommendedStops(nearbyStations, estimatedStops, route.distanceKm, usableStartRangeKm, usableRechargeRangeKm, chargingStrategy) : [];
+  const backupStops = findBackupStops(recommendedStops, nearbyStations);
+  const itinerary = recommendedStops.reduce<ItineraryStop[]>((items, station, index) => {
+    const previousKm = index ? recommendedStops[index - 1].routeProgressKm : 0;
+    const previousDeparture = index ? items[index - 1].departurePercent : startingCharge;
+    const arrivalPercent = Math.max(2, Math.round(previousDeparture - ((station.routeProgressKm - previousKm) / adjustedPracticalRangeKm) * 100));
+    const nextKm = index + 1 < recommendedStops.length ? recommendedStops[index + 1].routeProgressKm : route?.distanceKm ?? station.routeProgressKm;
+    const departurePercent = Math.min(85, Math.max(55, Math.ceil(arrivalReserve + ((nextKm - station.routeProgressKm) / adjustedPracticalRangeKm) * 100 + 8)));
+    const batteryCapacity = selectedVariant?.batteryCapacityKWh ?? Math.max(25, estimatedEnergyKwh / Math.max(1, estimatedStops + 1));
+    const energyAddedKwh = Math.max(0, Number((batteryCapacity * (departurePercent - arrivalPercent) / 100).toFixed(1)));
+    const usablePower = Math.max(7, Math.min(selectedVariant?.maxDcChargeKW ?? station.charging.maxPowerKW, station.charging.maxPowerKW || 7));
+    items.push({ station, backup: backupStops[index], arrivalPercent, departurePercent, energyAddedKwh, chargingMinutes: Math.max(5, Math.round((energyAddedKwh / usablePower) * 60 * 1.22)), chargingCost: Math.round(energyAddedKwh * 1.08 * energyRate) });
+    return items;
+  }, []);
   const corridorHighlights = getCorridorHighlights(nearbyStations);
   const routeConfidence = !route ? "Not calculated" : estimatedStops === 0 ? "High — no public stop required" : recommendedStops.length >= estimatedStops ? "Good — compatible stops identified" : "Limited — add backup planning";
   const googleMapsUrl = origin && destination
     ? `https://www.google.com/maps/dir/?api=1&origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&travelmode=driving`
     : "";
+  const tripSummary = route && origin && destination ? `${origin.label} to ${destination.label}\n${Math.round(route.distanceKm)} km · ${formatDuration(route.durationMinutes)}\n${selectedVehicle.brand} ${selectedVehicle.name}${selectedVariant ? ` · ${selectedVariant.name}` : ""}\n${itinerary.length} planned charging stop${itinerary.length === 1 ? "" : "s"}\nEstimated energy ₹${estimatedEnergyCost.toLocaleString("en-IN")}` : "";
 
   useEffect(() => {
     let cancelled = false;
@@ -299,13 +348,15 @@ export default function TravelPage() {
 
     setIsPlanning(true);
     setError("");
+    setConditions(null);
     try {
-      const response = await fetch(
-        `/api/travel?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}`
-      );
+      const routeUrl = `/api/travel?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}`;
+      const conditionsUrl = `/api/travel/conditions?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}`;
+      const [response, conditionsResult] = await Promise.all([fetch(routeUrl), fetch(conditionsUrl).catch(() => null)]);
       const payload = (await response.json()) as RouteResult & { error?: string };
       if (!response.ok || payload.error) throw new Error(payload.error ?? "The route could not be calculated.");
       setRoute(payload);
+      if (conditionsResult?.ok) setConditions((await conditionsResult.json()) as TravelConditions);
     } catch (routeError) {
       setRoute(null);
       setError(routeError instanceof Error ? routeError.message : "The route could not be calculated.");
@@ -362,6 +413,26 @@ export default function TravelPage() {
     }
   }
 
+  async function shareTrip() {
+    if (!tripSummary) return;
+    const url = window.location.href;
+    try {
+      if (navigator.share) await navigator.share({ title: "My PlugV EV trip", text: tripSummary, url });
+      else { await navigator.clipboard.writeText(`${tripSummary}\n${url}`); setShareStatus("Trip link copied"); }
+    } catch (shareError) {
+      if (shareError instanceof DOMException && shareError.name === "AbortError") return;
+      setShareStatus("Could not share this trip");
+    }
+  }
+
+  function downloadTrip() {
+    if (!tripSummary) return;
+    const stops = itinerary.map((item, index) => `Stop ${index + 1}: ${item.station.name}\nArrive ${item.arrivalPercent}% · charge to ${item.departurePercent}% · ${item.chargingMinutes} min · ~₹${item.chargingCost}${item.backup ? `\nBackup: ${item.backup.name}` : ""}`).join("\n\n");
+    const blob = new Blob([`${tripSummary}\n\n${stops}\n\nEstimates only. Confirm charger status and tariffs with the operator before departure.`], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a"); link.href = url; link.download = "plugv-ev-trip.txt"; link.click(); URL.revokeObjectURL(url);
+  }
+
   const placeInput = (field: Field, label: string, value: string, selected: Place | null) => (
     <div className="relative">
       <label className="block rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 focus-within:border-sky-300/50">
@@ -405,7 +476,7 @@ export default function TravelPage() {
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-slate-950/45 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-100 backdrop-blur-md"><Sparkles className="h-3.5 w-3.5" />PlugV Travel</div>
             <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">Plan any EV trip in India.</h1>
             <p className="mt-5 text-base leading-8 text-slate-200">Search for any city, neighbourhood, landmark, or place in India. PlugV calculates the driving route and shows charging coverage from our verified dataset.</p>
-            <div className="mt-8"><TravelRouteMap origin={origin?.label ?? originInput} destination={destination?.label ?? destinationInput} isPlanned={Boolean(route)} knownStops={nearbyStations.length} /></div>
+            <div className="mt-8"><TravelRouteMap origin={origin} destination={destination} geometry={route?.geometry ?? []} primaryStops={recommendedStops} backupStops={backupStops.filter(Boolean) as NearbyStation[]} knownStops={nearbyStations.length} /></div>
           </div>
         </div>
       </section>
@@ -466,6 +537,8 @@ export default function TravelPage() {
           {route && origin && destination ? (
             <>
               {route.estimated ? <div className="mb-5 rounded-2xl border border-amber-300/20 bg-amber-400/[0.08] px-5 py-4"><p className="text-sm font-semibold text-amber-100">Live road routing is temporarily unavailable—showing a planning estimate.</p><p className="mt-1 text-xs leading-5 text-slate-300">Distance and journey time use a road-distance allowance between the selected places. Confirm the exact route in your navigation app before departure.</p></div> : <div className="mb-5 rounded-2xl border border-emerald-300/20 bg-emerald-400/[0.08] px-5 py-4 text-sm font-semibold text-emerald-100">Live road route calculated successfully.</div>}
+              <div className="mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Charging strategy</p><div className="mt-3 grid gap-2 sm:grid-cols-3">{([['fastest','Fastest charging','Prioritises higher-power chargers.'],['reliable','Highest confidence','Prioritises verified and available stations.'],['value','Lower-cost estimate','Prioritises smaller detours; cost uses your ₹/kWh.']] as const).map(([value,title,detail]) => <button key={value} type="button" onClick={() => setChargingStrategy(value)} className={`rounded-xl border p-4 text-left transition ${chargingStrategy === value ? 'border-sky-300/40 bg-sky-400/10' : 'border-white/10 bg-slate-950/50 hover:bg-white/5'}`}><span className="text-sm font-semibold text-white">{title}</span><span className="mt-1 block text-xs leading-5 text-slate-400">{detail}</span></button>)}</div><p className="mt-3 text-xs leading-5 text-slate-500">These options adjust charging-stop selection on the calculated road route. Traffic-aware alternative roads require a licensed live traffic provider.</p></div>
+              {conditions ? <div className="mb-5 grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:grid-cols-2"><WeatherCard label={origin.label} point={conditions.origin} /><WeatherCard label={destination.label} point={conditions.destination} /><p className="text-xs leading-5 text-slate-500 sm:col-span-2">Current weather and elevation: {conditions.source}. Conditions can change during travel and are context only; traffic is not included.</p></div> : null}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Metric label="Driving distance" value={`${route.distanceKm.toLocaleString("en-IN")} km`} icon={Route} />
                 <Metric label="Estimated drive time" value={formatDuration(route.durationMinutes)} icon={Clock3} />
@@ -485,19 +558,23 @@ export default function TravelPage() {
               <div className="mt-5 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Suggested stop plan</p><h2 className="mt-2 text-xl font-semibold text-white">Review stops in journey order</h2></div>{googleMapsUrl ? <a href={googleMapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-xs font-semibold text-white hover:bg-white/5">Open driving route<ExternalLink className="h-3.5 w-3.5" /></a> : null}</div>
-                  {estimatedStops === 0 ? <p className="mt-5 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.07] px-4 py-3 text-sm text-emerald-100">No public charging stop is estimated. Keep your arrival reserve and identify one backup charger for unexpected delays.</p> : recommendedStops.length ? <div className="mt-5 space-y-3">{recommendedStops.map((station, index) => <div key={station.id} className="grid gap-3 rounded-xl border border-white/10 bg-slate-950/55 p-4 sm:grid-cols-[auto_1fr_auto] sm:items-center"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-300 text-sm font-bold text-slate-950">{index + 1}</span><div><p className="text-sm font-semibold text-white">{station.name}</p><p className="mt-1 text-xs text-slate-400">Around km {station.routeProgressKm} · {station.distanceToRouteKm.toFixed(1)} km detour · {station.charging.maxPowerKW} kW · {station.operator}</p></div><a href={station.directionsUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-sky-200 hover:text-white">Directions</a></div>)}</div> : <p className="mt-5 rounded-xl border border-amber-300/15 bg-amber-400/[0.07] px-4 py-3 text-sm leading-6 text-amber-100">PlugV could not identify enough compatible stop candidates near the ideal charging points. Check the Charging section and operator apps before relying on this trip.</p>}
+                  {estimatedStops === 0 ? <p className="mt-5 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.07] px-4 py-3 text-sm text-emerald-100">No public charging stop is estimated. Keep your arrival reserve and identify one backup charger for unexpected delays.</p> : itinerary.length ? <div className="mt-5 space-y-4">{itinerary.map((item, index) => <article key={item.station.id} className="rounded-xl border border-white/10 bg-slate-950/55 p-4"><div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-300 text-sm font-bold text-slate-950">{index + 1}</span><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-white">{item.station.name}</p><p className="mt-1 text-xs leading-5 text-slate-400">Around km {item.station.routeProgressKm} · {item.station.distanceToRouteKm.toFixed(1)} km detour · {item.station.charging.maxPowerKW} kW · {item.station.operator}</p></div><a href={item.station.directionsUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-sky-200 hover:text-white">Directions</a></div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">{[["Arrive",`${item.arrivalPercent}%`],["Charge to",`${item.departurePercent}%`],["Energy",`${item.energyAddedKwh} kWh`],["Time",`~${item.chargingMinutes} min`],["Cost",`~₹${item.chargingCost}`]].map(([label,value]) => <div key={label} className="rounded-lg bg-white/[0.04] p-2"><p className="text-[9px] uppercase tracking-wider text-slate-500">{label}</p><p className="mt-1 text-xs font-semibold text-white">{value}</p></div>)}</div><div className="mt-3 rounded-lg border border-amber-300/15 bg-amber-400/[0.06] px-3 py-2 text-xs text-amber-100">Backup: {item.backup ? <><span className="font-semibold">{item.backup.name}</span> · {item.backup.charging.maxPowerKW} kW · {item.backup.distanceToRouteKm.toFixed(1)} km detour</> : "No compatible backup is currently mapped near this stop."}</div><p className="mt-2 text-[10px] leading-4 text-slate-500">Status: {item.station.availability?.status ?? "unknown"} · {item.station.availability?.lastUpdated ? `updated ${item.station.availability.lastUpdated}` : item.station.trust?.lastCheckedAt ? `checked ${item.station.trust.lastCheckedAt}` : "no live timestamp"} · source: {item.station.trust?.sourceName ?? item.station.trust?.sourceType ?? "PlugV dataset"}</p></article>)}</div> : <p className="mt-5 rounded-xl border border-amber-300/15 bg-amber-400/[0.07] px-4 py-3 text-sm leading-6 text-amber-100">PlugV could not identify enough compatible stop candidates near the ideal charging points. Check the Charging section and operator apps before relying on this trip.</p>}
                   {recommendedStops.length < estimatedStops ? <p className="mt-3 text-xs leading-5 text-amber-200">Coverage warning: {estimatedStops - recommendedStops.length} additional stop{estimatedStops - recommendedStops.length === 1 ? "" : "s"} still {estimatedStops - recommendedStops.length === 1 ? "requires" : "require"} manual confirmation.</p> : null}
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Before departure</p><h2 className="mt-2 text-xl font-semibold text-white">Five checks that prevent range anxiety</h2><ul className="mt-5 space-y-3 text-sm leading-6 text-slate-300">{["Confirm every planned charger in its operator app.", "Keep at least one compatible backup charger per stop.", `Leave with at least ${startingCharge}% and protect a ${arrivalReserve}% reserve.`, "Check tyres, weather, road closures and elevation.", "Carry the correct charging apps, payment methods and cable."].map((item) => <li key={item} className="flex gap-3"><CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-300" /><span>{item}</span></li>)}</ul></div>
               </div>
 
               <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-sky-300/15 bg-sky-400/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div><p className="text-sm font-semibold text-white">Keep this route in My EV</p><p className="mt-1 text-xs leading-5 text-slate-400">Save the places, vehicle, variant, distance, duration and charging-stop estimate in this browser.</p></div>
+                <div><p className="text-sm font-semibold text-white">Save, share or navigate</p><p className="mt-1 text-xs leading-5 text-slate-400">Saved trips remain on this device. Secure account-based cross-device sync requires customer sign-in and is not enabled yet.</p>{shareStatus ? <p className="mt-1 text-xs font-semibold text-emerald-200">{shareStatus}</p> : null}</div>
                 <div className="flex shrink-0 flex-wrap gap-2">
                   <button type="button" onClick={saveTrip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-sky-300 px-5 text-sm font-semibold text-slate-950 hover:bg-sky-200">{saveStatus === "saved" ? <CheckCircle2 className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}{saveStatus === "saved" ? "Saved to My EV" : "Save trip"}</button>
+                  <button type="button" onClick={shareTrip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm font-semibold text-white hover:bg-white/5"><Share2 className="h-4 w-4" />Share</button>
+                  <button type="button" onClick={downloadTrip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm font-semibold text-white hover:bg-white/5"><Download className="h-4 w-4" />Export</button>
                   {saveStatus === "saved" ? <Link href="/my-ev#owner-saved" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 px-5 text-sm font-semibold text-white hover:bg-white/5">View saved trips<ArrowRight className="h-4 w-4" /></Link> : null}
                 </div>
               </div>
+
+              <div className="fixed inset-x-3 bottom-3 z-40 flex gap-2 rounded-2xl border border-white/15 bg-slate-950/95 p-2 shadow-2xl backdrop-blur lg:hidden"><a href={googleMapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-300 px-3 text-xs font-bold text-slate-950"><Navigation className="h-4 w-4" />Navigate</a><button type="button" onClick={shareTrip} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-3 text-xs font-semibold text-white"><Share2 className="h-4 w-4" />Share</button><button type="button" onClick={saveTrip} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-3 text-xs font-semibold text-white"><Bookmark className="h-4 w-4" />Save</button></div>
 
               <div className="mt-14 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Charging coverage</p><h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Compatible stations near your route.</h2><p className="mt-3 max-w-2xl text-base leading-7 text-slate-400">Shown in journey order. Compare route position, detour distance, charging speed, connectors, and live status where an operator feed is available.</p><div className="mt-4 flex flex-wrap gap-3 text-xs font-semibold"><span className="inline-flex items-center gap-2 text-emerald-200"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />Green: DC Fast</span><span className="inline-flex items-center gap-2 text-yellow-100"><span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />Yellow: AC Fast</span></div></div><span className="inline-flex items-center gap-2 text-sm text-slate-400"><Navigation className="h-4 w-4 text-sky-300" />{origin.label} → {destination.label}</span></div>
 
@@ -523,6 +600,10 @@ export default function TravelPage() {
 
 function Metric({ label, value, icon: Icon, compact = false }: { label: string; value: string; icon: typeof Route; compact?: boolean }) {
   return <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><Icon className="h-5 w-5 text-sky-300" /><p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">{label}</p><p className={`mt-2 font-semibold text-white ${compact ? "text-base leading-6" : "text-2xl"}`}>{value}</p></div>;
+}
+
+function WeatherCard({ label, point }: { label: string; point: WeatherPoint }) {
+  return <div className="rounded-xl bg-slate-950/55 p-4"><p className="truncate text-sm font-semibold text-white">{label}</p><div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-300"><span>{point.temperatureC === null ? "Temperature unavailable" : `${point.temperatureC}°C`}</span><span>{point.windKph === null ? "Wind unavailable" : `Wind ${point.windKph} km/h`}</span><span>{point.precipitationMm === null ? "Rain unavailable" : `Rain ${point.precipitationMm} mm`}</span><span>{point.elevationM === null ? "Elevation unavailable" : `${point.elevationM} m elevation`}</span></div></div>;
 }
 
 function StationCard({ station }: { station: NearbyStation }) {
