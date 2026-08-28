@@ -27,10 +27,13 @@ import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
 import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import TravelRouteMap from "@/components/travel/TravelRouteMap";
+import ChargerConfidenceBadge from "@/components/charging/ChargerConfidenceBadge";
 import { chargingStations, type ChargingStation } from "@/data/charging/stations";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { readOwnerSavedItems, toggleTrustedCharger } from "@/lib/owner-saved-items";
+import { readOwnerProfile } from "@/lib/owner-profile";
+import { getChargerConfidence } from "@/lib/charging/chargerConfidence";
 
 type Field = "origin" | "destination";
 
@@ -258,7 +261,15 @@ export default function TravelPage() {
     let cancelled = false;
     const timeout = window.setTimeout(() => {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("saved") !== "1") return;
+      if (params.get("saved") !== "1") {
+        const ownerProfile = readOwnerProfile(DEFAULT_TRAVEL_VEHICLE_SLUG);
+        if (vehicles.some((vehicle) => vehicle.slug === ownerProfile.vehicleSlug)) {
+          setVehicleSlug(ownerProfile.vehicleSlug);
+          setVariantName(ownerProfile.variantName || getVehicleTripProfile(ownerProfile.vehicleSlug)?.defaultVariant || "");
+        }
+        setEnergyRate(Math.min(100, Math.max(1, ownerProfile.electricityTariff || 18)));
+        return;
+      }
       const fromLat = Number(params.get("fromLat")); const fromLng = Number(params.get("fromLng"));
       const toLat = Number(params.get("toLat")); const toLng = Number(params.get("toLng"));
       const fromLabel = params.get("from") ?? "Saved origin"; const toLabel = params.get("to") ?? "Saved destination";
@@ -558,7 +569,7 @@ export default function TravelPage() {
               <div className="mt-5 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Suggested stop plan</p><h2 className="mt-2 text-xl font-semibold text-white">Review stops in journey order</h2></div>{googleMapsUrl ? <a href={googleMapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-xs font-semibold text-white hover:bg-white/5">Open driving route<ExternalLink className="h-3.5 w-3.5" /></a> : null}</div>
-                  {estimatedStops === 0 ? <p className="mt-5 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.07] px-4 py-3 text-sm text-emerald-100">No public charging stop is estimated. Keep your arrival reserve and identify one backup charger for unexpected delays.</p> : itinerary.length ? <div className="mt-5 space-y-4">{itinerary.map((item, index) => <article key={item.station.id} className="rounded-xl border border-white/10 bg-slate-950/55 p-4"><div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-300 text-sm font-bold text-slate-950">{index + 1}</span><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-white">{item.station.name}</p><p className="mt-1 text-xs leading-5 text-slate-400">Around km {item.station.routeProgressKm} · {item.station.distanceToRouteKm.toFixed(1)} km detour · {item.station.charging.maxPowerKW} kW · {item.station.operator}</p></div><a href={item.station.directionsUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-sky-200 hover:text-white">Directions</a></div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">{[["Arrive",`${item.arrivalPercent}%`],["Charge to",`${item.departurePercent}%`],["Energy",`${item.energyAddedKwh} kWh`],["Time",`~${item.chargingMinutes} min`],["Cost",`~₹${item.chargingCost}`]].map(([label,value]) => <div key={label} className="rounded-lg bg-white/[0.04] p-2"><p className="text-[9px] uppercase tracking-wider text-slate-500">{label}</p><p className="mt-1 text-xs font-semibold text-white">{value}</p></div>)}</div><div className="mt-3 rounded-lg border border-amber-300/15 bg-amber-400/[0.06] px-3 py-2 text-xs text-amber-100">Backup: {item.backup ? <><span className="font-semibold">{item.backup.name}</span> · {item.backup.charging.maxPowerKW} kW · {item.backup.distanceToRouteKm.toFixed(1)} km detour</> : "No compatible backup is currently mapped near this stop."}</div><p className="mt-2 text-[10px] leading-4 text-slate-500">Status: {item.station.availability?.status ?? "unknown"} · {item.station.availability?.lastUpdated ? `updated ${item.station.availability.lastUpdated}` : item.station.trust?.lastCheckedAt ? `checked ${item.station.trust.lastCheckedAt}` : "no live timestamp"} · source: {item.station.trust?.sourceName ?? item.station.trust?.sourceType ?? "PlugV dataset"}</p></article>)}</div> : <p className="mt-5 rounded-xl border border-amber-300/15 bg-amber-400/[0.07] px-4 py-3 text-sm leading-6 text-amber-100">PlugV could not identify enough compatible stop candidates near the ideal charging points. Check the Charging section and operator apps before relying on this trip.</p>}
+                  {estimatedStops === 0 ? <p className="mt-5 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.07] px-4 py-3 text-sm text-emerald-100">No public charging stop is estimated. Keep your arrival reserve and identify one backup charger for unexpected delays.</p> : itinerary.length ? <div className="mt-5 space-y-4">{itinerary.map((item, index) => <article key={item.station.id} className="rounded-xl border border-white/10 bg-slate-950/55 p-4"><div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-300 text-sm font-bold text-slate-950">{index + 1}</span><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-white">{item.station.name}</p><p className="mt-1 text-xs leading-5 text-slate-400">Around km {item.station.routeProgressKm} · {item.station.distanceToRouteKm.toFixed(1)} km detour · {item.station.charging.maxPowerKW} kW · {item.station.operator}</p></div><a href={item.station.directionsUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-sky-200 hover:text-white">Directions</a></div><div className="mt-3"><ChargerConfidenceBadge confidence={getChargerConfidence(item.station, { compatible: true, backupAvailable: Boolean(item.backup) })} /></div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">{[["Arrive",`${item.arrivalPercent}%`],["Charge to",`${item.departurePercent}%`],["Energy",`${item.energyAddedKwh} kWh`],["Time",`~${item.chargingMinutes} min`],["Cost",`~₹${item.chargingCost}`]].map(([label,value]) => <div key={label} className="rounded-lg bg-white/[0.04] p-2"><p className="text-[9px] uppercase tracking-wider text-slate-500">{label}</p><p className="mt-1 text-xs font-semibold text-white">{value}</p></div>)}</div><div className="mt-3 rounded-lg border border-amber-300/15 bg-amber-400/[0.06] px-3 py-2 text-xs text-amber-100">Backup: {item.backup ? <><span className="font-semibold">{item.backup.name}</span> · {item.backup.charging.maxPowerKW} kW · {item.backup.distanceToRouteKm.toFixed(1)} km detour</> : "No compatible backup is currently mapped near this stop."}</div><p className="mt-2 text-[10px] leading-4 text-slate-500">Status: {item.station.availability?.status ?? "unknown"} · {item.station.availability?.lastUpdated ? `updated ${item.station.availability.lastUpdated}` : item.station.trust?.lastCheckedAt ? `checked ${item.station.trust.lastCheckedAt}` : "no live timestamp"} · source: {item.station.trust?.sourceName ?? item.station.trust?.sourceType ?? "PlugV dataset"}</p></article>)}</div> : <p className="mt-5 rounded-xl border border-amber-300/15 bg-amber-400/[0.07] px-4 py-3 text-sm leading-6 text-amber-100">PlugV could not identify enough compatible stop candidates near the ideal charging points. Check the Charging section and operator apps before relying on this trip.</p>}
                   {recommendedStops.length < estimatedStops ? <p className="mt-3 text-xs leading-5 text-amber-200">Coverage warning: {estimatedStops - recommendedStops.length} additional stop{estimatedStops - recommendedStops.length === 1 ? "" : "s"} still {estimatedStops - recommendedStops.length === 1 ? "requires" : "require"} manual confirmation.</p> : null}
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Before departure</p><h2 className="mt-2 text-xl font-semibold text-white">Five checks that prevent range anxiety</h2><ul className="mt-5 space-y-3 text-sm leading-6 text-slate-300">{["Confirm every planned charger in its operator app.", "Keep at least one compatible backup charger per stop.", `Leave with at least ${startingCharge}% and protect a ${arrivalReserve}% reserve.`, "Check tyres, weather, road closures and elevation.", "Carry the correct charging apps, payment methods and cable."].map((item) => <li key={item} className="flex gap-3"><CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-300" /><span>{item}</span></li>)}</ul></div>
@@ -629,6 +640,7 @@ function StationCard({ station }: { station: NearbyStation }) {
     offline: "Offline",
     unknown: "Live status unavailable",
   }[availability];
+  const confidence = getChargerConfidence(station, { compatible: true });
 
   function toggleSaved() {
     setIsTrusted(toggleTrustedCharger({
@@ -651,6 +663,7 @@ function StationCard({ station }: { station: NearbyStation }) {
         {station.charging.ac ? <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-300/30 bg-yellow-400/15 px-3 py-1.5 text-xs font-semibold text-yellow-100"><BatteryCharging className="h-3.5 w-3.5" />AC Fast</span> : null}
         <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${availabilityStyle}`}><CircleHelp className="h-3.5 w-3.5" />{availabilityLabel}</span>
       </div>
+      <div className="mt-3"><ChargerConfidenceBadge confidence={confidence} /></div>
       <div className="mt-5 grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-slate-950/60 p-3"><p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Maximum power</p><p className="mt-1 text-sm font-semibold text-white">{station.charging.maxPowerKW} kW</p></div>
         <div className="rounded-xl bg-slate-950/60 p-3"><p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Connectors</p><p className="mt-1 text-sm font-semibold text-white">{connectors.join(" · ") || "Not listed"}</p></div>

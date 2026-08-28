@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ArrowRight, Bookmark, CheckCircle2, MapPin, Phone, Zap } from "lucide-react";
 import type { ChargingStation } from "@/data/charging/stations";
 import StationTrustRow from "@/components/charging/StationTrustRow";
+import ChargerConfidenceBadge from "@/components/charging/ChargerConfidenceBadge";
+import { getChargerConfidence } from "@/lib/charging/chargerConfidence";
 import { readOwnerSavedItems, toggleTrustedCharger } from "@/lib/owner-saved-items";
 type StationCardProps = {
   station: ChargingStation;
@@ -15,6 +17,7 @@ export default function StationCard({
   distanceLabel,
 }: StationCardProps) {
   const hasPower = station.charging.maxPowerKW > 0;
+  const confidence = getChargerConfidence(station);
   const [isTrusted, setIsTrusted] = useState(() => typeof window !== "undefined" && readOwnerSavedItems().some((item) => item.type === "Charger" && item.stationId === station.id));
 
   function toggleSaved(event: React.MouseEvent<HTMLButtonElement>) {
@@ -45,6 +48,8 @@ export default function StationCard({
 <div className="mt-2">
   <StationTrustRow trust={station.trust} />
 </div>
+
+<div className="mt-2"><ChargerConfidenceBadge confidence={confidence} /></div>
 
 <div className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-400">
   <MapPin className="h-3.5 w-3.5 shrink-0 text-sky-300" />

@@ -2,22 +2,25 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { AlertTriangle, Bell, Bookmark, Calculator, CalendarClock, Car, CheckCircle2, ChevronRight, Gauge, HeartPulse, MapPin, Navigation, Phone, Plus, ShieldCheck, Trash2, Zap } from "lucide-react";
+import { AlertTriangle, Bell, Bookmark, Calculator, CalendarClock, Car, CheckCircle2, ChevronRight, ClipboardCheck, Gauge, HeartPulse, History, MapPin, Navigation, Phone, Plus, ShieldCheck, Trash2, WalletCards, Zap } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import { vehicles } from "@/data/vehicles";
+import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
+import { createDefaultOwnerProfile, profileCompletion, readOwnerProfile, writeOwnerProfile, type DriveCondition } from "@/lib/owner-profile";
 
-type Reminder = { id: string; type: "Service" | "Insurance"; title: string; date: string; notifyDays?: number; createdAt?: string; email?: boolean };
+type Reminder = { id: string; type: "Service" | "Insurance" | "Warranty" | "Registration" | "PUC" | "Tyres"; title: string; date: string; notifyDays?: number; createdAt?: string; email?: boolean };
 type EmailStatus = { verified: boolean; email?: string; reminders: Reminder[] };
 type SavedItem = { id: string; type: "Trip" | "Charger"; title: string; detail: string; href?: string; createdAt?: string; stationId?: string; trustedByOwner?: boolean };
 type AlertKey = "recalls" | "software" | "chargers" | "network";
-type DriveCondition = "city" | "highway" | "difficult";
-type OwnerProfile = { vehicleSlug: string; batteryPercent: number; distance: number; condition: DriveCondition };
+type ChargingLog = { id: string; date: string; location: string; type: "Home" | "Public"; energyKwh: number; cost: number; distanceKm: number };
+type ChecklistItem = { id: string; label: string; complete: boolean };
 
-const STORAGE = { reminders: "plugv-owner-reminders", saved: "plugv-owner-saved", alerts: "plugv-owner-alerts", profile: "plugv-owner-profile" };
+const STORAGE = { reminders: "plugv-owner-reminders", saved: "plugv-owner-saved", alerts: "plugv-owner-alerts", chargingLog: "plugv-owner-charging-log", checklist: "plugv-owner-checklist" };
 const defaultAlerts: Record<AlertKey, boolean> = { recalls: true, software: true, chargers: true, network: false };
-const defaultProfile: OwnerProfile = { vehicleSlug: vehicles[0]?.slug ?? "", batteryPercent: 70, distance: 80, condition: "city" };
+const defaultProfile = createDefaultOwnerProfile(vehicles[0]?.slug ?? "");
+const defaultChecklist: ChecklistItem[] = ["Tyre pressure and tread", "Charging cable and adapters", "Brakes, lights and wipers", "Coolant and washer fluid", "Roadside-assistance contacts"].map((label, index) => ({ id: `check-${index}`, label, complete: false }));
 
 function readLocal<T>(key: string, fallback: T): T {
   try { const value = window.localStorage.getItem(key); return value ? JSON.parse(value) as T : fallback; } catch { return fallback; }
@@ -39,6 +42,14 @@ export default function MyEvPage() {
   const [saved, setSaved] = useState<SavedItem[]>([]);
   const [alerts, setAlerts] = useState(defaultAlerts);
   const [profile, setProfile] = useState(defaultProfile);
+  const [chargingLog, setChargingLog] = useState<ChargingLog[]>([]);
+  const [checklist, setChecklist] = useState<ChecklistItem[]>(defaultChecklist);
+  const [logDate, setLogDate] = useState(new Date().toISOString().slice(0, 10));
+  const [logType, setLogType] = useState<ChargingLog["type"]>("Home");
+  const [logLocation, setLogLocation] = useState("Home");
+  const [logEnergy, setLogEnergy] = useState(20);
+  const [logCost, setLogCost] = useState(160);
+  const [logDistance, setLogDistance] = useState(120);
   const [reminderType, setReminderType] = useState<Reminder["type"]>("Service");
   const [reminderTitle, setReminderTitle] = useState("");
   const [reminderDate, setReminderDate] = useState("");
@@ -56,7 +67,9 @@ export default function MyEvPage() {
       setReminders(readLocal(STORAGE.reminders, []));
       setSaved(readLocal(STORAGE.saved, []));
       setAlerts(readLocal(STORAGE.alerts, defaultAlerts));
-      setProfile(readLocal(STORAGE.profile, defaultProfile));
+      setProfile(readOwnerProfile(defaultProfile.vehicleSlug));
+      setChargingLog(readLocal(STORAGE.chargingLog, []));
+      setChecklist(readLocal(STORAGE.checklist, defaultChecklist));
       setNotificationPermission("Notification" in window ? Notification.permission : "unsupported");
       setReady(true);
     }, 0);
@@ -66,7 +79,9 @@ export default function MyEvPage() {
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.reminders, JSON.stringify(reminders)); }, [ready, reminders]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.saved, JSON.stringify(saved)); }, [ready, saved]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.alerts, JSON.stringify(alerts)); }, [ready, alerts]);
-  useEffect(() => { if (ready) localStorage.setItem(STORAGE.profile, JSON.stringify(profile)); }, [ready, profile]);
+  useEffect(() => { if (ready) writeOwnerProfile(profile); }, [ready, profile]);
+  useEffect(() => { if (ready) localStorage.setItem(STORAGE.chargingLog, JSON.stringify(chargingLog)); }, [ready, chargingLog]);
+  useEffect(() => { if (ready) localStorage.setItem(STORAGE.checklist, JSON.stringify(checklist)); }, [ready, checklist]);
   useEffect(() => {
     if (!ready || notificationPermission !== "granted") return;
     const timeout = window.setTimeout(() => {
@@ -86,15 +101,27 @@ export default function MyEvPage() {
   }, [notificationPermission, ready, reminders]);
 
   const selectedVehicle = vehicles.find((vehicle) => vehicle.slug === profile.vehicleSlug) ?? vehicles[0];
+  const selectedTripProfile = getVehicleTripProfile(profile.vehicleSlug);
+  const selectedVariant = selectedTripProfile?.variants.find((variant) => variant.name === profile.variantName) ?? selectedTripProfile?.variants.find((variant) => variant.name === selectedTripProfile.defaultVariant) ?? selectedTripProfile?.variants[0];
+  const completion = profileCompletion(profile);
   const readiness = useMemo(() => {
     const conditionFactor = profile.condition === "city" ? 0.82 : profile.condition === "highway" ? 0.74 : 0.66;
-    const practicalFullRange = maximumRange(selectedVehicle?.range) * conditionFactor;
+    const practicalFullRange = selectedVariant?.practicalRangeKm ?? maximumRange(selectedVehicle?.range) * conditionFactor;
     const availableRange = practicalFullRange * Math.max(0, Math.min(100, profile.batteryPercent)) / 100;
     const rangeWithReserve = availableRange * 0.85;
     const margin = rangeWithReserve - Math.max(0, profile.distance);
     const status = margin >= 25 ? "ready" : margin >= 0 ? "tight" : "charge";
     return { practicalFullRange, availableRange, rangeWithReserve, margin, status };
-  }, [profile, selectedVehicle]);
+  }, [profile, selectedVariant, selectedVehicle]);
+
+  const monthlyCharging = useMemo(() => {
+    const month = new Date().toISOString().slice(0, 7);
+    const entries = chargingLog.filter((item) => item.date.startsWith(month));
+    const cost = entries.reduce((sum, item) => sum + item.cost, 0);
+    const energy = entries.reduce((sum, item) => sum + item.energyKwh, 0);
+    const distance = entries.reduce((sum, item) => sum + item.distanceKm, 0);
+    return { sessions: entries.length, cost, energy, efficiency: energy > 0 ? distance / energy : 0 };
+  }, [chargingLog]);
 
   const reminderSummary = useMemo(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -111,12 +138,17 @@ export default function MyEvPage() {
     return { batteryEnergy, gridEnergy, cost: gridEnergy * tariff };
   }, [battery, loss, startCharge, targetCharge, tariff]);
 
+  useEffect(() => { if (ready) setTariff(profile.electricityTariff); }, [profile.electricityTariff, ready]);
+  useEffect(() => { if (selectedVariant?.batteryCapacityKWh) setBattery(selectedVariant.batteryCapacityKWh); }, [selectedVariant]);
+
   async function addReminder(event: FormEvent) {
     event.preventDefault();
     if (!reminderTitle.trim() || !reminderDate) { setReminderFormFeedback("Enter a reminder name and choose a due date."); return; }
     setReminderFormFeedback("");
     let reminder: Reminder = { id: crypto.randomUUID(), type: reminderType, title: reminderTitle.trim(), date: reminderDate, notifyDays: reminderNotice, createdAt: new Date().toISOString() };
-    if (sendByEmail && emailStatus.verified) { setEmailBusy(true); setEmailFeedback(""); const response = await fetch("/api/reminders/email", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(reminder) }); const data = await response.json(); setEmailBusy(false); if (!response.ok) { setEmailFeedback(data.error || "Could not schedule the email reminder."); return; } reminder = { ...reminder, id: data.id, email: true }; setEmailFeedback("Email reminder scheduled."); }
+    const emailEligible = reminderType === "Service" || reminderType === "Insurance";
+    if (sendByEmail && emailStatus.verified && emailEligible) { setEmailBusy(true); setEmailFeedback(""); const response = await fetch("/api/reminders/email", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(reminder) }); const data = await response.json(); setEmailBusy(false); if (!response.ok) { setEmailFeedback(data.error || "Could not schedule the email reminder."); return; } reminder = { ...reminder, id: data.id, email: true }; setEmailFeedback("Email reminder scheduled."); }
+    else if (sendByEmail && !emailEligible) setEmailFeedback("Saved on this device. Email delivery currently supports service and insurance reminders only.");
     setReminders((items) => [...items.filter((item) => item.id !== reminder.id), reminder].sort((a,b) => a.date.localeCompare(b.date)));
     setReminderTitle(""); setReminderDate("");
   }
@@ -143,6 +175,10 @@ export default function MyEvPage() {
     setSaved((items) => [{ id: crypto.randomUUID(), type: savedType, title: savedTitle.trim(), detail: savedDetail.trim() }, ...items]);
     setSavedTitle(""); setSavedDetail("");
   }
+  function addChargingLog(event: FormEvent) {
+    event.preventDefault();
+    setChargingLog((items) => [{ id: crypto.randomUUID(), date: logDate, location: logLocation.trim() || logType, type: logType, energyKwh: Math.max(0, logEnergy), cost: Math.max(0, logCost), distanceKm: Math.max(0, logDistance) }, ...items]);
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -159,15 +195,41 @@ export default function MyEvPage() {
       </section>
 
       <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-12 sm:px-6 lg:px-8">
+        <section className="overflow-hidden rounded-[2rem] border border-sky-300/15 bg-white/[0.045]">
+          <OwnerSectionHeader icon={Car} eyebrow="Personal EV profile" title="Set it once. Personalize every PlugV decision." copy="Your vehicle, variant, driving and charging context improve range, cost and trip estimates across PlugV." />
+          <div className="grid gap-6 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label><span className="text-xs font-semibold text-slate-300">City</span><input value={profile.city} onChange={(event) => setProfile((value) => ({ ...value, city: event.target.value }))} placeholder="e.g. Hyderabad" className="field mt-2 w-full" /></label>
+              <label><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(event) => { const vehicleSlug = event.target.value; setProfile((value) => ({ ...value, vehicleSlug, variantName: getVehicleTripProfile(vehicleSlug)?.defaultVariant ?? "" })); }} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name}</option>)}</select></label>
+              <label><span className="text-xs font-semibold text-slate-300">Variant</span><select value={profile.variantName} onChange={(event) => setProfile((value) => ({ ...value, variantName: event.target.value }))} className="field mt-2 w-full" disabled={!selectedTripProfile?.variants.length}><option value="">{selectedTripProfile?.variants.length ? "Select variant" : "Variant data unavailable"}</option>{selectedTripProfile?.variants.map((variant) => <option key={variant.name}>{variant.name}</option>)}</select></label>
+              <NumberField label="Daily distance" value={profile.dailyDistanceKm} onChange={(dailyDistanceKm) => setProfile((value) => ({ ...value, dailyDistanceKm }))} suffix="km" min={1} max={1000} />
+              <label><span className="text-xs font-semibold text-slate-300">Home charging</span><select value={profile.homeCharging} onChange={(event) => setProfile((value) => ({ ...value, homeCharging: event.target.value as typeof value.homeCharging }))} className="field mt-2 w-full"><option value="unknown">Not decided</option><option value="dedicated">Dedicated home charger</option><option value="shared">Shared parking charger</option><option value="workplace">Workplace charging</option><option value="public-only">Public charging only</option></select></label>
+              <NumberField label="Electricity tariff" value={profile.electricityTariff} onChange={(electricityTariff) => setProfile((value) => ({ ...value, electricityTariff }))} suffix="₹/kWh" min={0} max={100} step={0.5} />
+              <label><span className="text-xs font-semibold text-slate-300">Highway travel</span><select value={profile.highwayFrequency} onChange={(event) => setProfile((value) => ({ ...value, highwayFrequency: event.target.value as typeof value.highwayFrequency }))} className="field mt-2 w-full"><option value="rarely">Rarely</option><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></label>
+              <NumberField label="Family size" value={profile.familySize} onChange={(familySize) => setProfile((value) => ({ ...value, familySize }))} suffix="people" min={1} max={12} />
+              <NumberField label="Budget / vehicle value" value={profile.budgetLakhs} onChange={(budgetLakhs) => setProfile((value) => ({ ...value, budgetLakhs }))} suffix="₹ lakh" min={1} max={500} step={0.5} />
+            </div>
+            <div className="rounded-[1.5rem] border border-sky-300/15 bg-sky-400/[0.07] p-6">
+              <div className="flex items-center justify-between"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200">Profile readiness</p><span className="text-lg font-semibold">{completion}%</span></div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-950/70"><div className="h-full rounded-full bg-sky-300" style={{ width: `${completion}%` }} /></div>
+              <div className="mt-6 space-y-3 text-sm leading-6 text-slate-300">
+                <p>{selectedVariant ? `${selectedVariant.name}: ${selectedVariant.practicalRangeKm} km planning range and ${selectedVariant.batteryCapacityKWh} kWh battery.` : "Select a supported variant for variant-specific range and battery estimates."}</p>
+                {profile.homeCharging === "public-only" ? <p className="rounded-xl border border-amber-300/15 bg-amber-400/[0.07] p-3 text-amber-100">Public-charging dependent: save at least two compatible, recently verified chargers near home.</p> : null}
+                <p>Profile data is stored only in this browser. Cross-device sync requires a future secure PlugV account and is not active yet.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="overflow-hidden rounded-[2rem] border border-emerald-300/15 bg-white/[0.045]">
           <OwnerSectionHeader icon={Gauge} eyebrow="Today’s EV check" title="Can your EV comfortably complete today’s drive?" copy="Enter your current battery and expected driving. PlugV keeps a 15% reserve and adjusts claimed range for everyday conditions." />
           <div className="grid gap-6 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="grid content-start gap-4 sm:grid-cols-2">
-              <label className="sm:col-span-2"><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(e) => setProfile((value) => ({ ...value, vehicleSlug: e.target.value }))} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name} · {vehicle.range ?? "Range unavailable"}</option>)}</select></label>
+              <label className="sm:col-span-2"><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(e) => { const vehicleSlug = e.target.value; setProfile((value) => ({ ...value, vehicleSlug, variantName: getVehicleTripProfile(vehicleSlug)?.defaultVariant ?? "" })); }} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name} · {vehicle.range ?? "Range unavailable"}</option>)}</select></label>
               <NumberField label="Battery now" value={profile.batteryPercent} onChange={(batteryPercent) => setProfile((value) => ({ ...value, batteryPercent }))} suffix="%" min={0} max={100} />
               <NumberField label="Today's driving" value={profile.distance} onChange={(distance) => setProfile((value) => ({ ...value, distance }))} suffix="km" min={0} max={2000} />
               <label className="sm:col-span-2"><span className="text-xs font-semibold text-slate-300">Driving conditions</span><select value={profile.condition} onChange={(e) => setProfile((value) => ({ ...value, condition: e.target.value as DriveCondition }))} className="field mt-2 w-full"><option value="city">Mixed city driving</option><option value="highway">Highway driving</option><option value="difficult">Heavy AC, rain, hills or congestion</option></select></label>
-              <p className="sm:col-span-2 text-xs leading-5 text-slate-500">Manual estimate based on the vehicle’s published maximum range. Actual range changes with variant, speed, weather, terrain, load, battery health and driving style.</p>
+              <p className="sm:col-span-2 text-xs leading-5 text-slate-500">{selectedVariant ? `Uses PlugV's ${selectedVariant.name} practical planning range.` : "Uses the vehicle’s published maximum range with a condition adjustment."} Actual range changes with speed, weather, terrain, load, battery health and driving style.</p>
             </div>
             <div className={`rounded-[1.5rem] border p-6 ${readiness.status === "ready" ? "border-emerald-300/20 bg-emerald-400/[0.08]" : readiness.status === "tight" ? "border-amber-300/20 bg-amber-400/[0.08]" : "border-red-300/20 bg-red-400/[0.08]"}`}>
               <div className="flex items-start gap-3">{readiness.status === "ready" ? <CheckCircle2 className="mt-1 h-6 w-6 text-emerald-300" /> : <AlertTriangle className={`mt-1 h-6 w-6 ${readiness.status === "tight" ? "text-amber-300" : "text-red-300"}`} />}<div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Drive readiness</p><h3 className="mt-2 text-2xl font-semibold">{readiness.status === "ready" ? "Ready for today's drive" : readiness.status === "tight" ? "Possible, but the reserve is tight" : "Charge or plan a stop first"}</h3></div></div>
@@ -208,7 +270,7 @@ export default function MyEvPage() {
             <OwnerSectionHeader icon={CalendarClock} eyebrow="Reminders" title="Service & insurance reminders" copy="Use a device reminder without signing in, or verify your email to receive one private reminder on your chosen schedule." />
             <div className="border-t border-white/10 p-5">{emailStatus.verified ? <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/[0.07] p-4"><div className="flex items-center gap-2 text-sm font-semibold text-emerald-200"><CheckCircle2 className="h-4 w-4" />Email verified</div><p className="mt-2 text-xs leading-5 text-slate-400">New reminders can be emailed to {emailStatus.email}. Emails are used only for reminders, never marketing. Every email includes an unsubscribe link.</p></div> : <form onSubmit={requestEmailVerification} className="rounded-2xl border border-sky-300/15 bg-sky-400/[0.06] p-4"><p className="text-sm font-semibold">Activate email reminders</p><p className="mt-1 text-xs leading-5 text-slate-400">Verify your address once. No phone number is required.</p><input type="email" required autoComplete="email" value={reminderEmail} onChange={(event) => setReminderEmail(event.target.value)} placeholder="you@example.com" className="field mt-3 w-full" /><label className="mt-3 flex items-start gap-2 text-xs leading-5 text-slate-300"><input type="checkbox" required checked={emailConsent} onChange={(event) => setEmailConsent(event.target.checked)} className="mt-1 h-4 w-4 accent-sky-400" /><span>I agree that PlugV may store this email and my reminder details only to send requested reminders. I can unsubscribe at any time. See the <Link href="/privacy" className="text-sky-300 underline">Privacy Policy</Link>.</span></label><button disabled={emailBusy} className="action mt-4 w-full disabled:opacity-50">{emailBusy ? "Sending…" : "Send verification email"}</button></form>}{emailFeedback ? <p className="mt-3 text-xs text-sky-200" role="status">{emailFeedback}</p> : null}</div>
             <form onSubmit={addReminder} className="grid gap-3 border-t border-white/10 p-5 sm:grid-cols-2">
-              <select value={reminderType} onChange={(e) => setReminderType(e.target.value as Reminder["type"])} className="field"><option>Service</option><option>Insurance</option></select>
+              <select value={reminderType} onChange={(e) => setReminderType(e.target.value as Reminder["type"])} className="field"><option>Service</option><option>Insurance</option><option>Warranty</option><option>Registration</option><option>PUC</option><option>Tyres</option></select>
               <input type="date" required value={reminderDate} min={new Date().toISOString().slice(0, 10)} onChange={(e) => setReminderDate(e.target.value)} className="field" aria-label="Reminder date" />
               <input required maxLength={100} value={reminderTitle} onChange={(e) => setReminderTitle(e.target.value)} placeholder="e.g. Annual service" className="field sm:col-span-2" aria-label="Reminder name" />
               <label className="sm:col-span-2"><span className="mb-2 block text-xs font-semibold text-slate-300">Remind me before</span><select value={reminderNotice} onChange={(e) => setReminderNotice(Number(e.target.value))} className="field w-full"><option value={0}>On the due date</option><option value={1}>1 day before</option><option value={3}>3 days before</option><option value={7}>7 days before</option><option value={14}>14 days before</option><option value={30}>30 days before</option></select></label>
@@ -227,6 +289,29 @@ export default function MyEvPage() {
               <button className="action sm:col-span-2"><Plus className="h-4 w-4" />Save {savedType.toLowerCase()}</button>
             </form>
             <ItemList empty="No trips or chargers saved yet." items={saved.map((item) => ({ id: item.id, title: item.title, meta: `${item.trustedByOwner ? "My trusted charger" : item.type}${item.detail ? ` · ${item.detail}` : ""}`, href: item.href, actionLabel: item.type === "Trip" ? "Recheck trip" : item.href ? "Directions" : undefined, external: item.type === "Charger" }))} onDelete={(id) => setSaved((items) => items.filter((item) => item.id !== id))} />
+          </section>
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <section className="rounded-[2rem] border border-white/10 bg-white/[0.04]">
+            <OwnerSectionHeader icon={WalletCards} eyebrow="Charging log" title="Track energy, spend and efficiency" copy="Record home and public charging sessions to understand your real monthly ownership cost." />
+            <div className="grid grid-cols-2 gap-3 border-t border-white/10 p-5 sm:grid-cols-4"><Metric label="This month" value={`₹${monthlyCharging.cost.toFixed(0)}`} /><Metric label="Energy" value={`${monthlyCharging.energy.toFixed(1)} kWh`} /><Metric label="Sessions" value={`${monthlyCharging.sessions}`} /><Metric label="Efficiency" value={monthlyCharging.efficiency ? `${monthlyCharging.efficiency.toFixed(1)} km/kWh` : "—"} /></div>
+            <form onSubmit={addChargingLog} className="grid gap-3 border-t border-white/10 p-5 sm:grid-cols-2">
+              <input type="date" value={logDate} onChange={(event) => setLogDate(event.target.value)} className="field" aria-label="Charging date" />
+              <select value={logType} onChange={(event) => { const type = event.target.value as ChargingLog["type"]; setLogType(type); if (!logLocation || logLocation === "Home" || logLocation === "Public charger") setLogLocation(type === "Home" ? "Home" : "Public charger"); }} className="field"><option>Home</option><option>Public</option></select>
+              <input value={logLocation} onChange={(event) => setLogLocation(event.target.value)} placeholder="Location or operator" className="field sm:col-span-2" />
+              <NumberField label="Energy added" value={logEnergy} onChange={setLogEnergy} suffix="kWh" min={0} max={500} step={0.1} />
+              <NumberField label="Session cost" value={logCost} onChange={setLogCost} suffix="₹" min={0} max={100000} step={1} />
+              <div className="sm:col-span-2"><NumberField label="Distance driven since previous charge" value={logDistance} onChange={setLogDistance} suffix="km" min={0} max={3000} step={1} /></div>
+              <button className="action sm:col-span-2"><Plus className="h-4 w-4" />Add charging session</button>
+            </form>
+            <ItemList empty="No charging sessions recorded yet." items={chargingLog.slice(0, 8).map((item) => ({ id: item.id, title: `${item.type} · ${item.location}`, meta: `${new Date(`${item.date}T00:00:00`).toLocaleDateString("en-IN")} · ${item.energyKwh} kWh · ₹${item.cost}${item.energyKwh > 0 && item.distanceKm > 0 ? ` · ${(item.distanceKm / item.energyKwh).toFixed(1)} km/kWh` : ""}` }))} onDelete={(id) => setChargingLog((items) => items.filter((item) => item.id !== id))} />
+          </section>
+
+          <section className="rounded-[2rem] border border-white/10 bg-white/[0.04]">
+            <OwnerSectionHeader icon={ClipboardCheck} eyebrow="Ownership checklist" title="A calmer monthly EV check" copy="A simple device-based checklist for routine items that are easy to forget." />
+            <div className="space-y-2 border-t border-white/10 p-5">{checklist.map((item) => <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/45 p-4"><input type="checkbox" checked={item.complete} onChange={() => setChecklist((items) => items.map((entry) => entry.id === item.id ? { ...entry, complete: !entry.complete } : entry))} className="h-5 w-5 accent-emerald-400" /><span className={`text-sm ${item.complete ? "text-slate-500 line-through" : "text-slate-200"}`}>{item.label}</span></label>)}</div>
+            <div className="border-t border-white/10 p-5"><button type="button" onClick={() => setChecklist(defaultChecklist)} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-xs font-semibold text-slate-300 hover:bg-white/5"><History className="h-4 w-4" />Reset monthly checklist</button></div>
           </section>
         </div>
 
