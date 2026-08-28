@@ -14,6 +14,6 @@ export default function DisclaimerPage() {
     <h2>Emergency use</h2><p>PlugV is not an emergency service. If there is danger, a collision, fire, medical emergency or unsafe roadside situation, contact the appropriate emergency services and your vehicle or roadside-assistance provider immediately.</p>
     <h2>No endorsement</h2><p>References to manufacturers, charging networks, government datasets or third-party services do not imply endorsement, partnership or sponsorship unless expressly stated.</p>
     <h2>Corrections</h2><p>To report incorrect information, email <a href="mailto:support@plugv.in?subject=PlugV%20data%20correction">support@plugv.in</a> with the page URL, the issue and an official source where possible.</p>
-    <h2>Operator contact</h2><p>PlugV is operated by Syed Manjoor Ahmed, trading under the name PlugV, from Sun City, Bandlaguda Jagir, Hyderabad, Telangana, India. Contact <a href="mailto:support@plugv.in?subject=PlugV%20legal%20query">support@plugv.in</a> for legal or operational questions.</p>
+    <h2>Operator contact</h2><p>PlugV is operated by Syed Manjoor Ahmed, trading under the name PlugV, from Hyderabad, Telangana, India. Contact <a href="mailto:support@plugv.in?subject=PlugV%20legal%20query">support@plugv.in</a> for legal or operational questions.</p>
   </LegalPage>;
 }
