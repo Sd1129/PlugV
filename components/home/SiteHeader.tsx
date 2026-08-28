@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { href: "/charging", label: "Charging" },
   { href: "/travel", label: "Travel" },
   { href: "/upcoming", label: "Upcoming" },
+  { href: "/knowledge", label: "Knowledge" },
   { href: "/my-ev", label: "My EV" },
   
 ];
@@ -68,6 +69,7 @@ export default function SiteHeader() {
 
 function isActiveLink(href: string) {
     if (href === "/vehicles") return pathname === "/vehicles" || pathname.startsWith("/vehicles/");
+    if (href === "/knowledge") return pathname === "/knowledge" || pathname.startsWith("/knowledge/");
     return pathname === href;
   }
 

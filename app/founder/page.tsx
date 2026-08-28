@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Compass, Mail, ShieldCheck, Sparkles } from "lucide-react";
 import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
+import { absoluteUrl, safeJsonLd, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Founder — Syed Manjoor Ahmed",
@@ -17,8 +18,21 @@ const principles = [
 ];
 
 export default function FounderPage() {
+  const personSchema = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${SITE_URL}/founder#person`,
+    name: "Syed Manjoor Ahmed",
+    jobTitle: "Founder",
+    url: absoluteUrl("/founder"),
+    email: "mailto:support@plugv.in",
+    worksFor: { "@id": `${SITE_URL}/#organization` },
+    sameAs: ["https://www.instagram.com/plugvplatform/"],
+  };
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(personSchema) }} />
       <SiteHeader />
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_20%,rgba(56,189,248,0.19),transparent_31%),radial-gradient(circle_at_82%_70%,rgba(16,185,129,0.13),transparent_30%)]" />

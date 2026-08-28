@@ -20,7 +20,12 @@ export const metadata: Metadata = {
     "EV charging stations India",
     "best EV cars",
   ],
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: "/",
+    types: {
+      "application/json": absoluteUrl("/ai-discovery.json"),
+    },
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",

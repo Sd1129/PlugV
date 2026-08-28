@@ -9,6 +9,7 @@ const footerLinks = [
   { label: "Compare", href: "/compare" },
   { label: "Charging", href: "/charging" },
   { label: "Upcoming", href: "/upcoming" },
+  { label: "Knowledge Hub", href: "/knowledge" },
   { label: "About", href: "/about" },
   { label: "Founder", href: "/founder" },
 ];

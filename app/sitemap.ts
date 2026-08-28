@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { vehicles } from "@/data/vehicles";
 import { upcomingVehicles } from "@/data/vehicles-upcoming";
+import { knowledgeArticles } from "@/data/knowledge-articles";
 import { absoluteUrl } from "@/lib/seo";
 
 const staticRoutes = [
@@ -11,6 +12,7 @@ const staticRoutes = [
   { path: "/charging", priority: 0.9, changeFrequency: "weekly" as const },
   { path: "/travel", priority: 0.85, changeFrequency: "monthly" as const },
   { path: "/upcoming", priority: 0.8, changeFrequency: "weekly" as const },
+  { path: "/knowledge", priority: 0.9, changeFrequency: "weekly" as const },
   { path: "/assistant", priority: 0.7, changeFrequency: "monthly" as const },
   { path: "/my-ev", priority: 0.85, changeFrequency: "monthly" as const },
   { path: "/about", priority: 0.5, changeFrequency: "yearly" as const },
@@ -42,6 +44,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(`${vehicle.verifiedAt}T00:00:00Z`),
       changeFrequency: "weekly" as const,
       priority: 0.75,
+    })),
+    ...knowledgeArticles.map((article) => ({
+      url: absoluteUrl(`/knowledge/${article.slug}`),
+      lastModified: new Date(`${article.updatedAt}T00:00:00Z`),
+      changeFrequency: "monthly" as const,
+      priority: article.calculator ? 0.9 : 0.8,
     })),
   ];
 }

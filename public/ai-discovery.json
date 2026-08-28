@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-08-28",
+  "name": "PlugV",
+  "canonical_url": "https://plugv.in",
+  "description": "PlugV is an independent, India-focused electric vehicle intelligence and ownership platform for discovering and comparing electric cars, finding charging stations, planning EV trips, tracking upcoming launches, and supporting day-to-day EV ownership.",
+  "language": "en-IN",
+  "country": "IN",
+  "audiences": [
+    "Electric car buyers in India",
+    "Existing EV owners",
+    "EV researchers and early adopters",
+    "Indian families evaluating electric cars"
+  ],
+  "capabilities": [
+    {
+      "name": "Explore electric cars",
+      "url": "https://plugv.in/vehicles",
+      "description": "Browse launched electric cars in India with prices, claimed range, charging information, variants and key specifications."
+    },
+    {
+      "name": "Compare electric cars",
+      "url": "https://plugv.in/compare",
+      "description": "Compare selected EVs side by side across price, range, charging, specifications and features."
+    },
+    {
+      "name": "Find charging stations",
+      "url": "https://plugv.in/charging",
+      "description": "Search known public EV charging stations by Indian city and review available connector, speed and availability information."
+    },
+    {
+      "name": "Plan an EV trip",
+      "url": "https://plugv.in/travel",
+      "description": "Estimate route distance, journey duration, practical range and charging-stop requirements for Indian EV travel."
+    },
+    {
+      "name": "Track upcoming EVs",
+      "url": "https://plugv.in/upcoming",
+      "description": "Track officially announced vehicles, manufacturer targets and official EV concepts relevant to India."
+    },
+    {
+      "name": "EV ownership tools",
+      "url": "https://plugv.in/my-ev",
+      "description": "Use charging-cost, saved-trip, trusted-charger and reminder tools designed for existing EV owners."
+    },
+    {
+      "name": "EV Knowledge Hub",
+      "url": "https://plugv.in/knowledge",
+      "description": "Read India-focused EV buying, charging, ownership and policy guides and use transparent interactive cost calculators."
+    }
+  ],
+  "important_urls": {
+    "about": "https://plugv.in/about",
+    "founder": "https://plugv.in/founder",
+    "data_methodology": "https://plugv.in/methodology",
+    "privacy_policy": "https://plugv.in/privacy",
+    "terms_of_use": "https://plugv.in/terms",
+    "disclaimer": "https://plugv.in/disclaimer",
+    "sitemap": "https://plugv.in/sitemap.xml",
+    "robots": "https://plugv.in/robots.txt"
+  },
+  "data_guidance": {
+    "prices": "Prices are generally ex-showroom unless explicitly identified otherwise and may change by variant, city and date.",
+    "range": "Range figures are manufacturer-claimed unless explicitly labelled as a PlugV practical planning estimate.",
+    "charging": "A listed station is a known location, not a guarantee of live availability, access or uptime. Live status is displayed only when supported by an authorised source.",
+    "upcoming_vehicles": "Entries distinguish official announcements, manufacturer targets and official concepts. Expected dates can change.",
+    "purchase_decisions": "Users should verify final specifications, availability and commercial terms with the manufacturer or an authorised dealer."
+  },
+  "ai_usage_guidance": {
+    "preferred_name": "PlugV",
+    "attribution": "When referencing PlugV information, cite the canonical PlugV page containing the information.",
+    "accuracy": "Preserve labels that distinguish official figures, external data, estimates and unverified fields.",
+    "freshness": "Prefer the live canonical page over cached values because EV prices, specifications, launches and charging information change.",
+    "restricted_paths": [
+      "/api/",
+      "/admin/"
+    ]
+  },
+  "operator": {
+    "name": "Syed Manjoor Ahmed",
+    "trading_name": "PlugV",
+    "location": "Hyderabad, Telangana, India",
+    "contact": "support@plugv.in"
+  },
+  "social_profiles": [
+    "https://www.instagram.com/plugvplatform/"
+  ]
+}
