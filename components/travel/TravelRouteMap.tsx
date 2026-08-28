@@ -20,7 +20,7 @@ export default function TravelRouteMap({
 
       <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-sky-200 backdrop-blur">
         <Route className="h-3.5 w-3.5" />
-        Live route planning
+        Journey overview
       </div>
 
       <svg aria-hidden="true" className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -44,8 +44,8 @@ export default function TravelRouteMap({
       </div>
 
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950/75 px-3 py-2.5 text-[10px] text-slate-300 backdrop-blur sm:bottom-4 sm:left-4 sm:right-4 sm:text-xs">
-        <span>{isPlanned ? "Driving route calculated" : "Choose two places to plan"}</span>
-        <span className="font-semibold text-sky-200">{knownStops} known stations near route</span>
+        <span>{isPlanned ? "Road route and EV estimates ready" : "Choose two places to plan"}</span>
+        <span className="font-semibold text-sky-200">{knownStops} compatible stations near route</span>
       </div>
     </div>
   );

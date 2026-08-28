@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   CircleHelp,
   Clock3,
+  ExternalLink,
   MapPin,
   Navigation,
   Route,
@@ -48,7 +49,12 @@ type RouteResult = {
   routeSource?: "live-routing" | "fallback";
 };
 
-type NearbyStation = ChargingStation & { distanceToRouteKm: number };
+type NearbyStation = ChargingStation & {
+  distanceToRouteKm: number;
+  routeProgressKm: number;
+};
+
+type DrivingCondition = "balanced" | "highway" | "demanding";
 
 type SavedTrip = {
   id: string;
@@ -60,6 +66,9 @@ type SavedTrip = {
 };
 
 const SAVED_ITEMS_KEY = "plugv-owner-saved";
+const DEFAULT_TRAVEL_VEHICLE_SLUG = vehicles.some((vehicle) => vehicle.slug === "tata-nexon-ev")
+  ? "tata-nexon-ev"
+  : vehicles.find((vehicle) => getVehicleTripProfile(vehicle.slug))?.slug ?? vehicles[0]?.slug ?? "";
 
 function formatDuration(minutes: number) {
   const hours = Math.floor(minutes / 60);
@@ -83,27 +92,70 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
   return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function getNearbyStations(route: RouteResult | null): NearbyStation[] {
+function stationSupportsConnector(station: ChargingStation, connector?: string) {
+  if (!connector) return true;
+  const normalized = connector.toLowerCase();
+  if (normalized.includes("ccs")) return station.connectors.ccs2;
+  if (normalized.includes("chademo")) return station.connectors.chademo;
+  if (normalized.includes("type 2")) return station.connectors.acType2;
+  if (normalized.includes("gb/t") || normalized.includes("gbt")) return Boolean(station.connectors.gbt);
+  return true;
+}
+
+function getNearbyStations(route: RouteResult | null, connector?: string): NearbyStation[] {
   if (!route?.geometry.length) return [];
   const sampleStep = Math.max(1, Math.floor(route.geometry.length / 120));
   const routeSample = route.geometry.filter((_, index) => index % sampleStep === 0);
 
   return chargingStations
-    .map((station) => ({
-      ...station,
-      distanceToRouteKm: Math.min(
-        ...routeSample.map(([longitude, latitude]) =>
-          haversineKm(station.latitude, station.longitude, latitude, longitude)
-        )
-      ),
-    }))
-    .filter((station) => station.distanceToRouteKm <= 60)
+    .filter((station) => stationSupportsConnector(station, connector))
+    .map((station) => {
+      const distances = routeSample.map(([longitude, latitude]) =>
+        haversineKm(station.latitude, station.longitude, latitude, longitude)
+      );
+      const nearestIndex = distances.reduce((best, distance, index) => distance < distances[best] ? index : best, 0);
+      return {
+        ...station,
+        distanceToRouteKm: distances[nearestIndex],
+        routeProgressKm: Math.round((nearestIndex / Math.max(1, routeSample.length - 1)) * route.distanceKm),
+      };
+    })
+    .filter((station) => station.distanceToRouteKm <= 25)
     .sort(
       (a, b) =>
+        a.routeProgressKm - b.routeProgressKm ||
         a.distanceToRouteKm - b.distanceToRouteKm ||
         (b.charging.maxPowerKW ?? 0) - (a.charging.maxPowerKW ?? 0)
-    )
-    .slice(0, 6);
+    );
+}
+
+function pickRecommendedStops(stations: NearbyStation[], count: number, distanceKm: number, firstLegKm: number, rechargeLegKm: number) {
+  const selected: NearbyStation[] = [];
+  for (let index = 0; index < count; index += 1) {
+    const targetKm = Math.min(distanceKm - 20, firstLegKm + index * rechargeLegKm);
+    const candidate = stations
+      .filter((station) => !selected.some((item) => item.id === station.id))
+      .filter((station) => Math.abs(station.routeProgressKm - targetKm) <= Math.max(70, rechargeLegKm * 0.45))
+      .sort((a, b) => {
+        const aScore = Math.abs(a.routeProgressKm - targetKm) + a.distanceToRouteKm * 4 - Math.min(a.charging.maxPowerKW ?? 0, 180) / 20;
+        const bScore = Math.abs(b.routeProgressKm - targetKm) + b.distanceToRouteKm * 4 - Math.min(b.charging.maxPowerKW ?? 0, 180) / 20;
+        return aScore - bScore;
+      })[0];
+    if (candidate) selected.push(candidate);
+  }
+  return selected.sort((a, b) => a.routeProgressKm - b.routeProgressKm);
+}
+
+function getCorridorHighlights(stations: NearbyStation[]) {
+  const buckets = new Map<number, NearbyStation>();
+  stations.forEach((station) => {
+    const bucket = Math.floor(station.routeProgressKm / 35);
+    const current = buckets.get(bucket);
+    if (!current || station.distanceToRouteKm < current.distanceToRouteKm || (station.distanceToRouteKm === current.distanceToRouteKm && station.charging.maxPowerKW > current.charging.maxPowerKW)) {
+      buckets.set(bucket, station);
+    }
+  });
+  return [...buckets.values()].sort((a, b) => a.routeProgressKm - b.routeProgressKm).slice(0, 12);
 }
 
 export default function TravelPage() {
@@ -115,9 +167,11 @@ export default function TravelPage() {
   const [searching, setSearching] = useState<Record<Field, boolean>>({ origin: false, destination: false });
   const [activeField, setActiveField] = useState<Field | null>(null);
   const [route, setRoute] = useState<RouteResult | null>(null);
-  const [vehicleSlug, setVehicleSlug] = useState(vehicles[0]?.slug ?? "");
+  const [vehicleSlug, setVehicleSlug] = useState(DEFAULT_TRAVEL_VEHICLE_SLUG);
   const [variantName, setVariantName] = useState("");
   const [startingCharge, setStartingCharge] = useState(90);
+  const [arrivalReserve, setArrivalReserve] = useState(15);
+  const [drivingCondition, setDrivingCondition] = useState<DrivingCondition>("balanced");
   const [energyRate, setEnergyRate] = useState(18);
   const [isPlanning, setIsPlanning] = useState(false);
   const [error, setError] = useState("");
@@ -125,23 +179,31 @@ export default function TravelPage() {
   const searchTimers = useRef<Record<Field, ReturnType<typeof setTimeout> | null>>({ origin: null, destination: null });
   const searchSequence = useRef<Record<Field, number>>({ origin: 0, destination: 0 });
 
-  const nearbyStations = getNearbyStations(route);
   const selectedVehicle = vehicles.find((vehicle) => vehicle.slug === vehicleSlug) ?? vehicles[0];
   const tripProfile = getVehicleTripProfile(vehicleSlug);
   const selectedVariant = tripProfile?.variants.find((variant) => variant.name === variantName) ?? tripProfile?.variants.find((variant) => variant.name === tripProfile.defaultVariant);
+  const nearbyStations = getNearbyStations(route, selectedVariant?.connector);
   const claimedRangeKm = highestNumber(selectedVehicle?.range);
   const practicalRangeKm = selectedVariant?.practicalRangeKm ?? Math.round(claimedRangeKm * 0.8);
-  const usableStartRangeKm = Math.max(0, Math.round(practicalRangeKm * ((startingCharge - 15) / 100)));
-  const usableRechargeRangeKm = Math.max(1, Math.round(practicalRangeKm * 0.65));
+  const conditionFactor = { balanced: 1, highway: 0.88, demanding: 0.78 }[drivingCondition];
+  const adjustedPracticalRangeKm = Math.max(1, Math.round(practicalRangeKm * conditionFactor));
+  const usableStartRangeKm = Math.max(0, Math.round(adjustedPracticalRangeKm * ((startingCharge - arrivalReserve) / 100)));
+  const usableRechargeRangeKm = Math.max(1, Math.round(adjustedPracticalRangeKm * ((80 - arrivalReserve) / 100)));
   const estimatedStops = route ? Math.max(0, Math.ceil(Math.max(0, route.distanceKm - usableStartRangeKm) / usableRechargeRangeKm)) : 0;
-  const efficiencyKWhPerKm = selectedVariant ? selectedVariant.batteryCapacityKWh / selectedVariant.practicalRangeKm : 0.16;
+  const efficiencyKWhPerKm = selectedVariant ? selectedVariant.batteryCapacityKWh / adjustedPracticalRangeKm : 0.16 / conditionFactor;
   const estimatedEnergyKwh = route ? Math.round(route.distanceKm * efficiencyKWhPerKm) : 0;
   const estimatedEnergyCost = Math.round(estimatedEnergyKwh * energyRate);
-  const totalAvailableRangeKm = usableStartRangeKm + estimatedStops * usableRechargeRangeKm;
-  const arrivalCharge = route && practicalRangeKm ? Math.min(80, Math.max(15, Math.round(15 + ((totalAvailableRangeKm - route.distanceKm) / practicalRangeKm) * 100))) : 0;
+  const totalAvailableRangeKm = adjustedPracticalRangeKm * (startingCharge / 100) + estimatedStops * adjustedPracticalRangeKm * 0.65;
+  const arrivalCharge = route ? Math.min(80, Math.max(0, Math.round(((totalAvailableRangeKm - route.distanceKm) / adjustedPracticalRangeKm) * 100))) : 0;
   const fastestRouteChargerKw = Math.max(0, ...nearbyStations.map((station) => station.charging.maxPowerKW));
   const effectiveChargePowerKw = Math.max(30, Math.min(selectedVariant?.maxDcChargeKW ?? 60, fastestRouteChargerKw || selectedVariant?.maxDcChargeKW || 60));
   const estimatedChargingMinutes = estimatedStops ? Math.round(selectedVariant ? estimatedStops * selectedVariant.fastChargeMinutes * (selectedVariant.maxDcChargeKW / effectiveChargePowerKw) : (estimatedStops * usableRechargeRangeKm * efficiencyKWhPerKm * 60) / effectiveChargePowerKw) : 0;
+  const recommendedStops = route ? pickRecommendedStops(nearbyStations, estimatedStops, route.distanceKm, usableStartRangeKm, usableRechargeRangeKm) : [];
+  const corridorHighlights = getCorridorHighlights(nearbyStations);
+  const routeConfidence = !route ? "Not calculated" : estimatedStops === 0 ? "High — no public stop required" : recommendedStops.length >= estimatedStops ? "Good — compatible stops identified" : "Limited — add backup planning";
+  const googleMapsUrl = origin && destination
+    ? `https://www.google.com/maps/dir/?api=1&origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&travelmode=driving`
+    : "";
 
   useEffect(() => {
     let cancelled = false;
@@ -159,6 +221,9 @@ export default function TravelPage() {
       if (savedVehicle && vehicles.some((vehicle) => vehicle.slug === savedVehicle)) setVehicleSlug(savedVehicle);
       setVariantName(params.get("variant") ?? "");
       setStartingCharge(Math.min(100, Math.max(20, Number(params.get("charge")) || 90)));
+      setArrivalReserve(Math.min(30, Math.max(10, Number(params.get("reserve")) || 15)));
+      const savedCondition = params.get("condition");
+      if (savedCondition === "balanced" || savedCondition === "highway" || savedCondition === "demanding") setDrivingCondition(savedCondition);
       setEnergyRate(Math.min(100, Math.max(1, Number(params.get("rate")) || 18)));
       setIsPlanning(true);
       fetch(`/api/travel?origin=${fromLat},${fromLng}&destination=${toLat},${toLng}`)
@@ -273,6 +338,8 @@ export default function TravelPage() {
       vehicle: vehicleSlug,
       variant: selectedVariant?.name ?? "",
       charge: String(startingCharge),
+      reserve: String(arrivalReserve),
+      condition: drivingCondition,
       rate: String(energyRate),
     });
     const href = `/travel?${params.toString()}`;
@@ -358,11 +425,19 @@ export default function TravelPage() {
               <button type="button" onClick={planRoute} disabled={isPlanning} className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sky-400 px-6 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60 lg:mt-9"><Search className="h-4 w-4" />{isPlanning ? "Planning…" : "Plan route"}</button>
             </div>
 
-            <div className="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:grid-cols-3 sm:p-5">
-              <label>
+            <div className="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:grid-cols-2 lg:grid-cols-5 sm:p-5">
+              <label className="sm:col-span-2 lg:col-span-1">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Your EV</span>
                 <select value={vehicleSlug} onChange={(event) => { const slug = event.target.value; setVehicleSlug(slug); setVariantName(getVehicleTripProfile(slug)?.defaultVariant ?? ""); }} className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/50">
                   {vehicles.filter((vehicle) => highestNumber(vehicle.range) > 0).map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name}</option>)}
+                </select>
+              </label>
+              <label>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Trip conditions</span>
+                <select value={drivingCondition} onChange={(event) => setDrivingCondition(event.target.value as DrivingCondition)} className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/50">
+                  <option value="balanced">Balanced driving</option>
+                  <option value="highway">Fast highway driving</option>
+                  <option value="demanding">Heat, hills or heavy load</option>
                 </select>
               </label>
               <label>
@@ -370,11 +445,15 @@ export default function TravelPage() {
                 <input type="range" min="20" max="100" step="5" value={startingCharge} onChange={(event) => setStartingCharge(Number(event.target.value))} className="mt-4 w-full accent-sky-400" />
               </label>
               <label>
+                <span className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500"><span>Arrival reserve</span><span className="text-emerald-200">{arrivalReserve}%</span></span>
+                <input type="range" min="10" max="30" step="5" value={arrivalReserve} onChange={(event) => setArrivalReserve(Number(event.target.value))} className="mt-4 w-full accent-emerald-400" />
+              </label>
+              <label>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Public charging rate</span>
                 <div className="mt-2 flex h-11 items-center rounded-xl border border-white/10 bg-slate-900 px-3"><span className="text-slate-400">₹</span><input type="number" min="1" max="100" value={energyRate} onChange={(event) => setEnergyRate(Math.max(1, Number(event.target.value) || 1))} className="w-full bg-transparent px-2 text-sm font-semibold text-white outline-none" /><span className="text-xs text-slate-500">/kWh</span></div>
               </label>
-              <p className="sm:col-span-3 text-xs leading-5 text-slate-500">Verified models use variant-level battery and charging data; other models use 80% of listed range. Every plan keeps a 15% reserve. Weather, speed, traffic, elevation, payload, and charger power can change results.</p>
-              {tripProfile && selectedVariant ? <div className="sm:col-span-3 grid gap-3 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.06] p-4 sm:grid-cols-[1fr_auto] sm:items-end"><label><span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">Verified battery variant</span><select value={selectedVariant.name} onChange={(event) => setVariantName(event.target.value)} className="mt-2 h-10 w-full rounded-lg border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none">{tripProfile.variants.map((variant) => <option key={variant.name} value={variant.name}>{variant.name} · {variant.certifiedRangeKm} km · {variant.maxDcChargeKW} kW DC</option>)}</select></label><a href={tripProfile.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-emerald-200 hover:text-emerald-100">Official source · checked {tripProfile.verifiedAt}</a></div> : <p className="sm:col-span-3 rounded-xl border border-amber-300/15 bg-amber-400/[0.06] px-4 py-3 text-xs leading-5 text-amber-100">Estimated profile: exact battery and charging specifications have not yet been verified for this model.</p>}
+              <p className="sm:col-span-2 lg:col-span-5 text-xs leading-5 text-slate-500">PlugV adjusts practical range for your selected conditions and preserves your chosen arrival reserve. Weather, speed, traffic, elevation, payload, tyre pressure and charger power can still change the result.</p>
+              {tripProfile && selectedVariant ? <div className="sm:col-span-2 lg:col-span-5 grid gap-3 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.06] p-4 sm:grid-cols-[1fr_auto] sm:items-end"><label><span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">Verified battery variant</span><select value={selectedVariant.name} onChange={(event) => setVariantName(event.target.value)} className="mt-2 h-10 w-full rounded-lg border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none">{tripProfile.variants.map((variant) => <option key={variant.name} value={variant.name}>{variant.name} · {variant.certifiedRangeKm} km · {variant.maxDcChargeKW} kW DC</option>)}</select></label><a href={tripProfile.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-emerald-200 hover:text-emerald-100">Official source · checked {tripProfile.verifiedAt}</a></div> : <p className="sm:col-span-2 lg:col-span-5 rounded-xl border border-amber-300/15 bg-amber-400/[0.06] px-4 py-3 text-xs leading-5 text-amber-100">Estimated profile: exact battery and charging specifications have not yet been verified for this model.</p>}
             </div>
 
             {error ? <p className="mt-5 rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">{error}</p> : null}
@@ -387,18 +466,29 @@ export default function TravelPage() {
           {route && origin && destination ? (
             <>
               {route.estimated ? <div className="mb-5 rounded-2xl border border-amber-300/20 bg-amber-400/[0.08] px-5 py-4"><p className="text-sm font-semibold text-amber-100">Live road routing is temporarily unavailable—showing a planning estimate.</p><p className="mt-1 text-xs leading-5 text-slate-300">Distance and journey time use a road-distance allowance between the selected places. Confirm the exact route in your navigation app before departure.</p></div> : <div className="mb-5 rounded-2xl border border-emerald-300/20 bg-emerald-400/[0.08] px-5 py-4 text-sm font-semibold text-emerald-100">Live road route calculated successfully.</div>}
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Metric label="Driving distance" value={`${route.distanceKm.toLocaleString("en-IN")} km`} icon={Route} />
                 <Metric label="Estimated drive time" value={formatDuration(route.durationMinutes)} icon={Clock3} />
+                <Metric label="Adjusted practical range" value={`~${adjustedPracticalRangeKm} km`} icon={BatteryCharging} />
                 <Metric label="Suggested charging stops" value={`${estimatedStops}`} icon={BatteryCharging} />
                 <Metric label="Estimated charging time" value={estimatedStops ? formatDuration(estimatedChargingMinutes) : "No stop needed"} icon={Clock3} />
                 <Metric label="Estimated arrival battery" value={`~${arrivalCharge}%`} icon={BatteryCharging} />
                 <Metric label="Estimated trip energy" value={`${estimatedEnergyKwh} kWh · ₹${estimatedEnergyCost.toLocaleString("en-IN")}`} icon={Zap} />
+                <Metric label="Route confidence" value={routeConfidence} icon={ShieldCheck} compact />
               </div>
 
               <div className={`mt-5 rounded-2xl border px-5 py-4 ${nearbyStations.length >= estimatedStops ? "border-emerald-300/20 bg-emerald-400/10" : "border-amber-300/20 bg-amber-400/10"}`}>
-                <p className="text-sm font-semibold text-white">{selectedVehicle.brand} {selectedVehicle.name}{selectedVariant ? ` · ${selectedVariant.name}` : ""} · ~{practicalRangeKm} km practical range</p>
-                <p className="mt-1 text-xs leading-5 text-slate-300">{nearbyStations.length >= estimatedStops ? `${nearbyStations.length} known stations are near this corridor, enough to review against the estimated ${estimatedStops} stop${estimatedStops === 1 ? "" : "s"}.` : `Only ${nearbyStations.length} known stations are close to this corridor. Review operator coverage before departure.`}</p>
+                <p className="text-sm font-semibold text-white">{selectedVehicle.brand} {selectedVehicle.name}{selectedVariant ? ` · ${selectedVariant.name}` : ""} · {selectedVariant?.connector ?? "connector not verified"}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-300">{nearbyStations.length >= estimatedStops ? `${nearbyStations.length} compatible stations are within 25 km of this corridor. PlugV found ${recommendedStops.length} practical stop candidate${recommendedStops.length === 1 ? "" : "s"} for the estimated ${estimatedStops} stop${estimatedStops === 1 ? "" : "s"}.` : `Only ${nearbyStations.length} compatible stations are close to this corridor. Add operator-app checks and backup stops before departure.`}</p>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Suggested stop plan</p><h2 className="mt-2 text-xl font-semibold text-white">Review stops in journey order</h2></div>{googleMapsUrl ? <a href={googleMapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-xs font-semibold text-white hover:bg-white/5">Open driving route<ExternalLink className="h-3.5 w-3.5" /></a> : null}</div>
+                  {estimatedStops === 0 ? <p className="mt-5 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.07] px-4 py-3 text-sm text-emerald-100">No public charging stop is estimated. Keep your arrival reserve and identify one backup charger for unexpected delays.</p> : recommendedStops.length ? <div className="mt-5 space-y-3">{recommendedStops.map((station, index) => <div key={station.id} className="grid gap-3 rounded-xl border border-white/10 bg-slate-950/55 p-4 sm:grid-cols-[auto_1fr_auto] sm:items-center"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-300 text-sm font-bold text-slate-950">{index + 1}</span><div><p className="text-sm font-semibold text-white">{station.name}</p><p className="mt-1 text-xs text-slate-400">Around km {station.routeProgressKm} · {station.distanceToRouteKm.toFixed(1)} km detour · {station.charging.maxPowerKW} kW · {station.operator}</p></div><a href={station.directionsUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-sky-200 hover:text-white">Directions</a></div>)}</div> : <p className="mt-5 rounded-xl border border-amber-300/15 bg-amber-400/[0.07] px-4 py-3 text-sm leading-6 text-amber-100">PlugV could not identify enough compatible stop candidates near the ideal charging points. Check the Charging section and operator apps before relying on this trip.</p>}
+                  {recommendedStops.length < estimatedStops ? <p className="mt-3 text-xs leading-5 text-amber-200">Coverage warning: {estimatedStops - recommendedStops.length} additional stop{estimatedStops - recommendedStops.length === 1 ? "" : "s"} still {estimatedStops - recommendedStops.length === 1 ? "requires" : "require"} manual confirmation.</p> : null}
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Before departure</p><h2 className="mt-2 text-xl font-semibold text-white">Five checks that prevent range anxiety</h2><ul className="mt-5 space-y-3 text-sm leading-6 text-slate-300">{["Confirm every planned charger in its operator app.", "Keep at least one compatible backup charger per stop.", `Leave with at least ${startingCharge}% and protect a ${arrivalReserve}% reserve.`, "Check tyres, weather, road closures and elevation.", "Carry the correct charging apps, payment methods and cable."].map((item) => <li key={item} className="flex gap-3"><CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-300" /><span>{item}</span></li>)}</ul></div>
               </div>
 
               <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-sky-300/15 bg-sky-400/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -409,11 +499,11 @@ export default function TravelPage() {
                 </div>
               </div>
 
-              <div className="mt-14 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Charging coverage</p><h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Known stations near your route.</h2><p className="mt-3 max-w-2xl text-base leading-7 text-slate-400">Compare detour distance, charging speed, connectors, and live status where an operator feed is available.</p><div className="mt-4 flex flex-wrap gap-3 text-xs font-semibold"><span className="inline-flex items-center gap-2 text-emerald-200"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />Green: DC Fast</span><span className="inline-flex items-center gap-2 text-yellow-100"><span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />Yellow: AC Fast</span></div></div><span className="inline-flex items-center gap-2 text-sm text-slate-400"><Navigation className="h-4 w-4 text-sky-300" />{origin.label} → {destination.label}</span></div>
+              <div className="mt-14 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Charging coverage</p><h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Compatible stations near your route.</h2><p className="mt-3 max-w-2xl text-base leading-7 text-slate-400">Shown in journey order. Compare route position, detour distance, charging speed, connectors, and live status where an operator feed is available.</p><div className="mt-4 flex flex-wrap gap-3 text-xs font-semibold"><span className="inline-flex items-center gap-2 text-emerald-200"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />Green: DC Fast</span><span className="inline-flex items-center gap-2 text-yellow-100"><span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />Yellow: AC Fast</span></div></div><span className="inline-flex items-center gap-2 text-sm text-slate-400"><Navigation className="h-4 w-4 text-sky-300" />{origin.label} → {destination.label}</span></div>
 
               {nearbyStations.length ? (
                 <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {nearbyStations.map((station) => <StationCard key={station.id} station={station} />)}
+                  {corridorHighlights.map((station) => <StationCard key={station.id} station={station} />)}
                 </div>
               ) : (
                 <div className="mt-8 rounded-[2rem] border border-dashed border-white/15 bg-white/[0.03] p-8 text-center"><p className="text-xl font-semibold text-white">No PlugV stations are mapped close to this route yet.</p><p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-400">Your route still works. PlugV&apos;s verified charging coverage is expanding across India—explore the charging map for the current network.</p><Link href="/charging" className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/5">Explore charging map<ArrowRight className="h-4 w-4" /></Link></div>
@@ -431,8 +521,8 @@ export default function TravelPage() {
   );
 }
 
-function Metric({ label, value, icon: Icon }: { label: string; value: string; icon: typeof Route }) {
-  return <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><Icon className="h-5 w-5 text-sky-300" /><p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">{label}</p><p className="mt-2 text-2xl font-semibold text-white">{value}</p></div>;
+function Metric({ label, value, icon: Icon, compact = false }: { label: string; value: string; icon: typeof Route; compact?: boolean }) {
+  return <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><Icon className="h-5 w-5 text-sky-300" /><p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">{label}</p><p className={`mt-2 font-semibold text-white ${compact ? "text-base leading-6" : "text-2xl"}`}>{value}</p></div>;
 }
 
 function StationCard({ station }: { station: NearbyStation }) {
@@ -473,7 +563,7 @@ function StationCard({ station }: { station: NearbyStation }) {
     <article className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-sky-300/25 hover:bg-white/[0.06]">
       <div className="flex items-start justify-between gap-4">
         <div><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300">{station.operator}</p><h3 className="mt-2 text-lg font-semibold text-white">{station.name}</h3><p className="mt-1 text-sm text-slate-400">{station.city}, {station.state}</p></div>
-        <span className="shrink-0 rounded-full border border-white/10 bg-slate-950/60 px-3 py-1 text-xs font-semibold text-slate-200">{station.distanceToRouteKm < 1 ? `${Math.round(station.distanceToRouteKm * 1000)} m` : `${station.distanceToRouteKm.toFixed(1)} km`} off route</span>
+        <div className="flex shrink-0 flex-col items-end gap-2"><span className="rounded-full border border-sky-300/20 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100">Around km {station.routeProgressKm}</span><span className="rounded-full border border-white/10 bg-slate-950/60 px-3 py-1 text-xs font-semibold text-slate-200">{station.distanceToRouteKm < 1 ? `${Math.round(station.distanceToRouteKm * 1000)} m` : `${station.distanceToRouteKm.toFixed(1)} km`} detour</span></div>
       </div>
       <div className="mt-5 flex flex-wrap gap-2" aria-label="Charger types and availability">
         {station.charging.dcFast ? <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/30 bg-emerald-400/15 px-3 py-1.5 text-xs font-semibold text-emerald-200"><Zap className="h-3.5 w-3.5" />DC Fast</span> : null}
