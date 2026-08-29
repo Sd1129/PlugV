@@ -19,6 +19,15 @@ export default function CompareLayout({ children }: { children: React.ReactNode 
     description: "Compare electric cars available in India across price, claimed range, charging, specifications and key features.",
     featureList: ["Side-by-side EV comparison", "Price and range comparison", "Charging comparison", "Variant specifications"],
   };
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      { "@type": "Question", name: "How should I compare two electric cars?", acceptedAnswer: { "@type": "Answer", text: "Compare the exact variants across price, claimed and practical range, battery, AC and DC charging, safety, space, warranty, service reach and ownership cost." } },
+      { "@type": "Question", name: "Are PlugV comparison prices on-road prices?", acceptedAnswer: { "@type": "Answer", text: "Vehicle prices are generally indicative ex-showroom listings unless explicitly labelled otherwise. Obtain a current city- and variant-specific on-road quotation before purchasing." } },
+      { "@type": "Question", name: "Does a longer claimed range guarantee longer real-world range?", acceptedAnswer: { "@type": "Answer", text: "No. Speed, traffic, climate control, temperature, elevation, load, tyres and the test method can change practical range." } },
+    ],
+  };
 
-  return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(applicationSchema) }} />{children}</>;
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(applicationSchema) }} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }} />{children}</>;
 }

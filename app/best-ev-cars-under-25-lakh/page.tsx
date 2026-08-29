@@ -94,6 +94,7 @@ export default function BestEvsUnder25LakhPage() {
           <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-xs font-semibold text-sky-200">
             <BadgeIndianRupee className="h-4 w-4" /> India EV buying guide
           </div>
+          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Last updated 29 August 2026 · Monthly catalogue review</p>
           <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">
             Best EV cars under ₹25 lakh in India
           </h1>

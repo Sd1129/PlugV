@@ -30,6 +30,8 @@ jobs:
         run: npm run audit:upcoming
       - name: Check official source links
         run: npm run audit:sources
+      - name: Check search-content review dates
+        run: npm run audit:content
       - name: Audit production dependencies
         run: npm run audit:security
       - name: Open or update the maintenance alert

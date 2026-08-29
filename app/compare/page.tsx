@@ -695,6 +695,20 @@ function CompareContent() {
         </div>
       </section>
 
+      <section className="border-t border-white/10 bg-white/[0.02] py-14">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <h2 className="text-3xl font-semibold text-white">EV comparison questions</h2>
+            <span className="text-xs text-slate-500">Reviewed 29 August 2026</span>
+          </div>
+          <div className="mt-7 grid gap-4">
+            <details className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><summary className="cursor-pointer font-semibold text-white">How should I compare two electric cars?</summary><p className="mt-3 text-sm leading-7 text-slate-300">Compare the exact variants across price, claimed and practical range, battery, AC and DC charging, safety, space, warranty, service reach and ownership cost.</p></details>
+            <details className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><summary className="cursor-pointer font-semibold text-white">Are PlugV comparison prices on-road prices?</summary><p className="mt-3 text-sm leading-7 text-slate-300">Vehicle prices are generally indicative ex-showroom listings unless explicitly labelled otherwise. Obtain a current city- and variant-specific on-road quotation before purchasing.</p></details>
+            <details className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><summary className="cursor-pointer font-semibold text-white">Does a longer claimed range guarantee longer real-world range?</summary><p className="mt-3 text-sm leading-7 text-slate-300">No. Speed, traffic, climate control, temperature, elevation, load, tyres and the test method can change practical range.</p></details>
+          </div>
+        </div>
+      </section>
+
       <SiteFooter />
     </main>
   );
