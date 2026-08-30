@@ -30,7 +30,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     description: "Calculate and understand the five-year cost difference between an electric car and a petrol car in India using your own driving and energy assumptions.",
     category: "Costs",
     readTime: "8 min",
-    updatedAt: "2026-08-28",
+    updatedAt: "2026-08-29",
     targetKeyword: "EV vs petrol 5 year cost comparison India",
     refreshCadence: "quarterly",
     intro: "An EV can cost more to buy but less to run. The useful question is not which fuel is always cheaper—it is which vehicle costs less for your mileage, charging mix, ownership period and financing situation.",
@@ -43,6 +43,10 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     faqs: [
       { question: "Does the calculator include loan interest?", answer: "The first release compares purchase and operating costs. Add financing costs separately because rates, down payments and tenures vary by buyer." },
       { question: "Are electricity and petrol prices fixed?", answer: "No. Enter the prices you actually expect to pay. The result is a planning estimate, not a quotation." },
+    ],
+    sources: [
+      { label: "EV charging consumer guidance — Bureau of Energy Efficiency", url: "https://www.beeindia.gov.in/view_content.php?lang=1&lid=589" },
+      { label: "EV Charging Infrastructure Guidelines — Ministry of Power", url: "https://powermin.gov.in/sites/default/files/uploads/RS10122024_Eng.pdf" },
     ],
   },
   {
@@ -57,7 +61,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     refreshCadence: "event-driven",
     intro: "EV incentives in India are not one permanent national discount. Eligibility can depend on vehicle category, policy validity, registration date, price caps, battery criteria and remaining state allocation.",
     sections: [
-      { heading: "Start with the vehicle category", paragraphs: ["Do not assume an incentive for electric two-wheelers also applies to private electric cars. The current PM E-DRIVE framework focuses demand incentives on specified categories and charging infrastructure; buyers should verify the exact eligible category on the official portal."] },
+      { heading: "Start with the vehicle category", paragraphs: ["Do not assume an incentive for electric two-wheelers also applies to private electric cars. As reviewed on 29 August 2026, the official PM E-DRIVE eligible-category list covers e-2Ws, e-3Ws, e-ambulances, e-trucks, e-buses, charging infrastructure and testing-agency upgrades; it does not list private electric passenger cars for a central demand incentive. Always re-check the portal and the state rule applicable on the registration date."] },
       { heading: "State benefits to check", bullets: ["Purchase incentive or early-bird cap", "Road-tax exemption or reduction", "Registration-fee treatment", "Scrappage-linked benefit", "Interest subsidy or reimbursement", "Residential charging or electricity-tariff support"] },
       { heading: "How to verify your state", bullets: ["Open your state transport or EV-policy portal", "Confirm the policy validity date and vehicle category", "Check price, battery and registration caps", "Ask the dealer to show the benefit separately on the quotation", "Save the notification and acknowledgement used for your application"] },
       { heading: "Why PlugV does not publish an unqualified subsidy amount", paragraphs: ["A stale subsidy number can change a purchase decision. PlugV therefore treats incentive values as time-sensitive and directs users to the governing notification or portal before presenting a benefit as available."] },
@@ -68,6 +72,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     ],
     sources: [
       { label: "PM E-DRIVE — Ministry of Heavy Industries", url: "https://pmedrive.heavyindustries.gov.in/" },
+      { label: "PM E-DRIVE scheme notifications — Ministry of Heavy Industries", url: "https://pmedrive.heavyindustries.gov.in/policy_document" },
       { label: "Electric Vehicle Incentives — NITI Aayog e-AMRIT", url: "https://e-amrit.niti.gov.in/electric-vehicle-incentives" },
     ],
   },
@@ -78,7 +83,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     description: "A practical beginner’s guide to choosing an electric car in India based on daily distance, charging access, range, budget and ownership needs.",
     category: "Buying",
     readTime: "10 min",
-    updatedAt: "2026-08-28",
+    updatedAt: "2026-08-29",
     targetKeyword: "best electric cars in India by category",
     refreshCadence: "quarterly",
     intro: "The best first EV is not automatically the model with the longest claimed range. It is the vehicle that covers your routine comfortably, charges where you live and travel, and remains affordable after insurance and installation costs.",
@@ -93,6 +98,10 @@ export const knowledgeArticles: KnowledgeArticle[] = [
       { question: "How much range should my first EV have?", answer: "There is no universal minimum. Choose enough practical range for your routine plus a comfortable buffer and a workable charging plan." },
       { question: "Is home charging essential?", answer: "It is not mandatory, but dependable overnight charging makes ownership simpler and often cheaper. Buyers without it should validate reliable alternatives before purchase." },
     ],
+    sources: [
+      { label: "EV consumer guidance — Bureau of Energy Efficiency", url: "https://www.beeindia.gov.in/view_content.php?lang=1&lid=589" },
+      { label: "EV incentives portal — NITI Aayog e-AMRIT", url: "https://e-amrit.niti.gov.in/electric-vehicle-incentives" },
+    ],
   },
   {
     slug: "home-charging-vs-public-charging-india",
@@ -101,7 +110,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     description: "Compare home and public EV charging in India across cost, speed, convenience, installation and everyday reliability.",
     category: "Charging",
     readTime: "8 min",
-    updatedAt: "2026-08-28",
+    updatedAt: "2026-08-29",
     intro: "Most owners benefit from using home charging for routine energy and public fast charging for longer journeys. The right mix depends on parking, electrical capacity, tariff and travel pattern.",
     sections: [
       { heading: "Home charging", bullets: ["Usually the most convenient option for overnight charging", "Cost depends on your electricity tariff and charging losses", "Requires safe wiring, earthing and an installer assessment", "Apartment permission and load enhancement may be necessary"] },
@@ -112,6 +121,10 @@ export const knowledgeArticles: KnowledgeArticle[] = [
       { question: "Is public fast charging always faster?", answer: "The charger may be capable of high output, but the vehicle controls the power it accepts. Battery temperature, state of charge and shared power can also reduce speed." },
       { question: "Can I use a normal socket?", answer: "Only follow the vehicle manufacturer and qualified installer guidance. Electrical capacity, earthing, protection and connector requirements must be assessed for safe regular charging." },
     ],
+    sources: [
+      { label: "EV Charging Infrastructure Guidelines — Ministry of Power", url: "https://powermin.gov.in/sites/default/files/uploads/RS10122024_Eng.pdf" },
+      { label: "EV charging consumer guidance — Bureau of Energy Efficiency", url: "https://www.beeindia.gov.in/view_content.php?lang=1&lid=589" },
+    ],
   },
   {
     slug: "electric-car-total-cost-of-ownership-calculator-india",
@@ -120,7 +133,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     description: "Estimate an electric car’s total cost of ownership in India using purchase price, electricity, annual driving, maintenance, insurance and resale assumptions.",
     category: "Costs",
     readTime: "7 min",
-    updatedAt: "2026-08-28",
+    updatedAt: "2026-08-29",
     intro: "Total cost of ownership turns a vehicle’s price tag into an ownership estimate. It is most useful when every assumption is visible and adjustable.",
     calculator: "tco",
     sections: [
@@ -131,6 +144,9 @@ export const knowledgeArticles: KnowledgeArticle[] = [
       { question: "Is depreciation included?", answer: "The calculator uses your expected resale value to represent the value remaining at the end of ownership." },
       { question: "Is this an on-road quotation?", answer: "No. It is an educational planning estimate. Obtain final prices, taxes, insurance and finance terms before purchasing." },
     ],
+    sources: [
+      { label: "EV charging consumer guidance — Bureau of Energy Efficiency", url: "https://www.beeindia.gov.in/view_content.php?lang=1&lid=589" },
+    ],
   },
   {
     slug: "electric-car-myths-vs-facts-india",
@@ -139,7 +155,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     description: "Clear, practical answers to common electric-car myths about batteries, charging, rain, range, cost and long-distance travel in India.",
     category: "Ownership",
     readTime: "9 min",
-    updatedAt: "2026-08-28",
+    updatedAt: "2026-08-29",
     intro: "EV discussions often replace one exaggeration with another. The reality depends on the vehicle, charging environment and user—not a universal slogan.",
     sections: [
       { heading: "Myth: Every EV delivers its claimed range", paragraphs: ["Fact: certified range is a standardised comparison figure. Real use changes with speed, traffic, temperature, elevation, load, tyres and climate control."] },
@@ -152,6 +168,10 @@ export const knowledgeArticles: KnowledgeArticle[] = [
       { question: "Does an EV battery need replacement after a few years?", answer: "Battery ageing is gradual and varies by chemistry, temperature, charging behaviour and use. Review the manufacturer’s battery warranty and health conditions for the exact model." },
       { question: "Are EVs maintenance-free?", answer: "No. EVs have fewer routine powertrain service items, but tyres, brakes, suspension, cooling, filters and other components still require inspection and maintenance." },
     ],
+    sources: [
+      { label: "EV consumer guidance — Bureau of Energy Efficiency", url: "https://www.beeindia.gov.in/view_content.php?lang=1&lid=589" },
+      { label: "EV Charging Infrastructure Guidelines — Ministry of Power", url: "https://powermin.gov.in/sites/default/files/uploads/RS10122024_Eng.pdf" },
+    ],
   },
   {
     slug: "top-electric-cars-by-category-india",
@@ -160,7 +180,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     description: "Explore launched electric cars in India by category, including SUVs, hatchbacks, sedans, MPVs, premium EVs and long-range choices.",
     category: "Rankings",
     readTime: "6 min",
-    updatedAt: "2026-08-28",
+    updatedAt: "2026-08-29",
     intro: "There is no single best EV for every buyer. PlugV groups launched vehicles by practical category and shows comparable catalogue information so you can create your own shortlist.",
     sections: [
       { heading: "How this list is organised", paragraphs: ["Vehicles are grouped using PlugV’s launched catalogue. Within each category, longer claimed range is used as a transparent discovery order—not as an overall quality score or paid ranking."] },
@@ -214,46 +234,6 @@ export const knowledgeArticles: KnowledgeArticle[] = [
       { question: "Can I sell a BaaS vehicle?", answer: "Transfer and foreclosure terms depend on the provider and financier. Ask for written resale, transfer and early-closure conditions before purchasing." },
     ],
     sources: [{ label: "MG Windsor EV BaaS FAQ — JSW MG Motor India", url: "https://www.mgmotor.co.in/vehicles/windsor-ev-electric-car-in-india/baas-faq" }],
-  },
-  {
-    slug: "ev-charging-stations-bengaluru-city-guide",
-    title: "EV Charging Stations in Bengaluru: City Guide",
-    shortTitle: "Bengaluru Charging Guide",
-    description: "Find EV charging stations in Bengaluru and understand connectors, live-status limits, tariffs, access and backup planning.",
-    category: "Charging",
-    readTime: "7 min",
-    updatedAt: "2026-08-29",
-    targetKeyword: "EV charging stations near me Bengaluru",
-    refreshCadence: "monthly",
-    intro: "Use PlugV’s live charging search for the current Bengaluru directory. A listed station is not a guarantee that a connector is working or free, so confirm operator status and keep a backup for time-critical journeys.",
-    sections: [
-      { heading: "Before travelling to a charger", bullets: ["Filter for the connector supported by your vehicle", "Check charger power against the vehicle’s maximum acceptance rate", "Open the operator app for the latest status and tariff", "Confirm site hours, parking access and entry restrictions", "Save a compatible backup nearby"] },
-      { heading: "Where to search", paragraphs: ["Search Bengaluru in PlugV Charging to load matching stations from the current data sources. Results are loaded progressively and may combine directory information with official feeds where an operator grants access."] },
-    ],
-    faqs: [
-      { question: "Does PlugV guarantee that a Bengaluru charger is available?", answer: "No. PlugV labels live operator availability only when supplied by an authorised feed. Otherwise verify in the operator app before arrival." },
-      { question: "Which connector do most electric cars use?", answer: "Many current electric cars use CCS2 for DC charging and Type 2 for AC, but you must confirm the exact vehicle and variant." },
-    ],
-  },
-  {
-    slug: "ev-charging-stations-mumbai-network-guide",
-    title: "EV Charging Stations in Mumbai: Complete Network Guide",
-    shortTitle: "Mumbai Charging Guide",
-    description: "Find EV charging stations in Mumbai with a practical guide to connectors, operator status, access, tariffs and backup chargers.",
-    category: "Charging",
-    readTime: "7 min",
-    updatedAt: "2026-08-29",
-    targetKeyword: "EV charging stations in Mumbai",
-    refreshCadence: "monthly",
-    intro: "Mumbai charging availability can depend on the operator, property access, parking rules and connector status. Search the current PlugV directory, then verify critical details in the official operator app.",
-    sections: [
-      { heading: "Plan a reliable Mumbai charging stop", bullets: ["Confirm CCS2, Type 2 or the connector required by your vehicle", "Check whether the site is public, semi-public or restricted", "Review tariff, parking and idle fees", "Check the latest operator status", "Choose a backup outside the same property or power site"] },
-      { heading: "Do not rely on a station count alone", paragraphs: ["A large directory count can include restricted, duplicate, outdated or low-power locations. PlugV prioritises compatibility, provenance and freshness alongside coverage."] },
-    ],
-    faqs: [
-      { question: "Can I see all Mumbai chargers on PlugV?", answer: "PlugV shows stations available through its current sources. Coverage expands as official operator feeds are approved; no public directory should be treated as complete without qualification." },
-      { question: "Why is live availability missing for some stations?", answer: "Real-time occupancy and operational status require an authorised operator feed. PlugV does not invent live status when that feed is unavailable." },
-    ],
   },
   {
     slug: "best-electric-cars-under-15-lakh-india",
