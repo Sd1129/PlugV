@@ -29,6 +29,8 @@ jobs:
         run: node scripts/upcoming-catalog-audit.mjs
       - name: Check catalogue freshness
         run: node scripts/data-freshness-audit.mjs
+      - name: Check Knowledge Hub coverage and review cadence
+        run: node scripts/content-freshness-audit.mjs
       - name: Discover unregistered EV links on official India manufacturer sites
         env:
           DISCOVERY_STRICT: "1"
