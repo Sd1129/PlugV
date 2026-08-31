@@ -27,7 +27,10 @@ export default function FounderPage() {
     url: absoluteUrl("/founder"),
     email: "mailto:support@plugv.in",
     worksFor: { "@id": `${SITE_URL}/#organization` },
-    sameAs: ["https://www.instagram.com/plugvplatform/"],
+    sameAs: [
+      "https://www.instagram.com/plugvplatform/",
+      "https://www.youtube.com/channel/UC0YJUyVpgbX5eClR-UBp_oQ",
+    ],
   };
 
   return (
@@ -49,6 +52,7 @@ export default function FounderPage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="mailto:support@plugv.in?subject=Message%20for%20the%20PlugV%20Founder" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300 hover:border-sky-300/25 hover:text-white"><Mail className="h-4 w-4 text-sky-300" /><span>support@plugv.in</span></a>
               <a href="https://www.instagram.com/plugvplatform/" target="_blank" rel="noopener noreferrer" aria-label="Follow PlugV on Instagram at @plugvplatform" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300 hover:border-pink-300/30 hover:text-white"><svg viewBox="0 0 24 24" className="h-4 w-4 text-pink-300" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg><span>@plugvplatform</span></a>
+              <a href="https://www.youtube.com/channel/UC0YJUyVpgbX5eClR-UBp_oQ" target="_blank" rel="noopener noreferrer" aria-label="Watch PlugV on YouTube" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300 hover:border-red-300/30 hover:text-white"><svg viewBox="0 0 24 24" className="h-4 w-4 text-red-400" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z" /></svg><span>YouTube</span></a>
               <Link href="/about" className="inline-flex items-center gap-2 rounded-full bg-sky-300 px-5 py-3 text-sm font-semibold text-slate-950">About PlugV <ArrowRight className="h-4 w-4" /></Link>
             </div>
             <p className="mt-3 text-xs leading-5 text-slate-500">Founder-related messages are received through the official PlugV support mailbox.</p>
