@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     title: "Best EV Cars Under ₹25 Lakh in India",
     description: "A clear, comparison-ready PlugV shortlist for Indian EV buyers.",
     url: "/best-ev-cars-under-25-lakh",
-    images: ["/images/hero/plugv-compare-hero.webp"],
+    images: ["/images/plugv-owned/plugv-compare-hero-2026-08.png"],
   },
 };
 

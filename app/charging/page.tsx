@@ -14,25 +14,10 @@ import DataTrustNotice from "@/components/trust/DataTrustNotice";
 
 const PAGE_SIZE = 12;
 
-const CITY_IMAGES: Record<string, string> = {
-  Hyderabad: "/images/cities/hyderabad.webp",
-  Bengaluru: "/images/cities/bengaluru.webp",
-  Mumbai: "/images/cities/mumbai.webp",
-  "New Delhi": "/images/cities/new-delhi.webp",
-  Pune: "/images/cities/pune.webp",
-  Chennai: "/images/cities/chennai.webp",
-  Ahmedabad: "/images/cities/ahmedabad.webp",
-  Jaipur: "/images/cities/jaipur.webp",
-  Tirupati: "/images/cities/tirupati.png",
-  Tirupathi: "/images/cities/tirupati.png",
-};
-
-const STATE_IMAGES: Record<string, string> = {
-  "Andhra Pradesh": "/images/cities/tirupati.png",
-};
-
 function getCityImage(city: string, state: string) {
-  return CITY_IMAGES[city] ?? STATE_IMAGES[state] ?? "/images/cities/hyderabad.webp";
+  void city;
+  void state;
+  return "/images/plugv-owned/plugv-charging-hero-2026-08.png";
 }
 
 export default function ChargingPage() {

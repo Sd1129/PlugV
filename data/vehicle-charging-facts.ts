@@ -11,7 +11,7 @@ export const vehicleChargingFacts: Record<string, VehicleChargingFact> = {
   "maruti-suzuki-e-vitara": {
     dcTime: "10–80% in approximately 45 min with a 70 kW+ DC charger",
     acTime: "7.4 kW AC wallbox; manufacturer does not state a fixed full-charge time",
-    sourceUrl: "https://www.marutisuzuki.com/e-vitara",
+    sourceUrl: "https://www.marutisuzuki.com/corporate/media/press-releases/2026/february/india-goes-electric-with-maruti-suzuki-e-vitara-introductory-baas-price-starts",
     sourceName: "Maruti Suzuki",
     verifiedAt: "2026-08-23",
     confidence: "partial",
@@ -51,7 +51,7 @@ export const vehicleChargingFacts: Record<string, VehicleChargingFact> = {
   "mg-cyberster": {
     dcTime: "10–80% in approximately 38 min with a compatible DC charger",
     acTime: "11 kW AC charging supported; full-charge time depends on supply",
-    sourceUrl: "https://www.mgmotor.co.in/vehicles/mg-cyberster",
+    sourceUrl: "https://www.mgmotor.co.in/media-center/newsroom/jsw-mg-motor-india-launches-the-cyberster-at-an-introductory-price-of-inr-72-49-lakh-for-pre-reserved-bookings",
     sourceName: "JSW MG Motor India",
     verifiedAt: "2026-08-23",
     confidence: "partial",
@@ -115,7 +115,7 @@ export const vehicleChargingFacts: Record<string, VehicleChargingFact> = {
   "mg-m9": {
     dcTime: "30–80% in approximately 30 min with a compatible DC charger",
     acTime: "11 kW AC charging supported; full-charge time depends on supply",
-    sourceUrl: "https://www.mgmotor.co.in/vehicles/m9",
+    sourceUrl: "https://www.mgmotor.co.in/media-center/newsroom/mg-m9-indias-presidential-limousine-launched-at-an-introductory-price-of-inr-69-90lakhs",
     sourceName: "JSW MG Motor India",
     verifiedAt: "2026-08-23",
     confidence: "partial",
@@ -123,7 +123,7 @@ export const vehicleChargingFacts: Record<string, VehicleChargingFact> = {
   "mahindra-xuv400-ev": {
     dcTime: "0–80% in approximately 50 min with a 50 kW DC charger",
     acTime: "Approximately 6.5 hr with a 7.2 kW AC charger for the 39.4 kWh battery",
-    sourceUrl: "https://auto.mahindra.com/suv/xuv400",
+    sourceUrl: "https://auto.mahindra.com/on/demandware.static/-/Sites-amc-Library/default/dw26c87bc9/mahindraelectricimagesnew/xuv400images/xuv-features/Press_Note-Mahindra_Introduces_All_Electric_XUV400_Pro_Range.pdf",
     sourceName: "Mahindra Auto",
     verifiedAt: "2026-08-23",
     confidence: "official",

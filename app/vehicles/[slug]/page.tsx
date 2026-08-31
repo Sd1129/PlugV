@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: `/vehicles/${vehicle.slug}`,
-      images: ["/images/hero/plugv-compare-hero.webp"],
+      images: ["/images/plugv-owned/plugv-compare-hero-2026-08.png"],
     },
   };
 }

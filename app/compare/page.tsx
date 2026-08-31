@@ -304,7 +304,7 @@ function CompareContent() {
 
       {/* HERO */}
 <section className="relative isolate overflow-hidden border-b border-white/10">
-  <Image src="/images/hero/plugv-compare-hero.webp" alt="Two electric SUVs positioned side by side for comparison" fill priority sizes="100vw" className="-z-30 object-cover object-center" />
+  <Image src="/images/plugv-owned/plugv-compare-hero-2026-08.png" alt="PlugV illustration of two electric SUVs positioned side by side for comparison" fill priority sizes="100vw" className="-z-30 object-cover object-center" />
   <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(2,6,23,0.96)_0%,rgba(2,6,23,0.84)_38%,rgba(2,6,23,0.32)_68%,rgba(2,6,23,0.16)_100%)]" />
   <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_left,rgba(56,189,248,0.16),transparent_38%)]" />
 
