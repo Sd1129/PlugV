@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 const INSTAGRAM_URL = "https://www.instagram.com/plugvplatform/";
+const YOUTUBE_URL = "https://www.youtube.com/channel/UC0YJUyVpgbX5eClR-UBp_oQ";
 
 const footerLinks = [
   { label: "Explore EVs", href: "/vehicles" },
@@ -50,16 +51,28 @@ export default function SiteFooter() {
               experience.
             </p>
 
-            <a
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Follow PlugV on Instagram at @plugvplatform"
-              className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-pink-300/30 hover:bg-pink-400/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
-            >
-              <svg viewBox="0 0 24 24" className="h-5 w-5 text-pink-300" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
-              <span>Follow @plugvplatform</span>
-            </a>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow PlugV on Instagram at @plugvplatform"
+                className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-pink-300/30 hover:bg-pink-400/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5 text-pink-300" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
+                <span>Instagram</span>
+              </a>
+              <a
+                href={YOUTUBE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Watch PlugV on YouTube"
+                className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-red-300/30 hover:bg-red-400/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5 text-red-400" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z" /></svg>
+                <span>YouTube</span>
+              </a>
+            </div>
           </div>
 
           <div>
