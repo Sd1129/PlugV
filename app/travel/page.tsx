@@ -14,6 +14,7 @@ import {
   Download,
   ExternalLink,
   MapPin,
+  MessageCircle,
   Navigation,
   Route,
   Search,
@@ -436,6 +437,59 @@ export default function TravelPage() {
     }
   }
 
+  function buildWhatsAppTripSummary() {
+    if (!tripSummary) return "";
+
+    const stopPlan = itinerary.length
+      ? itinerary
+          .map((item, index) => {
+            const backup = item.backup ? ` Backup: ${item.backup.name}.` : " No mapped backup; verify one before departure.";
+            return `${index + 1}. ${item.station.name}: arrive ${item.arrivalPercent}%, charge to ${item.departurePercent}% (~${item.chargingMinutes} min, ~₹${item.chargingCost}).${backup}`;
+          })
+          .join("\n")
+      : "No public charging stop is currently estimated for this trip.";
+
+    return [
+      "My PlugV EV trip",
+      tripSummary,
+      `Starting charge: ${startingCharge}% · protected arrival reserve: ${arrivalReserve}%`,
+      "",
+      "Charging plan",
+      stopPlan,
+      "",
+      "Planning estimates only. Charger availability, tariffs, weather and traffic can change. Confirm every stop in the operator app before departure.",
+      "Planned privately on https://plugv.in/travel",
+    ].join("\n");
+  }
+
+  async function shareTripOnWhatsApp() {
+    const text = buildWhatsAppTripSummary();
+    if (!text) return;
+
+    setShareStatus("");
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "My PlugV EV trip", text });
+        setShareStatus("Trip shared from your device. PlugV did not collect a phone number.");
+        return;
+      }
+
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      if (whatsappWindow) {
+        setShareStatus("WhatsApp opened. Choose the person or group you want to share with.");
+        return;
+      }
+
+      await navigator.clipboard.writeText(text);
+      setShareStatus("Trip summary copied. Paste it into WhatsApp to share.");
+    } catch (shareError) {
+      if (shareError instanceof DOMException && shareError.name === "AbortError") return;
+      setShareStatus("WhatsApp sharing was not opened. No phone number or trip recipient was collected.");
+    }
+  }
+
   function downloadTrip() {
     if (!tripSummary) return;
     const stops = itinerary.map((item, index) => `Stop ${index + 1}: ${item.station.name}\nArrive ${item.arrivalPercent}% · charge to ${item.departurePercent}% · ${item.chargingMinutes} min · ~₹${item.chargingCost}${item.backup ? `\nBackup: ${item.backup.name}` : ""}`).join("\n\n");
@@ -576,16 +630,17 @@ export default function TravelPage() {
               </div>
 
               <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-sky-300/15 bg-sky-400/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div><p className="text-sm font-semibold text-white">Save, share or navigate</p><p className="mt-1 text-xs leading-5 text-slate-400">Saved trips remain on this device. Secure account-based cross-device sync requires customer sign-in and is not enabled yet.</p>{shareStatus ? <p className="mt-1 text-xs font-semibold text-emerald-200">{shareStatus}</p> : null}</div>
+                <div><p className="text-sm font-semibold text-white">Save, share or navigate</p><p className="mt-1 text-xs leading-5 text-slate-400">Saved trips remain on this device. Sharing opens your device share menu or WhatsApp only after you choose it. PlugV does not request, collect or store your WhatsApp number or recipient.</p>{shareStatus ? <p className="mt-1 text-xs font-semibold text-emerald-200" role="status" aria-live="polite">{shareStatus}</p> : null}</div>
                 <div className="flex shrink-0 flex-wrap gap-2">
                   <button type="button" onClick={saveTrip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-sky-300 px-5 text-sm font-semibold text-slate-950 hover:bg-sky-200">{saveStatus === "saved" ? <CheckCircle2 className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}{saveStatus === "saved" ? "Saved to My EV" : "Save trip"}</button>
+                  <button type="button" onClick={shareTripOnWhatsApp} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-emerald-400 px-4 text-sm font-semibold text-slate-950 hover:bg-emerald-300"><MessageCircle className="h-4 w-4" />Share on WhatsApp</button>
                   <button type="button" onClick={shareTrip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm font-semibold text-white hover:bg-white/5"><Share2 className="h-4 w-4" />Share</button>
                   <button type="button" onClick={downloadTrip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm font-semibold text-white hover:bg-white/5"><Download className="h-4 w-4" />Export</button>
                   {saveStatus === "saved" ? <Link href="/my-ev#owner-saved" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 px-5 text-sm font-semibold text-white hover:bg-white/5">View saved trips<ArrowRight className="h-4 w-4" /></Link> : null}
                 </div>
               </div>
 
-              <div className="fixed inset-x-3 bottom-3 z-40 flex gap-2 rounded-2xl border border-white/15 bg-slate-950/95 p-2 shadow-2xl backdrop-blur lg:hidden"><a href={googleMapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-300 px-3 text-xs font-bold text-slate-950"><Navigation className="h-4 w-4" />Navigate</a><button type="button" onClick={shareTrip} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-3 text-xs font-semibold text-white"><Share2 className="h-4 w-4" />Share</button><button type="button" onClick={saveTrip} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-3 text-xs font-semibold text-white"><Bookmark className="h-4 w-4" />Save</button></div>
+              <div className="fixed inset-x-3 bottom-3 z-40 flex gap-2 rounded-2xl border border-white/15 bg-slate-950/95 p-2 shadow-2xl backdrop-blur lg:hidden"><a href={googleMapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-300 px-3 text-xs font-bold text-slate-950"><Navigation className="h-4 w-4" />Navigate</a><button type="button" onClick={shareTripOnWhatsApp} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-300/30 bg-emerald-400/10 px-3 text-xs font-semibold text-emerald-100"><MessageCircle className="h-4 w-4" />WhatsApp</button><button type="button" onClick={saveTrip} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-3 text-xs font-semibold text-white"><Bookmark className="h-4 w-4" />Save</button></div>
 
               <div className="mt-14 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Charging coverage</p><h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Compatible stations near your route.</h2><p className="mt-3 max-w-2xl text-base leading-7 text-slate-400">Shown in journey order. Compare route position, detour distance, charging speed, connectors, and live status where an operator feed is available.</p><div className="mt-4 flex flex-wrap gap-3 text-xs font-semibold"><span className="inline-flex items-center gap-2 text-emerald-200"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />Green: DC Fast</span><span className="inline-flex items-center gap-2 text-yellow-100"><span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />Yellow: AC Fast</span></div></div><span className="inline-flex items-center gap-2 text-sm text-slate-400"><Navigation className="h-4 w-4 text-sky-300" />{origin.label} → {destination.label}</span></div>
 
