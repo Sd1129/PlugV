@@ -84,6 +84,26 @@ for (let index = 0; index < registry.length; index += 5) {
   await Promise.all(registry.slice(index, index + 5).map(inspect));
 }
 
+if (process.env.DISCOVERY_OUTPUT) {
+  const outputPath = path.resolve(root, process.env.DISCOVERY_OUTPUT);
+  let existing = [];
+  if (fs.existsSync(outputPath)) {
+    try { existing = JSON.parse(fs.readFileSync(outputPath, "utf8")); } catch { existing = []; }
+  }
+  const merged = new Map(existing.map((item) => [item.url, item]));
+  for (const finding of findings) {
+    if (!merged.has(finding.url)) {
+      merged.set(finding.url, {
+        ...finding,
+        status: "REVIEW_REQUIRED",
+        evidenceType: "OFFICIAL_MANUFACTURER_LINK",
+      });
+    }
+  }
+  const candidates = [...merged.values()].sort((a, b) => `${a.brand}:${a.url}`.localeCompare(`${b.brand}:${b.url}`));
+  fs.writeFileSync(outputPath, `${JSON.stringify(candidates, null, 2)}\n`);
+}
+
 const lines = [
   "# PlugV official EV discovery monitor", "", `Run at: ${new Date().toISOString()}`,
   `Official manufacturer catalogues: ${registry.length}`,

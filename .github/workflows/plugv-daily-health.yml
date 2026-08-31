@@ -6,8 +6,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
+  pull-requests: write
 
 concurrency:
   group: plugv-daily-health
@@ -31,10 +32,36 @@ jobs:
         run: node scripts/data-freshness-audit.mjs
       - name: Check Knowledge Hub coverage and review cadence
         run: node scripts/content-freshness-audit.mjs
+      - name: Restore candidates already awaiting review
+        run: |
+          branch="automation/official-ev-candidates"
+          if git fetch origin "$branch":refs/remotes/origin/"$branch" 2>/dev/null; then
+            git show origin/"$branch":data/catalogue-candidates.json > data/catalogue-candidates.json || true
+          fi
       - name: Discover unregistered EV links on official India manufacturer sites
         env:
-          DISCOVERY_STRICT: "1"
+          DISCOVERY_OUTPUT: data/catalogue-candidates.json
         run: node scripts/official-ev-discovery-monitor.mjs
+      - name: Stage official EV discoveries in a review pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- data/catalogue-candidates.json; then
+            echo "No new official EV candidates."
+            exit 0
+          fi
+          branch="automation/official-ev-candidates"
+          git config user.name "plugv-operations-bot"
+          git config user.email "support@plugv.in"
+          git checkout -B "$branch"
+          git add data/catalogue-candidates.json
+          git commit -m "Stage official EV catalogue candidates"
+          git push --force-with-lease origin "$branch"
+          gh pr view "$branch" >/dev/null 2>&1 || gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "Review official EV catalogue candidates" \
+            --body "Automated discovery found EV-related links on official India manufacturer websites. Verify India launch status, variant facts, dates and official evidence before promotion. This PR does not publish any vehicle to PlugV."
       - name: Open or update the maintenance alert
         if: failure()
         uses: actions/github-script@v7
