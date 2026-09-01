@@ -27,6 +27,26 @@ a {
   text-decoration: none;
 }
 
+/* PlugV's car cursor replaces the generic hand only for clickable controls.
+   Touch devices and browsers without SVG cursor support retain native behavior. */
+@media (hover: hover) and (pointer: fine) {
+  :where(
+    a[href],
+    button:not(:disabled),
+    summary,
+    label[for],
+    select:not(:disabled),
+    input[type="button"]:not(:disabled),
+    input[type="submit"]:not(:disabled),
+    input[type="checkbox"]:not(:disabled),
+    input[type="radio"]:not(:disabled),
+    [role="button"]:not([aria-disabled="true"]),
+    .cursor-pointer
+  ) {
+    cursor: url("/cursors/plugv-car.svg") 16 8, pointer;
+  }
+}
+
 ::selection {
   background: rgba(56, 189, 248, 0.35);
   color: #ffffff;
