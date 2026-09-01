@@ -84,7 +84,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     category: "Buying",
     readTime: "10 min",
     updatedAt: "2026-08-29",
-    targetKeyword: "best electric cars in India by category",
+    targetKeyword: "how to choose first electric car India",
     refreshCadence: "quarterly",
     intro: "The best first EV is not automatically the model with the longest claimed range. It is the vehicle that covers your routine comfortably, charges where you live and travel, and remains affordable after insurance and installation costs.",
     sections: [
@@ -111,6 +111,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     category: "Charging",
     readTime: "8 min",
     updatedAt: "2026-08-29",
+    targetKeyword: "home charging vs public charging India",
     intro: "Most owners benefit from using home charging for routine energy and public fast charging for longer journeys. The right mix depends on parking, electrical capacity, tariff and travel pattern.",
     sections: [
       { heading: "Home charging", bullets: ["Usually the most convenient option for overnight charging", "Cost depends on your electricity tariff and charging losses", "Requires safe wiring, earthing and an installer assessment", "Apartment permission and load enhancement may be necessary"] },
@@ -134,6 +135,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     category: "Costs",
     readTime: "7 min",
     updatedAt: "2026-08-29",
+    targetKeyword: "electric car total cost of ownership calculator India",
     intro: "Total cost of ownership turns a vehicle’s price tag into an ownership estimate. It is most useful when every assumption is visible and adjustable.",
     calculator: "tco",
     sections: [
@@ -156,6 +158,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     category: "Ownership",
     readTime: "9 min",
     updatedAt: "2026-08-29",
+    targetKeyword: "electric car myths vs facts India",
     intro: "EV discussions often replace one exaggeration with another. The reality depends on the vehicle, charging environment and user—not a universal slogan.",
     sections: [
       { heading: "Myth: Every EV delivers its claimed range", paragraphs: ["Fact: certified range is a standardised comparison figure. Real use changes with speed, traffic, temperature, elevation, load, tyres and climate control."] },
@@ -181,6 +184,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     category: "Rankings",
     readTime: "6 min",
     updatedAt: "2026-08-29",
+    targetKeyword: "top electric cars by category India",
     intro: "There is no single best EV for every buyer. PlugV groups launched vehicles by practical category and shows comparable catalogue information so you can create your own shortlist.",
     sections: [
       { heading: "How this list is organised", paragraphs: ["Vehicles are grouped using PlugV’s launched catalogue. Within each category, longer claimed range is used as a transparent discovery order—not as an overall quality score or paid ranking."] },
