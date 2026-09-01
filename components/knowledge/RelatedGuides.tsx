@@ -3,14 +3,21 @@ import { ArrowRight } from "lucide-react";
 import { knowledgeArticles, type KnowledgeArticle } from "@/data/knowledge-articles";
 
 export default function RelatedGuides({ article }: { article: KnowledgeArticle }) {
-  const related = knowledgeArticles
+  const explicitRelated = (article.relatedSlugs ?? [])
+    .map((slug) => knowledgeArticles.find((candidate) => candidate.slug === slug))
+    .filter((candidate): candidate is KnowledgeArticle => Boolean(candidate));
+
+  const discoveredRelated = knowledgeArticles
     .filter((candidate) => candidate.slug !== article.slug)
+    .filter((candidate) => !explicitRelated.some((guide) => guide.slug === candidate.slug))
     .sort((a, b) => {
       const aScore = Number(a.category === article.category) + Number(Boolean(a.vehicleList) === Boolean(article.vehicleList));
       const bScore = Number(b.category === article.category) + Number(Boolean(b.vehicleList) === Boolean(article.vehicleList));
       return bScore - aScore;
     })
-    .slice(0, 3);
+    .slice(0, Math.max(0, 3 - explicitRelated.length));
+
+  const related = [...explicitRelated, ...discoveredRelated].slice(0, 3);
 
   return (
     <section aria-labelledby="related-guides-heading">
