@@ -20,9 +20,81 @@ export type KnowledgeArticle = {
   targetKeyword?: string;
   refreshCadence?: "monthly" | "quarterly" | "event-driven";
   vehicleList?: "under-15" | "under-10" | "cheapest" | "longest-range";
+  relatedSlugs?: string[];
 };
 
 export const knowledgeArticles: KnowledgeArticle[] = [
+  {
+    slug: "how-to-buy-used-electric-car-india",
+    title: "How to Buy a Used Electric Car in India: Complete Inspection Guide",
+    shortTitle: "Buying a Used EV",
+    description: "A practical India-focused checklist for checking a used electric car's documents, battery evidence, charging, warranty, condition, price and ownership transfer.",
+    category: "Buying",
+    readTime: "12 min",
+    updatedAt: "2026-09-01",
+    targetKeyword: "how to buy a used electric car in India",
+    refreshCadence: "quarterly",
+    relatedSlugs: ["how-to-sell-used-electric-car-india"],
+    intro: "A used EV can offer strong value, but the battery, charging system, software history and remaining warranty need more evidence than a short test drive can provide. Use this checklist to verify the car—not merely the seller's claims—before paying or signing transfer documents.",
+    sections: [
+      { heading: "1. Confirm that the EV fits your life", bullets: ["Estimate your normal weekday distance and occasional highway journeys", "Confirm reliable overnight charging at home or work", "Check the exact variant's connector, AC charging rate and DC fast-charging support", "Keep a practical arrival reserve instead of planning around the full claimed range", "Compare insurance, service access and tyre costs—not only the asking price"] },
+      { heading: "2. Verify the seller, vehicle and documents", bullets: ["Match the seller's identity with the Registration Certificate (RC)", "Match VIN/chassis and motor details with the vehicle and records", "Review insurance validity, claim history, service invoices and loan or hypothecation status", "Check pending challans and confirm that FASTag and connected-app access will be removed or transferred", "Do not pay the full amount until the agreed transfer documents and delivery record are ready"] },
+      { heading: "3. Demand battery evidence", paragraphs: ["Do not infer battery health from age, odometer or the percentage shown on the dashboard. Ask an authorised service centre for the available diagnostic or battery-health report and confirm what the displayed metric actually measures."], bullets: ["Battery State of Health or equivalent diagnostic, with report date", "Cell imbalance, isolation or thermal-system fault history where the diagnostic exposes it", "Remaining battery and vehicle warranty, including transfer conditions", "Unexplained range loss, warning lights, repeated charging faults or battery repairs", "Flood, impact or underbody damage near the battery enclosure"] },
+      { heading: "4. Test AC and DC charging", paragraphs: ["A normal drive does not prove that both charging paths work. Where practical, test the supplied portable or wall-box cable and complete a short compatible DC fast-charging session."], bullets: ["Charging starts without repeated connection errors", "Connector locks and releases correctly", "Displayed charging power is reasonable for battery temperature and state of charge", "Cable, inlet and pins show no melting, corrosion or physical damage", "Original charging cable, adapters and emergency accessories are included"] },
+      { heading: "5. Inspect the whole car", bullets: ["Tyres: age, uneven wear, correct load rating and replacement cost", "Brakes and suspension: noise, vibration, pulling or corrosion from limited brake use", "Cooling and air-conditioning: stable cabin cooling and no battery-temperature warnings", "Body and underfloor: accident repairs, water ingress, rust and battery-shield damage", "12-volt battery, lights, cameras, ADAS, infotainment, keys and charge-port controls"] },
+      { heading: "6. Run a repeatable test drive", paragraphs: ["Record the starting battery percentage, distance, traffic, average speed and climate-control use. Repeat the same observations at the end. This is only a short-trip efficiency check—not a certified battery-capacity test—but it can reveal abnormal consumption, warnings or drivability problems."], bullets: ["Test urban and faster-road driving where safe", "Check regenerative-braking modes and low-speed behaviour", "Listen for wheel-bearing, suspension or drivetrain noise", "Confirm navigation, mobile connectivity and all driver displays", "Arrange an independent or authorised inspection before a large payment"] },
+      { heading: "7. Price the car using total ownership cost", paragraphs: ["Compare the used EV with the current transaction price of a similar new EV, not only its old launch price. New-car discounts, warranty coverage and finance rates can materially change the value gap."], bullets: ["Asking price and transfer costs", "Remaining warranty and expected tyre or 12-volt battery replacement", "Home charger installation or relocation", "Insurance renewal and loan cost", "Likely daily charging mix and electricity tariff"] },
+      { heading: "8. Complete a safe ownership transfer", paragraphs: ["Parivahan identifies Forms 29 and 30 for transfer of ownership and states different reporting timelines for transfers within and outside a state. Requirements can vary by jurisdiction and transaction, so confirm the current checklist with the relevant registering authority before completing payment."], bullets: ["Record payment terms, odometer, accessories, keys and delivery time in writing", "Submit the prescribed transfer forms and supporting documents", "Obtain lender clearance when hypothecation is recorded", "Update insurance and retain acknowledgement or application references", "Confirm RC transfer completion rather than relying only on signed forms"] },
+      { heading: "Walk away from these red flags", bullets: ["VIN, RC or seller identity does not match", "Battery or high-voltage warning is dismissed without a diagnostic", "Seller refuses an independent inspection or charging test", "Flood or severe underbody damage is suspected", "Outstanding finance, challans or transfer responsibility remains unclear", "Pressure to make an irreversible payment before documentation"] },
+    ],
+    faqs: [
+      { question: "How can I verify a used EV battery?", answer: "Request the most recent available diagnostic from an authorised service centre, understand the metric being reported, review fault and repair history, and combine that evidence with charging tests and an inspection. Dashboard range alone is not a battery-health certificate." },
+      { question: "Should I avoid every EV with a repaired battery?", answer: "Not automatically. Ask who performed the repair, which parts were replaced, whether warranty remains, and whether current diagnostics are clean. Avoid cars with undocumented high-voltage work or unresolved warnings." },
+      { question: "Is a used EV always cheaper than a used petrol car?", answer: "No. The result depends on purchase price, annual kilometres, charging access, insurance, finance, battery and warranty condition, and resale value. Compare total ownership cost for the exact vehicles." },
+      { question: "When should I pay the seller?", answer: "Use a written transaction plan that links payment, delivery, signed transfer documents and lender clearance. Confirm the current RTO requirements and use traceable payment methods." },
+    ],
+    sources: [
+      { label: "Transfer of ownership guidance — Parivahan", url: "https://mparivahan.parivahan.gov.in/mstatic/english/rc-info-ownership.html" },
+      { label: "Form 29: Notice of transfer of ownership — Parivahan", url: "https://parivahan.gov.in/parivahan/sites/default/files/DownloadForm/form%2029.pdf" },
+      { label: "Form 30: Application for transfer of ownership — Parivahan", url: "https://parivahan.gov.in/parivahan/sites/default/files/DownloadForm/form%2030.pdf" },
+      { label: "Official eChallan portal — Ministry of Road Transport and Highways", url: "https://echallan.parivahan.gov.in/" },
+    ],
+  },
+  {
+    slug: "how-to-sell-used-electric-car-india",
+    title: "How to Sell a Used Electric Car in India: Documents, Battery Proof and Safe Transfer",
+    shortTitle: "Selling a Used EV",
+    description: "Prepare, price and safely sell a used electric car in India with clear battery evidence, charging records, documents and ownership-transfer steps.",
+    category: "Ownership",
+    readTime: "10 min",
+    updatedAt: "2026-09-01",
+    targetKeyword: "how to sell a used electric car in India",
+    refreshCadence: "quarterly",
+    relatedSlugs: ["how-to-buy-used-electric-car-india"],
+    intro: "A used EV is easier to sell when the buyer can verify its condition. Clear battery evidence, complete charging accessories, service history and a documented transfer process reduce uncertainty and support a fairer conversation about price.",
+    sections: [
+      { heading: "1. Build a buyer-ready evidence pack", bullets: ["RC, insurance and owner identity details", "Service invoices, warranty terms and repair history", "Latest available battery diagnostic or health report", "Charging cable, wall-box details, keys and accessories", "Loan or hypothecation closure documents where applicable", "Records of major tyre, 12-volt battery or accident repairs"] },
+      { heading: "2. Resolve issues before listing", paragraphs: ["A warning light, unreliable charging inlet or missing ownership document will create more distrust than a realistic asking price. Complete essential safety and charging repairs first and disclose material defects in writing."], bullets: ["Clear legitimate pending challans", "Check both AC and DC charging where supported", "Repair safety-critical tyre, brake, lighting or visibility issues", "Remove personal data from infotainment and connected services", "Prepare the vehicle for inspection without hiding faults"] },
+      { heading: "3. Set an evidence-based asking price", paragraphs: ["Start with comparable cars of the same variant, model year, location, mileage and warranty position. Then compare against the current effective price of a new alternative. Do not assume an EV will retain more or less value than petrol or diesel solely because of its powertrain."], bullets: ["Exact variant and original invoice", "Battery and vehicle warranty remaining", "Diagnostic evidence and charging performance", "Service history, condition and accident record", "Tyres, charging equipment and transferable accessories", "Current new-EV discounts and finance offers"] },
+      { heading: "4. Write a transparent listing", bullets: ["State the exact variant, registration year and odometer", "Separate manufacturer-claimed range from your observed usage", "Describe home and public charging experience without promising future performance", "Mention remaining warranty only after checking transfer terms", "Disclose known repairs or limitations", "Use your own current photos and hide sensitive document numbers"] },
+      { heading: "5. Protect test drives and payment", bullets: ["Verify the driver's licence and accompany the test drive", "Meet in a safe location and avoid sharing original documents prematurely", "Use traceable banking channels and verify receipt independently", "Treat screenshots, payment links and requests for OTPs as unsafe", "Do not hand over the car, keys or signed originals until agreed cleared funds and documents are in place"] },
+      { heading: "6. Complete transfer and delivery", paragraphs: ["Parivahan lists Forms 29 and 30 for ownership transfer and describes reporting timelines. Confirm the exact procedure, fees and supporting documents with the relevant registering authority because requirements can differ by state and transaction."], bullets: ["Record date, time, odometer, battery percentage, keys and accessories on a delivery note", "Submit the prescribed ownership-transfer documents", "Complete hypothecation termination or lender formalities where required", "Notify or transfer insurance as required by the insurer", "Retain acknowledgements and follow the application until the RC reflects the buyer"] },
+      { heading: "7. Close digital and charging access", bullets: ["Remove the vehicle from the manufacturer's connected app only at the agreed handover stage", "Delete navigation history, addresses, contacts and paired phones", "Remove or transfer charging-network accounts without exposing stored payment methods", "Cancel or transfer FASTag in line with the provider's process", "Give the buyer manuals, charging guidance and emergency contacts"] },
+      { heading: "EV versus petrol or diesel resale: the honest answer", paragraphs: ["There is no universal winner. A documented EV with healthy diagnostics, useful remaining warranty and complete charging equipment may reduce buyer uncertainty. Its resale can still be affected by new-model price cuts, battery-replacement concern, local demand and charging access. Petrol and diesel vehicles have different fuel, maintenance, regulatory and demand risks. Compare real offers for the exact vehicles instead of using a powertrain-wide claim."] },
+    ],
+    faqs: [
+      { question: "Do I need a battery-health report to sell my EV?", answer: "It may not be a universal legal requirement, but a recent available diagnostic from an authorised service centre can materially improve buyer confidence. Explain exactly what the report measures." },
+      { question: "Can I promise the range I normally see?", answer: "No. Share it as an observed result with route, speed, weather and climate-control context. Range varies by driver and conditions." },
+      { question: "Should I sell privately or through a dealer?", answer: "A private sale may offer a higher price but requires screening, test-drive management, payment checks and transfer follow-up. A dealer may simplify the process but offer less. Obtain multiple written offers and compare net proceeds and responsibility." },
+      { question: "When is the sale complete?", answer: "Physical delivery alone is not enough. Follow the prescribed ownership-transfer process and retain proof until the registration record reflects the buyer." },
+    ],
+    sources: [
+      { label: "Transfer of ownership guidance — Parivahan", url: "https://mparivahan.parivahan.gov.in/mstatic/english/rc-info-ownership.html" },
+      { label: "Form 29: Notice of transfer of ownership — Parivahan", url: "https://parivahan.gov.in/parivahan/sites/default/files/DownloadForm/form%2029.pdf" },
+      { label: "Form 30: Application for transfer of ownership — Parivahan", url: "https://parivahan.gov.in/parivahan/sites/default/files/DownloadForm/form%2030.pdf" },
+      { label: "Official eChallan portal — Ministry of Road Transport and Highways", url: "https://echallan.parivahan.gov.in/" },
+    ],
+  },
   {
     slug: "ev-vs-petrol-5-year-cost-comparison",
     title: "EV vs Petrol: 5-Year Cost Comparison for India",
