@@ -10,6 +10,7 @@
     "audit:data": "node scripts/launch-audit.mjs",
     "audit:freshness": "node scripts/data-freshness-audit.mjs",
     "audit:upcoming": "node scripts/upcoming-catalog-audit.mjs",
+    "audit:transitions": "node scripts/catalogue-transition-audit.mjs",
     "audit:launched": "node scripts/launched-catalog-audit.mjs",
     "audit:discover": "node scripts/official-ev-discovery-monitor.mjs",
     "audit:site": "node scripts/site-health-audit.mjs",
@@ -18,7 +19,7 @@
     "audit:seo-authority": "node scripts/seo-authority-audit.mjs",
     "audit:automation": "node scripts/automation-config-audit.mjs",
     "audit:security": "node scripts/security-audit.mjs",
-    "audit:maintenance": "npm run audit:data && npm run audit:freshness && npm run audit:launched && npm run audit:upcoming",
+    "audit:maintenance": "npm run audit:data && npm run audit:freshness && npm run audit:launched && npm run audit:upcoming && npm run audit:transitions",
     "audit:release": "npm run lint && npm run build && npm run audit:automation && npm run audit:maintenance && npm run audit:content && npm run audit:seo-authority && npm run audit:security"
   },
   "prisma": {
@@ -53,5 +54,8 @@
     "tailwindcss": "^4",
     "tsx": "^4.19.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "mysql2": "^3.22.0"
   }
 }

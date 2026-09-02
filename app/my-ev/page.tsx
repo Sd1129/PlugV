@@ -67,7 +67,14 @@ export default function MyEvPage() {
       setReminders(readLocal(STORAGE.reminders, []));
       setSaved(readLocal(STORAGE.saved, []));
       setAlerts(readLocal(STORAGE.alerts, defaultAlerts));
-      setProfile(readOwnerProfile(defaultProfile.vehicleSlug));
+      const storedProfile = readOwnerProfile(defaultProfile.vehicleSlug);
+      const storedTripProfile = getVehicleTripProfile(storedProfile.vehicleSlug);
+      const storedVariant = storedTripProfile?.variants.find((variant) => variant.name === storedProfile.variantName)
+        ?? storedTripProfile?.variants.find((variant) => variant.name === storedTripProfile.defaultVariant)
+        ?? storedTripProfile?.variants[0];
+      setProfile(storedProfile);
+      setTariff(storedProfile.electricityTariff);
+      if (storedVariant?.batteryCapacityKWh) setBattery(storedVariant.batteryCapacityKWh);
       setChargingLog(readLocal(STORAGE.chargingLog, []));
       setChecklist(readLocal(STORAGE.checklist, defaultChecklist));
       setNotificationPermission("Notification" in window ? Notification.permission : "unsupported");
@@ -104,7 +111,7 @@ export default function MyEvPage() {
   const selectedTripProfile = getVehicleTripProfile(profile.vehicleSlug);
   const selectedVariant = selectedTripProfile?.variants.find((variant) => variant.name === profile.variantName) ?? selectedTripProfile?.variants.find((variant) => variant.name === selectedTripProfile.defaultVariant) ?? selectedTripProfile?.variants[0];
   const completion = profileCompletion(profile);
-  const readiness = useMemo(() => {
+  const readiness = (() => {
     const conditionFactor = profile.condition === "city" ? 0.82 : profile.condition === "highway" ? 0.74 : 0.66;
     const practicalFullRange = selectedVariant?.practicalRangeKm ?? maximumRange(selectedVehicle?.range) * conditionFactor;
     const availableRange = practicalFullRange * Math.max(0, Math.min(100, profile.batteryPercent)) / 100;
@@ -112,7 +119,7 @@ export default function MyEvPage() {
     const margin = rangeWithReserve - Math.max(0, profile.distance);
     const status = margin >= 25 ? "ready" : margin >= 0 ? "tight" : "charge";
     return { practicalFullRange, availableRange, rangeWithReserve, margin, status };
-  }, [profile, selectedVariant, selectedVehicle]);
+  })();
 
   const monthlyCharging = useMemo(() => {
     const month = new Date().toISOString().slice(0, 7);
@@ -137,9 +144,6 @@ export default function MyEvPage() {
     const gridEnergy = batteryEnergy / Math.max(0.5, 1 - loss / 100);
     return { batteryEnergy, gridEnergy, cost: gridEnergy * tariff };
   }, [battery, loss, startCharge, targetCharge, tariff]);
-
-  useEffect(() => { if (ready) setTariff(profile.electricityTariff); }, [profile.electricityTariff, ready]);
-  useEffect(() => { if (selectedVariant?.batteryCapacityKWh) setBattery(selectedVariant.batteryCapacityKWh); }, [selectedVariant]);
 
   async function addReminder(event: FormEvent) {
     event.preventDefault();
@@ -200,11 +204,11 @@ export default function MyEvPage() {
           <div className="grid gap-6 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="grid gap-4 sm:grid-cols-2">
               <label><span className="text-xs font-semibold text-slate-300">City</span><input value={profile.city} onChange={(event) => setProfile((value) => ({ ...value, city: event.target.value }))} placeholder="e.g. Hyderabad" className="field mt-2 w-full" /></label>
-              <label><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(event) => { const vehicleSlug = event.target.value; setProfile((value) => ({ ...value, vehicleSlug, variantName: getVehicleTripProfile(vehicleSlug)?.defaultVariant ?? "" })); }} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name}</option>)}</select></label>
-              <label><span className="text-xs font-semibold text-slate-300">Variant</span><select value={profile.variantName} onChange={(event) => setProfile((value) => ({ ...value, variantName: event.target.value }))} className="field mt-2 w-full" disabled={!selectedTripProfile?.variants.length}><option value="">{selectedTripProfile?.variants.length ? "Select variant" : "Variant data unavailable"}</option>{selectedTripProfile?.variants.map((variant) => <option key={variant.name}>{variant.name}</option>)}</select></label>
+              <label><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(event) => { const vehicleSlug = event.target.value; const tripProfile = getVehicleTripProfile(vehicleSlug); const variantName = tripProfile?.defaultVariant ?? ""; const variant = tripProfile?.variants.find((item) => item.name === variantName) ?? tripProfile?.variants[0]; setProfile((value) => ({ ...value, vehicleSlug, variantName })); if (variant?.batteryCapacityKWh) setBattery(variant.batteryCapacityKWh); }} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name}</option>)}</select></label>
+              <label><span className="text-xs font-semibold text-slate-300">Variant</span><select value={profile.variantName} onChange={(event) => { const variantName = event.target.value; const variant = selectedTripProfile?.variants.find((item) => item.name === variantName); setProfile((value) => ({ ...value, variantName })); if (variant?.batteryCapacityKWh) setBattery(variant.batteryCapacityKWh); }} className="field mt-2 w-full" disabled={!selectedTripProfile?.variants.length}><option value="">{selectedTripProfile?.variants.length ? "Select variant" : "Variant data unavailable"}</option>{selectedTripProfile?.variants.map((variant) => <option key={variant.name}>{variant.name}</option>)}</select></label>
               <NumberField label="Daily distance" value={profile.dailyDistanceKm} onChange={(dailyDistanceKm) => setProfile((value) => ({ ...value, dailyDistanceKm }))} suffix="km" min={1} max={1000} />
               <label><span className="text-xs font-semibold text-slate-300">Home charging</span><select value={profile.homeCharging} onChange={(event) => setProfile((value) => ({ ...value, homeCharging: event.target.value as typeof value.homeCharging }))} className="field mt-2 w-full"><option value="unknown">Not decided</option><option value="dedicated">Dedicated home charger</option><option value="shared">Shared parking charger</option><option value="workplace">Workplace charging</option><option value="public-only">Public charging only</option></select></label>
-              <NumberField label="Electricity tariff" value={profile.electricityTariff} onChange={(electricityTariff) => setProfile((value) => ({ ...value, electricityTariff }))} suffix="₹/kWh" min={0} max={100} step={0.5} />
+              <NumberField label="Electricity tariff" value={profile.electricityTariff} onChange={(electricityTariff) => { setProfile((value) => ({ ...value, electricityTariff })); setTariff(electricityTariff); }} suffix="₹/kWh" min={0} max={100} step={0.5} />
               <label><span className="text-xs font-semibold text-slate-300">Highway travel</span><select value={profile.highwayFrequency} onChange={(event) => setProfile((value) => ({ ...value, highwayFrequency: event.target.value as typeof value.highwayFrequency }))} className="field mt-2 w-full"><option value="rarely">Rarely</option><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></label>
               <NumberField label="Family size" value={profile.familySize} onChange={(familySize) => setProfile((value) => ({ ...value, familySize }))} suffix="people" min={1} max={12} />
               <NumberField label="Budget / vehicle value" value={profile.budgetLakhs} onChange={(budgetLakhs) => setProfile((value) => ({ ...value, budgetLakhs }))} suffix="₹ lakh" min={1} max={500} step={0.5} />
@@ -225,7 +229,7 @@ export default function MyEvPage() {
           <OwnerSectionHeader icon={Gauge} eyebrow="Today’s EV check" title="Can your EV comfortably complete today’s drive?" copy="Enter your current battery and expected driving. PlugV keeps a 15% reserve and adjusts claimed range for everyday conditions." />
           <div className="grid gap-6 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="grid content-start gap-4 sm:grid-cols-2">
-              <label className="sm:col-span-2"><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(e) => { const vehicleSlug = e.target.value; setProfile((value) => ({ ...value, vehicleSlug, variantName: getVehicleTripProfile(vehicleSlug)?.defaultVariant ?? "" })); }} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name} · {vehicle.range ?? "Range unavailable"}</option>)}</select></label>
+              <label className="sm:col-span-2"><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(e) => { const vehicleSlug = e.target.value; const tripProfile = getVehicleTripProfile(vehicleSlug); const variantName = tripProfile?.defaultVariant ?? ""; const variant = tripProfile?.variants.find((item) => item.name === variantName) ?? tripProfile?.variants[0]; setProfile((value) => ({ ...value, vehicleSlug, variantName })); if (variant?.batteryCapacityKWh) setBattery(variant.batteryCapacityKWh); }} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name} · {vehicle.range ?? "Range unavailable"}</option>)}</select></label>
               <NumberField label="Battery now" value={profile.batteryPercent} onChange={(batteryPercent) => setProfile((value) => ({ ...value, batteryPercent }))} suffix="%" min={0} max={100} />
               <NumberField label="Today's driving" value={profile.distance} onChange={(distance) => setProfile((value) => ({ ...value, distance }))} suffix="km" min={0} max={2000} />
               <label className="sm:col-span-2"><span className="text-xs font-semibold text-slate-300">Driving conditions</span><select value={profile.condition} onChange={(e) => setProfile((value) => ({ ...value, condition: e.target.value as DriveCondition }))} className="field mt-2 w-full"><option value="city">Mixed city driving</option><option value="highway">Highway driving</option><option value="difficult">Heavy AC, rain, hills or congestion</option></select></label>

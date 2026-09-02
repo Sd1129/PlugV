@@ -10,6 +10,7 @@ const requiredFiles = [
   "data/catalogue-candidates.json",
   "data/official-manufacturer-monitor.json",
   "scripts/official-ev-discovery-monitor.mjs",
+  "scripts/catalogue-transition-audit.mjs",
   ".github/workflows/plugv-daily-health.yml",
 ];
 
@@ -35,7 +36,7 @@ for (const control of ["CRON_SECRET", "runDailyOperations", "OPERATIONS_ALERT_EM
 }
 
 const workflow = fs.readFileSync(path.join(root, ".github/workflows/plugv-daily-health.yml"), "utf8");
-for (const control of ["DISCOVERY_OUTPUT", "catalogue-candidates.json", "pull-requests: write"]) {
+for (const control of ["DISCOVERY_OUTPUT", "catalogue-candidates.json", "pull-requests: write", "catalogue-transition-audit.mjs", "could not create the review PR"]) {
   if (workflow.includes(control)) passes.push(`Official discovery workflow includes ${control}`);
   else failures.push(`Official discovery workflow is missing ${control}`);
 }

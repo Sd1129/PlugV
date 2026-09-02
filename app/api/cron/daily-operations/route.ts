@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   }
 
   const result = await runDailyOperations();
-  let alertDelivery: { attempted: boolean; delivered: boolean; error?: string } = {
+  const alertDelivery: { attempted: boolean; delivered: boolean; error?: string } = {
     attempted: false,
     delivered: false,
   };

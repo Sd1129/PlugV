@@ -1,15 +1,23 @@
 import { syncOpenChargeMapIndia, type ChargingSyncResult } from "@/lib/charging/openChargeMapSync";
 
 const CRITICAL_PATHS = [
-  "/",
-  "/vehicles",
-  "/compare",
-  "/charging",
-  "/travel",
-  "/upcoming",
-  "/my-ev",
-  "/sitemap.xml",
-  "/robots.txt",
+  { path: "/", marker: "EVERYTHING EV" },
+  { path: "/vehicles", marker: "Electric Cars" },
+  { path: "/compare", marker: "Compare" },
+  { path: "/charging", marker: "Charging Stations" },
+  { path: "/travel", marker: "Plan any EV trip" },
+  { path: "/upcoming", marker: "Upcoming" },
+  { path: "/my-ev", marker: "Everything you need to own your EV" },
+  { path: "/knowledge", marker: "Knowledge" },
+  { path: "/assistant", marker: "EV Assistant" },
+  { path: "/about", marker: "PlugV" },
+  { path: "/founder", marker: "Syed Manjoor Ahmed" },
+  { path: "/privacy", marker: "Privacy" },
+  { path: "/terms", marker: "Terms" },
+  { path: "/disclaimer", marker: "Disclaimer" },
+  { path: "/methodology", marker: "Methodology" },
+  { path: "/sitemap.xml", marker: "<urlset" },
+  { path: "/robots.txt", marker: "Sitemap:" },
 ] as const;
 
 export type RouteHealth = {
@@ -32,7 +40,7 @@ function publicOrigin() {
   return (process.env.APP_URL || "https://plugv.in").replace(/\/$/, "");
 }
 
-async function inspectRoute(path: string): Promise<RouteHealth> {
+async function inspectRoute({ path, marker }: (typeof CRITICAL_PATHS)[number]): Promise<RouteHealth> {
   const started = performance.now();
   try {
     const response = await fetch(`${publicOrigin()}${path}`, {
@@ -41,12 +49,18 @@ async function inspectRoute(path: string): Promise<RouteHealth> {
       headers: { "user-agent": "PlugV-Daily-Operations/1.0 (+https://plugv.in)" },
       signal: AbortSignal.timeout(20_000),
     });
+    const body = await response.text();
+    const hasExpectedContent = body.toLowerCase().includes(marker.toLowerCase());
     return {
       path,
-      ok: response.ok,
+      ok: response.ok && hasExpectedContent,
       status: response.status,
       durationMs: Math.round(performance.now() - started),
-      ...(!response.ok ? { error: `HTTP ${response.status}` } : {}),
+      ...(!response.ok
+        ? { error: `HTTP ${response.status}` }
+        : !hasExpectedContent
+          ? { error: `Expected content marker is missing: ${marker}` }
+          : {}),
     };
   } catch (error) {
     return {
@@ -74,6 +88,11 @@ export async function runDailyOperations(): Promise<DailyOperationsResult> {
     .filter((route) => !route.ok)
     .map((route) => `${route.path}: ${route.error ?? "unavailable"}`);
   if (!charging.ok) failures.push(`Charging station sync: ${charging.error}`);
+  else if (charging.result.fetched < 100 || charging.result.upserted < 100) {
+    failures.push(
+      `Charging station sync returned an unexpectedly small dataset (${charging.result.fetched} fetched, ${charging.result.upserted} upserted)`,
+    );
+  }
 
   return {
     startedAt,
