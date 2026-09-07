@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { absoluteUrl, safeJsonLd } from "@/lib/seo";
+import { knowledgeArticles } from "@/data/knowledge-articles";
 
 export const metadata: Metadata = {
   title: "EV Knowledge Hub India — Guides, Calculators & Facts",
@@ -8,6 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default function KnowledgeLayout({ children }: { children: React.ReactNode }) {
-  const schema = { "@context": "https://schema.org", "@type": "CollectionPage", name: "PlugV EV Knowledge Hub", url: absoluteUrl("/knowledge"), description: "Practical electric-car guides, calculators and ownership explainers for India." };
+  const schema = { "@context": "https://schema.org", "@type": "CollectionPage", name: "PlugV EV Knowledge Hub", url: absoluteUrl("/knowledge"), description: "Practical electric-car guides, calculators and ownership explainers for India.", mainEntity: { "@type": "ItemList", numberOfItems: knowledgeArticles.length, itemListElement: knowledgeArticles.map((article, index) => ({ "@type": "ListItem", position: index + 1, name: article.title, url: absoluteUrl(`/knowledge/${article.slug}`) })) } };
   return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }} />{children}</>;
 }

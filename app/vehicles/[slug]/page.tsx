@@ -129,19 +129,43 @@ export default async function VehicleDetailPage({ params }: PageProps) {
   const vehicleVisual = getVehicleVisual(vehicle.slug);
   const vehicleImage = vehicleVisual.src;
   const buyingSpecs = getBuyingSpecs(vehicle.slug);
+  const startingPrice = startingPriceRupees(vehicle.price);
   const compareInsights = getCompareInsights(vehicles);
   const vehicleSchema = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    name: `${vehicle.brand} ${vehicle.name}`,
-    brand: { "@type": "Brand", name: vehicle.brand },
-    category: `Electric ${vehicle.type}`,
-    description: `${vehicle.brand} ${vehicle.name} electric vehicle in India with ${vehicle.range ?? "range information"}.`,
-    url: absoluteUrl(`/vehicles/${vehicle.slug}`),
-    additionalProperty: [
-      { "@type": "PropertyValue", name: "Claimed range", value: vehicle.range ?? "Not listed" },
-      { "@type": "PropertyValue", name: "Price", value: vehicle.price ?? "Not listed" },
-      { "@type": "PropertyValue", name: "Power or battery specification", value: vehicle.charging ?? "Not listed" },
+    "@graph": [
+      {
+        "@type": "Product",
+        "@id": `${absoluteUrl(`/vehicles/${vehicle.slug}`)}#product`,
+        name: `${vehicle.brand} ${vehicle.name}`,
+        image: absoluteUrl(vehicleImage),
+        sku: vehicle.slug,
+        brand: { "@type": "Brand", name: vehicle.brand },
+        category: `Electric ${vehicle.type}`,
+        description: `${vehicle.brand} ${vehicle.name} electric vehicle in India with ${vehicle.range ?? "range information"}.`,
+        url: absoluteUrl(`/vehicles/${vehicle.slug}`),
+        ...(startingPrice ? {
+          offers: {
+            "@type": "Offer",
+            url: absoluteUrl(`/vehicles/${vehicle.slug}`),
+            priceCurrency: "INR",
+            price: startingPrice,
+          },
+        } : {}),
+        additionalProperty: [
+          { "@type": "PropertyValue", name: "Claimed range", value: vehicle.range ?? "Not listed" },
+          { "@type": "PropertyValue", name: "Listed ex-showroom price", value: vehicle.price ?? "Not listed" },
+          { "@type": "PropertyValue", name: "Power or battery specification", value: vehicle.charging ?? "Not listed" },
+        ],
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+          { "@type": "ListItem", position: 2, name: "Explore EVs", item: absoluteUrl("/vehicles") },
+          { "@type": "ListItem", position: 3, name: `${vehicle.brand} ${vehicle.name}`, item: absoluteUrl(`/vehicles/${vehicle.slug}`) },
+        ],
+      },
     ],
   };
 

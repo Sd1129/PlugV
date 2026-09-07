@@ -24,18 +24,14 @@ const staticRoutes = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const updated = new Date();
-
   return [
     ...staticRoutes.map((route) => ({
       url: absoluteUrl(route.path),
-      lastModified: updated,
       changeFrequency: route.changeFrequency,
       priority: route.priority,
     })),
     ...vehicles.map((vehicle) => ({
       url: absoluteUrl(`/vehicles/${vehicle.slug}`),
-      lastModified: updated,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
