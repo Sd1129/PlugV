@@ -37,11 +37,10 @@ function startingPriceLakh(value?: string) {
   return value && /\b(?:cr|crore)\b/i.test(value) ? amount * 100 : amount;
 }
 
-function matchesForProfile(priority: string, budget: number, bodyType: string, dailyDistance: number, homeCharging: string) {
+function matchesForProfile(priority: string, budget: number, dailyDistance: number, homeCharging: string) {
   const candidates = vehicles.filter((vehicle) => {
     const price = startingPriceLakh(vehicle.price);
     if (price && price > budget) return false;
-    if (bodyType !== "Any" && !vehicle.type.toLowerCase().includes(bodyType.toLowerCase())) return false;
     return highestNumber(vehicle.range) >= Math.max(180, dailyDistance * 2);
   });
   const ranked = candidates.map((vehicle) => {
@@ -63,7 +62,7 @@ const capabilities = [
     eyebrow: "Choose",
     title: "Find an EV that fits your actual life.",
     description:
-      "A guided match built around your city, budget, home-charging setup, daily distance, and travel habits.",
+      "A guided match built around your budget, home-charging setup, daily distance, and travel habits.",
     href: "#ev-match",
     icon: Compass,
   },
@@ -95,12 +94,10 @@ const capabilities = [
 
 export default function HomePage() {
   const [priority, setPriority] = useState(priorities[0]);
-  const [city, setCity] = useState("");
   const [budget, setBudget] = useState(25);
   const [dailyDistance, setDailyDistance] = useState(40);
   const [homeCharging, setHomeCharging] = useState("Yes");
-  const [bodyType, setBodyType] = useState("Any");
-  const matchedVehicles = matchesForProfile(priority.label, budget, bodyType, dailyDistance, homeCharging);
+  const matchedVehicles = matchesForProfile(priority.label, budget, dailyDistance, homeCharging);
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#030914] text-white">
@@ -154,11 +151,9 @@ export default function HomePage() {
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <ProfileSelect label="Main priority" value={priority.label} options={priorities.map((option) => option.label)} onChange={(value) => setPriority(priorities.find((option) => option.label === value) ?? priorities[0])} />
-              <ProfileInput label="City" value={city} placeholder="e.g. Bengaluru" onChange={setCity} />
               <ProfileNumber label="Maximum budget (₹ lakh)" value={budget} min={4} max={300} onChange={setBudget} />
               <ProfileNumber label="Daily travel (km)" value={dailyDistance} min={5} max={500} onChange={setDailyDistance} />
               <ProfileSelect label="Home charging" value={homeCharging} options={["Yes", "No", "Not sure"]} onChange={setHomeCharging} />
-              <ProfileSelect label="Body style" value={bodyType} options={["Any", "SUV", "Hatchback", "MPV", "Sedan", "Crossover"]} onChange={setBodyType} />
             </div>
 
             <div className="mt-5 rounded-2xl border border-sky-300/15 bg-sky-300/[0.06] p-4">
@@ -176,7 +171,7 @@ export default function HomePage() {
                     <p className="mt-1 truncate text-xs font-semibold text-white">{vehicle.name}</p>
                     <p className="mt-1 truncate text-[10px] text-slate-500">{vehicle.range ?? "Range not listed"}</p>
                   </Link>
-                )) : <p className="sm:col-span-3 text-xs leading-5 text-amber-100">No exact match yet. Increase the budget or choose Any body style.</p>}
+                )) : <p className="sm:col-span-3 text-xs leading-5 text-amber-100">No exact match yet. Increase the budget or reduce the daily travel distance.</p>}
               </div>
             </div>
           </div>
@@ -252,10 +247,6 @@ export default function HomePage() {
       <SiteFooter />
     </main>
   );
-}
-
-function ProfileInput({ label, value, placeholder, onChange }: { label: string; value: string; placeholder: string; onChange: (value: string) => void }) {
-  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</span><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none placeholder:font-normal placeholder:text-slate-600 focus:border-sky-300/40" /></label>;
 }
 
 function ProfileNumber({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void }) {
