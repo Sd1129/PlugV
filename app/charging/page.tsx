@@ -1,8 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import ChargingHero from "@/components/charging/ChargingHero";
 import ChargingControls from "@/components/charging/ChargingControls";
-import ChargingMiniMap from "@/components/charging/ChargingMiniMap";
 import StationCard from "@/components/charging/StationCard";
 import ChargingStats from "@/components/charging/ChargingStats";
 import CityBanner from "@/components/charging/CityBanner";
@@ -13,6 +13,10 @@ import SiteFooter from "@/components/home/SiteFooter";
 import DataTrustNotice from "@/components/trust/DataTrustNotice";
 
 const PAGE_SIZE = 12;
+const ChargingAdvancedMap = dynamic(
+  () => import("@/components/charging/ChargingAdvancedMap"),
+  { ssr: false }
+);
 
 function getCityImage(city: string, state: string) {
   void city;
@@ -91,8 +95,21 @@ export default function ChargingPage() {
             </div>
           ) : null}
 
+          {charging.mapStations.length > 0 ? (
+            <div className="mt-5">
+              <ChargingAdvancedMap
+                stations={charging.mapStations}
+                selectedStation={charging.selectedStation}
+                onSelectStation={charging.setSelectedStation}
+                city={charging.selectedCity || charging.searchQuery.trim()}
+                distanceByStationId={charging.distanceByStationId}
+                total={charging.total}
+              />
+            </div>
+          ) : null}
+
           {charging.stations.length > 0 ? (
-            <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="mt-5">
               <div className="grid gap-4 md:grid-cols-2">
                 {charging.stations.map((station) => {
                   const active = charging.selectedStation?.id === station.id;
@@ -124,18 +141,6 @@ export default function ChargingPage() {
                   );
                 })}
               </div>
-
-              <aside className="hidden xl:block">
-                <div className="sticky top-24">
-                  <ChargingMiniMap
-                    stations={charging.stations}
-                    selectedStation={charging.selectedStation}
-                    onSelectStation={charging.setSelectedStation}
-                    city={charging.selectedCity || charging.searchQuery.trim()}
-                    distanceByStationId={charging.distanceByStationId}
-                  />
-                </div>
-              </aside>
             </div>
           ) : !charging.loading && !charging.error ? (
             <div className="mt-5 rounded-2xl border border-dashed border-white/15 bg-white/5 p-10 text-center">

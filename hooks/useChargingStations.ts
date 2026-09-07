@@ -74,6 +74,7 @@ export function useChargingStations(pageSize = 12) {
   const [locationNote, setLocationNote] = useState<string | null>(null);
 
   const [stations, setStations] = useState<ChargingStation[]>([]);
+  const [mapStations, setMapStations] = useState<ChargingStation[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
 
@@ -90,7 +91,7 @@ export function useChargingStations(pageSize = 12) {
   const distanceByStationId = useMemo<Record<string, string>>(() => {
     if (!origin) return {};
 
-    return stations.reduce<Record<string, string>>((acc, station) => {
+    return mapStations.reduce<Record<string, string>>((acc, station) => {
       if (
         !Number.isFinite(station.latitude) ||
         !Number.isFinite(station.longitude)
@@ -108,17 +109,17 @@ export function useChargingStations(pageSize = 12) {
       acc[station.id] = formatDistanceLabel(distanceKm);
       return acc;
     }, {});
-  }, [origin, stations]);
+  }, [origin, mapStations]);
 
   const buildParams = useCallback(
-    (nextOffset: number) => {
+    (nextOffset: number, requestedLimit = pageSize) => {
       const params = new URLSearchParams({
         search: selectedCity ? "" : deferredSearchQuery,
         fastOnly: String(fastOnly),
         ccs2Only: String(ccs2Only),
         chademoOnly: String(chademoOnly),
         sortBy,
-        limit: String(pageSize),
+        limit: String(requestedLimit),
         offset: String(nextOffset),
       });
 
@@ -156,12 +157,10 @@ export function useChargingStations(pageSize = 12) {
       setError(null);
 
       try {
-        const response = await fetch(
-          `/api/charging?${buildParams(0).toString()}`,
-          {
-            cache: "no-store",
-          }
-        );
+        const [response, mapResponse] = await Promise.all([
+          fetch(`/api/charging?${buildParams(0).toString()}`, { cache: "no-store" }),
+          fetch(`/api/charging?${buildParams(0, 100).toString()}`, { cache: "no-store" }),
+        ]);
 
         if (!response.ok) {
           throw new Error(
@@ -170,10 +169,14 @@ export function useChargingStations(pageSize = 12) {
         }
 
         const data = (await response.json()) as ChargingApiResponse;
+        const mapData = mapResponse.ok
+          ? ((await mapResponse.json()) as ChargingApiResponse)
+          : data;
 
         if (cancelled) return;
 
         setStations(data.stations ?? []);
+        setMapStations(mapData.stations ?? data.stations ?? []);
         setTotal(data.total ?? 0);
         setOffset((data.stations ?? []).length);
         setSuggestions(data.suggestions ?? []);
@@ -182,6 +185,7 @@ export function useChargingStations(pageSize = 12) {
         if (cancelled) return;
 
         setStations([]);
+        setMapStations([]);
         setTotal(0);
         setOffset(0);
 
@@ -207,13 +211,13 @@ export function useChargingStations(pageSize = 12) {
   const activeStation = useMemo(() => {
     if (
       selectedStation &&
-      stations.some((station) => station.id === selectedStation.id)
+      mapStations.some((station) => station.id === selectedStation.id)
     ) {
       return selectedStation;
     }
 
     return stations[0] ?? null;
-  }, [selectedStation, stations]);
+  }, [mapStations, selectedStation, stations]);
 
   function useMyLocation() {
     if (!navigator.geolocation) {
@@ -334,6 +338,7 @@ export function useChargingStations(pageSize = 12) {
       setLocationNote(null);
     },
     stations,
+    mapStations,
     distanceByStationId,
     total,
     offset,
