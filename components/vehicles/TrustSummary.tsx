@@ -52,11 +52,11 @@ export default function TrustSummary({ vehicle }: { vehicle: Vehicle }) {
             Trust & intelligence
           </p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white">
-            PlugV Score and verdict.
+            Buyer score and evidence-led verdict.
           </h2>
           <p className="mt-4 text-sm leading-7 text-slate-300">
-            A clearer decision layer that turns raw EV details into a practical
-            answer for buyers.
+            A relative buying indicator based on listed range, entry price,
+            verified charging evidence and body-style practicality.
           </p>
 
           <p className="mt-6 text-base leading-7 text-slate-200">
@@ -65,10 +65,10 @@ export default function TrustSummary({ vehicle }: { vehicle: Vehicle }) {
 
           <div className="mt-6 flex flex-wrap gap-3">
             <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
-              {insights.buyNow ? "Recommended" : "Consider carefully"}
+              {insights.buyNow ? "Strong on paper" : "Compare closely"}
             </span>
             <span className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
-              Confidence {insights.confidence}%
+              Data confidence {insights.confidence}%
             </span>
           </div>
         </div>
@@ -79,8 +79,8 @@ export default function TrustSummary({ vehicle }: { vehicle: Vehicle }) {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <MetricPill label="Best for" value={insights.bestFor.join(" · ") || "—"} />
         <MetricPill
-          label="Confidence"
-          value={`${insights.confidence}% buying confidence`}
+          label="Evidence quality"
+          value={`${insights.confidence}% data confidence`}
         />
         <MetricPill
           label="Ownership fit"

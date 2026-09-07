@@ -1,150 +1,138 @@
+import { getVehicleChargingFact } from "@/data/vehicle-charging-facts";
+import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { vehicles } from "@/data/vehicles";
+import { startingPriceRupees } from "@/data/vehicle-buying-specs";
 
 type Vehicle = (typeof vehicles)[number];
 
-function parseNumeric(value?: string) {
-  if (!value) return 0;
-  const cleaned = value.replace(/,/g, "");
-  const match = cleaned.match(/(\d+(\.\d+)?)/);
-  return match ? Number(match[1]) : 0;
+function numbers(value?: string) {
+  return [...(value ?? "").replace(/,/g, "").matchAll(/\d+(?:\.\d+)?/g)].map(([match]) => Number(match));
 }
 
-function scoreRange(vehicle: Vehicle) {
-  return parseNumeric(vehicle.range);
+function clamp(value: number, minimum = 0, maximum = 100) {
+  return Math.max(minimum, Math.min(maximum, value));
 }
 
-function scoreCharging(vehicle: Vehicle) {
-  const raw = (vehicle.charging ?? "").toLowerCase();
-  return /\bkw\b/.test(raw) && !/\bkwh\b/.test(raw) ? parseNumeric(raw) : 0;
+function normalize(value: number, low: number, high: number) {
+  return clamp(((value - low) / (high - low)) * 100);
 }
 
-function scoreValue(vehicle: Vehicle) {
-  const price = parseNumeric(vehicle.price);
-  const range = scoreRange(vehicle);
-  if (!price) return 0;
-  return Math.round((range / price) * 1000);
+function practicalityScore(vehicle: Vehicle) {
+  const type = vehicle.type.toLowerCase();
+  if (type.includes("mpv")) return 92;
+  if (type.includes("suv")) return 84;
+  if (type.includes("crossover")) return 80;
+  if (type.includes("hatchback")) return 78;
+  if (type.includes("sedan")) return 72;
+  if (type.includes("microcar")) return 68;
+  if (type.includes("roadster")) return 42;
+  return 65;
 }
 
-function scorePracticality(vehicle: Vehicle) {
-  const type = (vehicle.type ?? "").toLowerCase();
-  let score = 45;
+function metrics(vehicle: Vehicle) {
+  const range = Math.max(0, ...numbers(vehicle.range).filter((value) => value >= 100));
+  const priceLakh = startingPriceRupees(vehicle.price) / 100_000;
+  const profile = getVehicleTripProfile(vehicle.slug);
+  const chargingFact = getVehicleChargingFact(vehicle.slug);
+  const dcPower = profile ? Math.max(...profile.variants.map((variant) => variant.maxDcChargeKW)) : 0;
+  const chargeMinutes = chargingFact
+    ? numbers(chargingFact.dcTime).filter((value) => value >= 10 && value <= 90).at(-1) ?? 0
+    : 0;
+  const rangeScore = range ? 30 + normalize(range, 180, 700) * 0.7 : 0;
+  const valueRatio = range && priceLakh ? range / priceLakh : 0;
+  const valueScore = valueRatio ? 25 + normalize(valueRatio, 8, 42) * 0.75 : 0;
+  const chargingScore = dcPower
+    ? 30 + normalize(dcPower, 30, 350) * 0.7
+    : chargeMinutes
+      ? 30 + normalize(70 - chargeMinutes, 10, 52) * 0.7
+      : 0;
 
-  if (type.includes("suv")) score += 15;
-  if (type.includes("crossover")) score += 12;
-  if (type.includes("hatchback")) score += 10;
-  if (type.includes("sedan")) score += 8;
-
-  return Math.min(score, 100);
+  return {
+    range,
+    priceLakh,
+    dcPower,
+    rangeScore: Math.round(rangeScore),
+    valueScore: Math.round(valueScore),
+    chargingScore: Math.round(chargingScore),
+    practicalityScore: practicalityScore(vehicle),
+    profile,
+    chargingFact,
+  };
 }
 
-function scoreFamily(vehicle: Vehicle) {
-  const type = (vehicle.type ?? "").toLowerCase();
-  let score = 40;
-
-  if (type.includes("suv")) score += 18;
-  if (type.includes("crossover")) score += 14;
-  if (type.includes("sedan")) score += 8;
-
-  return Math.min(score, 100);
+function weightedScore(vehicle: Vehicle) {
+  const data = metrics(vehicle);
+  const inputs = [
+    { score: data.rangeScore, weight: 35 },
+    { score: data.valueScore, weight: 30 },
+    { score: data.chargingScore, weight: 20 },
+    { score: data.practicalityScore, weight: 15 },
+  ].filter((input) => input.score > 0);
+  const weight = inputs.reduce((total, input) => total + input.weight, 0);
+  return Math.round(inputs.reduce((total, input) => total + input.score * input.weight, 0) / weight);
 }
 
-function scoreHighway(vehicle: Vehicle) {
-  const range = scoreRange(vehicle);
-  const charging = scoreCharging(vehicle);
-
-  let score = 35;
-  if (range > 400) score += 25;
-  if (charging >= 150) score += 20;
-  else if (charging >= 100) score += 10;
-
-  return Math.min(score, 100);
-}
-
-function scoreCity(vehicle: Vehicle) {
-  const charging = scoreCharging(vehicle);
-  const type = (vehicle.type ?? "").toLowerCase();
-
-  let score = 45;
-  if (charging >= 100) score += 20;
-  if (type.includes("hatchback") || type.includes("sedan")) score += 10;
-  if (type.includes("suv")) score += 5;
-
-  return Math.min(score, 100);
-}
-
-function scoreConfidence(vehicle: Vehicle) {
-  const range = scoreRange(vehicle);
-  const charging = scoreCharging(vehicle);
-  const value = scoreValue(vehicle);
-  const practicality = scorePracticality(vehicle);
-
-  const raw = range * 0.25 + charging * 0.2 + value * 0.25 + practicality * 0.3;
-  return Math.max(1, Math.min(100, Math.round(raw / 5)));
-}
-
-function plugvScore(vehicle: Vehicle) {
-  const range = scoreRange(vehicle);
-  const charging = scoreCharging(vehicle);
-  const value = scoreValue(vehicle);
-  const practicality = scorePracticality(vehicle);
-
-  const raw = range * 0.3 + charging * 0.25 + value * 0.2 + practicality * 0.25;
-  return Math.max(1, Math.min(100, Math.round(raw / 5)));
+function dataConfidence(vehicle: Vehicle) {
+  const data = metrics(vehicle);
+  let score = 10;
+  if (data.range) score += 25;
+  if (data.priceLakh) score += 20;
+  if (data.profile) score += data.profile.confidence === "official" ? 25 : 15;
+  if (data.chargingFact) score += data.chargingFact.confidence === "official" ? 20 : 12;
+  return clamp(score);
 }
 
 function valueLabel(score: number) {
-  if (score >= 80) return "Strong";
-  if (score >= 60) return "Good";
-  if (score >= 40) return "Moderate";
-  return "Low";
+  if (!score) return "Not verified";
+  if (score >= 80) return "Excellent";
+  if (score >= 65) return "Strong";
+  if (score >= 50) return "Good";
+  return "Limited";
+}
+
+function verdictFor(vehicle: Vehicle) {
+  const data = metrics(vehicle);
+  const lead = [
+    { key: "range", score: data.rangeScore },
+    { key: "value", score: data.valueScore },
+    { key: "charging", score: data.chargingScore },
+    { key: "practicality", score: data.practicalityScore },
+  ].sort((left, right) => right.score - left.score)[0]?.key;
+
+  if (lead === "range") return `${vehicle.name} is strongest on claimed range, with up to ${data.range} km listed; confirm the chosen variant and test conditions.`;
+  if (lead === "value") return `${vehicle.name} presents a strong range-to-entry-price case; compare variant equipment, battery terms and on-road pricing before deciding.`;
+  if (lead === "charging" && data.dcPower) return `${vehicle.name} stands out for DC charging capability of up to ${data.dcPower} kW; actual speed depends on the charger and battery conditions.`;
+  return `${vehicle.name} is oriented toward ${vehicle.type.toLowerCase()} practicality; compare its verified range, charging and variant details with your daily needs.`;
 }
 
 export function getVehicleInsights(vehicle: Vehicle) {
-  const score = plugvScore(vehicle);
-  const confidence = scoreConfidence(vehicle);
-
-  const city = scoreCity(vehicle);
-  const highway = scoreHighway(vehicle);
-  const family = scoreFamily(vehicle);
-  const charging = scoreCharging(vehicle);
-  const value = scoreValue(vehicle);
-  const practicality = scorePracticality(vehicle);
-
+  const data = metrics(vehicle);
+  const score = weightedScore(vehicle);
+  const confidence = dataConfidence(vehicle);
+  const familyScore = /mpv|suv|crossover/i.test(vehicle.type) ? 78 : /sedan|hatchback/i.test(vehicle.type) ? 64 : 40;
+  const cityScore = /microcar|hatchback|sedan/i.test(vehicle.type) ? 82 : 68;
+  const highwayScore = Math.round(data.rangeScore * 0.65 + data.chargingScore * 0.35);
   const bestFor = [
-    city >= 60 ? "City driving" : null,
-    family >= 60 ? "Family use" : null,
-    highway >= 60 ? "Highway trips" : null,
-    value >= 60 ? "Value buyers" : null,
+    cityScore >= 75 ? "City driving" : null,
+    familyScore >= 70 ? "Family use" : null,
+    highwayScore >= 68 ? "Highway trips" : null,
+    data.valueScore >= 68 ? "Value buyers" : null,
   ].filter(Boolean) as string[];
-
-  const verdict =
-    score >= 85
-      ? "An excellent EV with strong overall balance and a premium ownership case."
-      : score >= 70
-        ? "A strong EV that should suit the right buyer very well."
-        : score >= 55
-          ? "A decent option, best considered alongside similar alternatives."
-          : "A more selective choice that may suit only specific use cases.";
-
-  const ownership = [
-    { label: "Running cost", value: valueLabel(value) },
-    { label: "Charging ease", value: valueLabel(charging) },
-    { label: "Maintenance", value: valueLabel(practicality) },
-    { label: "Road trips", value: valueLabel(highway) },
-    { label: "Family use", value: valueLabel(family) },
-    { label: "Daily commute", value: valueLabel(city) },
-  ];
-
-  const buyNow = city >= 60 || family >= 60 || highway >= 60 || score >= 75;
-  const considerAlternatives = score < 70 || charging < 50 || scoreRange(vehicle) < 250;
 
   return {
     score,
     confidence,
     bestFor,
-    verdict,
-    ownership,
-    buyNow,
-    considerAlternatives,
+    verdict: verdictFor(vehicle),
+    ownership: [
+      { label: "Range value", value: valueLabel(data.valueScore) },
+      { label: "Charging evidence", value: valueLabel(data.chargingScore) },
+      { label: "Practicality", value: valueLabel(data.practicalityScore) },
+      { label: "Road trips", value: valueLabel(highwayScore) },
+      { label: "Family use", value: valueLabel(familyScore) },
+      { label: "Daily commute", value: valueLabel(cityScore) },
+    ],
+    buyNow: score >= 70 && confidence >= 60,
+    considerAlternatives: score < 75 || confidence < 70,
   };
 }
