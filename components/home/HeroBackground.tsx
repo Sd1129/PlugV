@@ -17,7 +17,7 @@ const overlayMap: Record<
 };
 
 export default function HeroBackground({
-  imageSrc = "/images/plugv-owned/plugv-home-hero-2026-08.png",
+  imageSrc = "/images/plugv-owned/plugv-home-hero-2026-08.webp",
   imageAlt = "PlugV hero placeholder",
   className = "",
   overlayStrength = "medium",

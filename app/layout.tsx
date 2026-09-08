@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { absoluteUrl, safeJsonLd, SITE_NAME, SITE_URL } from "@/lib/seo";
 import FloatingAssistant from "@/components/assistant/FloatingAssistant";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -102,6 +103,7 @@ export default function RootLayout({
           {children}
         </div>
         <FloatingAssistant />
+        <SpeedInsights />
       </body>
     </html>
   );

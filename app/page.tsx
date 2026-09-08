@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useState } from "react";
 import {
   ArrowRight,
   BatteryCharging,
@@ -16,46 +13,8 @@ import {
 
 import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
+import HomeEvMatcher from "@/components/home/HomeEvMatcher";
 import { upcomingEVs } from "@/data/upcoming";
-import { vehicles } from "@/data/vehicles";
-import { vehicleTripProfiles } from "@/data/vehicle-trip-profiles";
-
-const priorities = [
-  { label: "Daily city driving", detail: "Efficient, easy, stress-free" },
-  { label: "Family & weekends", detail: "Space, comfort, practical range" },
-  { label: "Long highway runs", detail: "Range and charging confidence" },
-  { label: "Performance & design", detail: "A more emotional EV choice" },
-];
-
-function highestNumber(value?: string) {
-  const numbers = value?.match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
-  return numbers.length ? Math.max(...numbers) : 0;
-}
-
-function startingPriceLakh(value?: string) {
-  const amount = Number(value?.replace(/,/g, "").match(/\d+(?:\.\d+)?/)?.[0] ?? 0);
-  return value && /\b(?:cr|crore)\b/i.test(value) ? amount * 100 : amount;
-}
-
-function matchesForProfile(priority: string, budget: number, dailyDistance: number, homeCharging: string) {
-  const candidates = vehicles.filter((vehicle) => {
-    const price = startingPriceLakh(vehicle.price);
-    if (price && price > budget) return false;
-    return highestNumber(vehicle.range) >= Math.max(180, dailyDistance * 2);
-  });
-  const ranked = candidates.map((vehicle) => {
-    const range = highestNumber(vehicle.range);
-    const profile = vehicleTripProfiles[vehicle.slug];
-    let score = range / 25;
-    if (priority === "Daily city driving" && ["Hatchback", "Microcar"].includes(vehicle.type)) score += 24;
-    if (priority === "Family & weekends" && ["SUV", "MPV"].includes(vehicle.type)) score += 24;
-    if (priority === "Long highway runs" && range >= 450) score += 28;
-    if (priority === "Performance & design" && ["Roadster", "Luxury Sedan", "SUV Coupe", "Crossover"].includes(vehicle.type)) score += 24;
-    if (homeCharging === "No" && profile) score += Math.max(...profile.variants.map((variant) => variant.maxDcChargeKW)) / 8;
-    return { vehicle, score };
-  }).sort((a, b) => b.score - a.score).map((item) => item.vehicle);
-  return ranked.slice(0, 3);
-}
 
 const capabilities = [
   {
@@ -93,12 +52,6 @@ const capabilities = [
 ];
 
 export default function HomePage() {
-  const [priority, setPriority] = useState(priorities[0]);
-  const [budget, setBudget] = useState(25);
-  const [dailyDistance, setDailyDistance] = useState(40);
-  const [homeCharging, setHomeCharging] = useState("Yes");
-  const matchedVehicles = matchesForProfile(priority.label, budget, dailyDistance, homeCharging);
-
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#030914] text-white">
       <SiteHeader />
@@ -139,6 +92,8 @@ export default function HomePage() {
             </div>
           </div>
 
+          <HomeEvMatcher />
+          {/*
           <div id="ev-match" className="scroll-mt-28 rounded-[2rem] border border-white/10 bg-[#071321]/90 p-5 shadow-[0_28px_90px_rgba(0,0,0,0.38)] backdrop-blur-xl sm:p-7">
             <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
               <div>
@@ -174,7 +129,7 @@ export default function HomePage() {
                 )) : <p className="sm:col-span-3 text-xs leading-5 text-amber-100">No exact match yet. Increase the budget or reduce the daily travel distance.</p>}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -247,12 +202,4 @@ export default function HomePage() {
       <SiteFooter />
     </main>
   );
-}
-
-function ProfileNumber({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void }) {
-  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</span><input type="number" value={value} min={min} max={max} onChange={(event) => onChange(Math.min(max, Math.max(min, Number(event.target.value) || min)))} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/40" /></label>;
-}
-
-function ProfileSelect({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {
-  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/40">{options.map((option) => <option key={option}>{option}</option>)}</select></label>;
 }

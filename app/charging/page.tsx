@@ -21,7 +21,7 @@ const ChargingAdvancedMap = dynamic(
 function getCityImage(city: string, state: string) {
   void city;
   void state;
-  return "/images/plugv-owned/plugv-charging-hero-2026-08.png";
+  return "/images/plugv-owned/plugv-charging-hero-2026-08.webp";
 }
 
 export default function ChargingPage() {
