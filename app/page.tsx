@@ -141,16 +141,16 @@ export default function HomePage() {
             <p className="mt-5 text-base leading-8 text-slate-400">The tools below work together, so every answer leads naturally to the next useful decision.</p>
           </div>
 
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 md:grid-cols-2">
+          <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/10 sm:mt-12 sm:rounded-[2rem]">
             {capabilities.map((capability) => {
               const Icon = capability.icon;
               return (
-                <Link key={capability.title} href={capability.href} className="group bg-[#050d19] p-7 transition hover:bg-[#081526] sm:p-9">
-                  <Icon className="h-6 w-6 text-sky-300" />
-                  <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300/80">{capability.eyebrow}</p>
-                  <h3 className="mt-3 max-w-md text-2xl font-semibold tracking-tight text-white">{capability.title}</h3>
-                  <p className="mt-4 max-w-lg text-sm leading-7 text-slate-400">{capability.description}</p>
-                  <span className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-white">Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                <Link key={capability.title} href={capability.href} className="group min-w-0 bg-[#050d19] p-4 transition hover:bg-[#081526] sm:p-7 lg:p-9">
+                  <Icon className="h-5 w-5 text-sky-300 sm:h-6 sm:w-6" />
+                  <p className="mt-4 text-[9px] font-semibold uppercase tracking-[0.18em] text-sky-300/80 sm:mt-8 sm:text-[11px] sm:tracking-[0.24em]">{capability.eyebrow}</p>
+                  <h3 className="mt-2 text-base font-semibold leading-snug tracking-tight text-white sm:mt-3 sm:text-2xl">{capability.title}</h3>
+                  <p className="mt-4 hidden max-w-lg text-sm leading-7 text-slate-400 sm:block">{capability.description}</p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white sm:mt-7 sm:gap-2 sm:text-sm">Explore <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1 sm:h-4 sm:w-4" /></span>
                 </Link>
               );
             })}

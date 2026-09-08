@@ -224,37 +224,40 @@ function isActiveLink(href: string) {
         <button type="button" onClick={() => setMobileOpen((current) => !current)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white lg:hidden" aria-label={mobileOpen ? "Close navigation" : "Open navigation"} aria-expanded={mobileOpen}>{mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button>
       </div>
 
+      <form
+        role="search"
+        className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 border-t border-white/10 px-4 sm:px-6 lg:hidden"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setMobileOpen(false);
+          submitSearch();
+        }}
+      >
+        <label className="flex min-h-11 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4">
+          <Search className="h-4 w-4 shrink-0 text-sky-300" />
+          <span className="sr-only">Search PlugV vehicles and brands</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search EVs or brands"
+            enterKeyHint="search"
+            className="min-w-0 w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
+          />
+        </label>
+        <button
+          type="submit"
+          disabled={!query.trim()}
+          aria-label="Submit search"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-2xl bg-sky-300 text-slate-950 transition hover:bg-sky-200 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </form>
+
       {mobileOpen ? (
         <div className="max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-white/10 bg-slate-950/98 px-4 py-4 shadow-2xl lg:hidden">
           <div className="mx-auto w-full max-w-7xl">
-            <form
-              className="mb-4 flex items-center gap-2"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setMobileOpen(false);
-                submitSearch();
-              }}
-            >
-              <label className="flex min-h-12 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4">
-                <Search className="h-4 w-4 shrink-0 text-slate-400" />
-                <span className="sr-only">Search EVs and brands</span>
-                <input
-                  type="search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search EVs or brands"
-                  className="w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
-                />
-              </label>
-              <button
-                type="submit"
-                disabled={!query.trim()}
-                className="min-h-12 rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Search
-              </button>
-            </form>
-
             <nav aria-label="Mobile navigation" className="grid gap-2">
               {NAV_LINKS.map((link) => {
                 const active = isActiveLink(link.href);
@@ -297,7 +300,7 @@ function isActiveLink(href: string) {
         </div>
       ) : null}
     </header>
-    <div aria-hidden="true" className="h-20 shrink-0" />
+    <div aria-hidden="true" className="h-36 shrink-0 lg:h-20" />
     </>
   );
 }
