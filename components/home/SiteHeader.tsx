@@ -20,6 +20,7 @@ export default function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const mobileSearchRef = useRef<HTMLFormElement | null>(null);
 
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -42,7 +43,11 @@ export default function SiteHeader() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        !wrapRef.current?.contains(target) &&
+        !mobileSearchRef.current?.contains(target)
+      ) {
         setOpen(false);
       }
     }
@@ -54,6 +59,7 @@ export default function SiteHeader() {
   function goToVehicle(vehicle: (typeof vehicles)[number]) {
     setQuery("");
     setOpen(false);
+    setMobileOpen(false);
     router.push(`/vehicles/${vehicle.slug}`);
   }
 
@@ -225,8 +231,9 @@ function isActiveLink(href: string) {
       </div>
 
       <form
+        ref={mobileSearchRef}
         role="search"
-        className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 border-t border-white/10 px-4 sm:px-6 lg:hidden"
+        className="relative mx-auto flex h-16 w-full max-w-7xl items-center gap-2 border-t border-white/10 px-4 sm:px-6 lg:hidden"
         onSubmit={(event) => {
           event.preventDefault();
           setMobileOpen(false);
@@ -239,9 +246,16 @@ function isActiveLink(href: string) {
           <input
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
             placeholder="Search EVs or brands"
             enterKeyHint="search"
+            aria-label="Search EVs"
+            aria-expanded={open && query.trim().length > 0}
+            aria-controls="mobile-search-suggestions"
             className="min-w-0 w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
           />
         </label>
@@ -253,6 +267,44 @@ function isActiveLink(href: string) {
         >
           <ArrowRight className="h-4 w-4" />
         </button>
+
+        {open && query.trim().length > 0 ? (
+          <div id="mobile-search-suggestions" className="absolute left-4 right-4 top-[calc(100%+0.25rem)] z-[110] overflow-hidden rounded-2xl border border-white/10 bg-slate-950/98 shadow-2xl shadow-black/60 backdrop-blur-xl sm:left-6 sm:right-6">
+            <div className="border-b border-white/10 px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-300/80">Suggestions</p>
+            </div>
+
+            {suggestions.length > 0 ? (
+              <div className="max-h-[45vh] overflow-y-auto p-2">
+                {suggestions.map((vehicle) => (
+                  <button
+                    key={vehicle.slug}
+                    type="button"
+                    onClick={() => goToVehicle(vehicle)}
+                    className="flex min-h-14 w-full items-center justify-between gap-4 rounded-xl px-3 py-2.5 text-left transition active:bg-white/10"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-white">{vehicle.name}</span>
+                      <span className="mt-1 block truncate text-xs text-slate-400">{vehicle.brand} • {vehicle.type}</span>
+                    </span>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-slate-500" />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="px-4 py-5 text-sm text-slate-400">No matching vehicles found.</div>
+            )}
+
+            <div className="border-t border-white/10 p-2">
+              <button
+                type="submit"
+                className="flex min-h-11 w-full items-center justify-center rounded-xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition active:bg-sky-300"
+              >
+                Search all results
+              </button>
+            </div>
+          </div>
+        ) : null}
       </form>
 
       {mobileOpen ? (
