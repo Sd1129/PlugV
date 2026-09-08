@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BatteryCharging, BookOpen, CarFront, ChevronDown, Gauge, GitCompareArrows, Route } from "lucide-react";
 
 const INSTAGRAM_URL = "https://www.instagram.com/plugvplatform/";
 const YOUTUBE_URL = "https://www.youtube.com/channel/UC0YJUyVpgbX5eClR-UBp_oQ";
@@ -29,6 +30,22 @@ const legalLinks = [
   { label: "Data Clarity", href: "/disclaimer#data-clarity" },
 ];
 
+const mobilePrimaryLinks = [
+  { label: "Explore EVs", href: "/vehicles", icon: CarFront, featured: true },
+  { label: "Compare EVs", href: "/compare", icon: GitCompareArrows },
+  { label: "Charging", href: "/charging", icon: BatteryCharging },
+  { label: "Plan a Trip", href: "/travel", icon: Route },
+  { label: "Upcoming EVs", href: "/upcoming", icon: BookOpen },
+  { label: "My EV", href: "/my-ev", icon: Gauge },
+];
+
+const mobileTrustLinks = [
+  { label: "Knowledge Hub", href: "/knowledge" },
+  { label: "Data Methodology", href: "/methodology" },
+  { label: "Data Clarity", href: "/disclaimer#data-clarity" },
+  { label: "Report incorrect data", href: "mailto:support@plugv.in?subject=PlugV%20data%20correction" },
+];
+
 export default function SiteFooter() {
   return (
     <footer className="border-t border-white/10 bg-slate-950">
@@ -52,7 +69,7 @@ export default function SiteFooter() {
               experience.
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 hidden flex-wrap gap-3 lg:flex">
               <a
                 href={INSTAGRAM_URL}
                 target="_blank"
@@ -76,12 +93,12 @@ export default function SiteFooter() {
             </div>
           </div>
 
-          <div>
+          <div className="hidden lg:block">
             <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-300/80">Legal</h3>
             <div className="mt-4 grid gap-3">{legalLinks.map((item) => <Link key={item.href} href={item.href} className="text-sm text-slate-300 transition hover:text-white">{item.label}</Link>)}</div>
           </div>
 
-          <div>
+          <div className="hidden lg:block">
             <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-300/80">
               Explore
             </h3>
@@ -98,7 +115,7 @@ export default function SiteFooter() {
             </div>
           </div>
 
-          <div>
+          <div className="hidden lg:block">
             <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-300/80">
               Plan
             </h3>
@@ -113,6 +130,43 @@ export default function SiteFooter() {
                 </Link>
               ))}
             </div>
+          </div>
+        </div>
+
+        <div className="mt-8 space-y-7 lg:hidden">
+          <section aria-labelledby="mobile-footer-explore">
+            <h3 id="mobile-footer-explore" className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300/80">Explore PlugV</h3>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {mobilePrimaryLinks.map(({ label, href, icon: Icon, featured }) => (
+                <Link key={href} href={href} className={`flex min-h-12 items-center gap-2.5 rounded-xl border px-3 text-sm font-semibold transition ${featured ? "border-sky-200 bg-sky-300 text-slate-950" : "border-white/10 bg-white/[0.04] text-slate-100 hover:bg-white/[0.08]"}`}>
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span>{label}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section aria-labelledby="mobile-footer-trust">
+            <h3 id="mobile-footer-trust" className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300/80">Learn &amp; Trust</h3>
+            <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+              {mobileTrustLinks.map((item) => <Link key={item.href} href={item.href} className="text-sm text-slate-300 transition hover:text-white">{item.label}</Link>)}
+            </div>
+          </section>
+
+          <div className="divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/[0.025] px-4">
+            <details className="group py-1">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between text-sm font-semibold text-white">Company <ChevronDown className="h-4 w-4 text-slate-400 transition group-open:rotate-180" /></summary>
+              <div className="grid grid-cols-2 gap-3 pb-4"><Link href="/about" className="text-sm text-slate-300">About PlugV</Link><Link href="/founder" className="text-sm text-slate-300">Founder</Link></div>
+            </details>
+            <details className="group py-1">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between text-sm font-semibold text-white">Legal <ChevronDown className="h-4 w-4 text-slate-400 transition group-open:rotate-180" /></summary>
+              <div className="grid grid-cols-2 gap-3 pb-4">{legalLinks.slice(0, 3).map((item) => <Link key={item.href} href={item.href} className="text-sm text-slate-300">{item.label}</Link>)}</div>
+            </details>
+          </div>
+
+          <div className="flex gap-3">
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-pink-300/20 bg-pink-400/[0.06] text-sm font-semibold text-slate-100"><span aria-hidden="true">◎</span>Instagram</a>
+            <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-red-300/20 bg-red-400/[0.06] text-sm font-semibold text-slate-100"><span aria-hidden="true">▶</span>YouTube</a>
           </div>
         </div>
 
