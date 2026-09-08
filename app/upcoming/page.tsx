@@ -53,8 +53,9 @@ export default function UpcomingEVsPage() {
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
       <SiteHeader />
 
-      <section className="relative isolate overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_18%_10%,rgba(56,189,248,0.18),transparent_32%),radial-gradient(circle_at_82%_70%,rgba(139,92,246,0.15),transparent_30%)]" />
+      <section className="relative isolate overflow-hidden border-b border-white/10 bg-slate-950">
+        <Image src="/images/plugv-owned/plugv-upcoming-hero-2026-09.webp" alt="Brand-neutral electric SUV presented with a red gift ribbon for an upcoming vehicle launch" fill priority sizes="100vw" className="-z-30 object-contain object-top sm:object-cover sm:object-center" />
+        <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,rgba(2,6,23,0.10)_0%,rgba(2,6,23,0.90)_34%,rgba(2,6,23,0.98)_58%)] sm:bg-[linear-gradient(90deg,rgba(2,6,23,0.96)_0%,rgba(2,6,23,0.82)_42%,rgba(2,6,23,0.30)_72%,rgba(2,6,23,0.18)_100%)]" />
         <div className="absolute inset-0 -z-10 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:40px_40px]" />
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
           <div className="max-w-3xl">
