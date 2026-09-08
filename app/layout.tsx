@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "mapbox-gl/dist/mapbox-gl.css";
 import { absoluteUrl, safeJsonLd, SITE_NAME, SITE_URL } from "@/lib/seo";
 import FloatingAssistant from "@/components/assistant/FloatingAssistant";
 
