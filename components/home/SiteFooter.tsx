@@ -26,6 +26,7 @@ const legalLinks = [
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms of Use", href: "/terms" },
   { label: "Disclaimer", href: "/disclaimer" },
+  { label: "Data Clarity", href: "/disclaimer#data-clarity" },
 ];
 
 export default function SiteFooter() {

@@ -5,7 +5,6 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Bell, Bookmark, Calculator, CalendarClock, Car, CheckCircle2, ChevronRight, ClipboardCheck, Gauge, HeartPulse, History, MapPin, Navigation, Phone, Plus, ShieldCheck, Trash2, WalletCards, Zap } from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
-import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { createDefaultOwnerProfile, profileCompletion, readOwnerProfile, writeOwnerProfile, type DriveCondition } from "@/lib/owner-profile";
@@ -187,7 +186,6 @@ export default function MyEvPage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <SiteHeader />
-      <DataTrustNotice message="Saved trips, chargers and device reminders stay in this browser. Email reminders are stored securely only after you verify and consent." />
 
       <section className="border-b border-white/10 bg-[radial-gradient(circle_at_15%_20%,rgba(56,189,248,0.18),transparent_30%),radial-gradient(circle_at_85%_60%,rgba(16,185,129,0.14),transparent_32%)]">
         <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">

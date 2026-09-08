@@ -6,7 +6,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function ChargingHero() {
   return (
-    <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-b border-white/10">
+    <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-b border-white/10 bg-slate-950">
       <div className="absolute inset-0">
       <Image
   src="/images/plugv-owned/plugv-charging-hero-2026-08.webp"
@@ -14,11 +14,11 @@ export default function ChargingHero() {
   fill
   priority
   sizes="100vw"
-  className="object-cover object-center"
+  className="object-contain object-top sm:object-cover sm:object-center"
 />
       </div>
 
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,6,23,0.90)_0%,rgba(2,6,23,0.68)_34%,rgba(2,6,23,0.25)_60%,rgba(2,6,23,0.14)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.10)_0%,rgba(2,6,23,0.86)_34%,rgba(2,6,23,0.98)_58%)] sm:bg-[linear-gradient(90deg,rgba(2,6,23,0.90)_0%,rgba(2,6,23,0.68)_34%,rgba(2,6,23,0.25)_60%,rgba(2,6,23,0.14)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_left,rgba(56,189,248,0.16),transparent_35%)]" />
 
       <div className="relative mx-auto flex min-h-[560px] w-full max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8 lg:py-24">

@@ -16,7 +16,6 @@ import {
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import TrustSummary from "@/components/vehicles/TrustSummary";
-import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getVehicleVisual } from "@/data/vehicle-images";
@@ -300,12 +299,10 @@ function CompareContent() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
       <SiteHeader />
-      <DataTrustNotice message="Comparison results separate official vehicle inputs from PlugV planning estimates and unverified fields." />
-
       {/* HERO */}
-<section className="relative isolate overflow-hidden border-b border-white/10">
-  <Image src="/images/plugv-owned/plugv-compare-hero-2026-08.webp" alt="PlugV illustration of two electric SUVs positioned side by side for comparison" fill priority sizes="100vw" className="-z-30 object-cover object-center" />
-  <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(2,6,23,0.96)_0%,rgba(2,6,23,0.84)_38%,rgba(2,6,23,0.32)_68%,rgba(2,6,23,0.16)_100%)]" />
+<section className="relative isolate overflow-hidden border-b border-white/10 bg-slate-950">
+  <Image src="/images/plugv-owned/plugv-compare-hero-2026-08.webp" alt="PlugV illustration of two electric SUVs positioned side by side for comparison" fill priority sizes="100vw" className="-z-30 object-contain object-top sm:object-cover sm:object-center" />
+  <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,rgba(2,6,23,0.12)_0%,rgba(2,6,23,0.88)_34%,rgba(2,6,23,0.98)_58%)] sm:bg-[linear-gradient(90deg,rgba(2,6,23,0.96)_0%,rgba(2,6,23,0.84)_38%,rgba(2,6,23,0.32)_68%,rgba(2,6,23,0.16)_100%)]" />
   <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_left,rgba(56,189,248,0.16),transparent_38%)]" />
 
   <div className="mx-auto flex min-h-[580px] w-full max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8 lg:py-24">

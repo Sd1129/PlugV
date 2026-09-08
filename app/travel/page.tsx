@@ -26,7 +26,6 @@ import {
 
 import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
-import DataTrustNotice from "@/components/trust/DataTrustNotice";
 import TravelRouteMap from "@/components/travel/TravelRouteMap";
 import ChargerConfidenceBadge from "@/components/charging/ChargerConfidenceBadge";
 import { chargingStations, type ChargingStation } from "@/data/charging/stations";
@@ -530,11 +529,9 @@ export default function TravelPage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
       <SiteHeader />
-      <DataTrustNotice message="Routes, journey times, practical range and charging stops are planning estimates. Confirm charger status with the operator before departure." />
-
-      <section className="relative isolate overflow-hidden border-b border-white/10">
-        <Image src="/images/plugv-owned/plugv-travel-hero-2026-08.webp" alt="PlugV illustration of an electric vehicle travelling on an Indian highway" fill priority sizes="100vw" className="-z-30 object-cover object-[68%_center] sm:object-center" />
-        <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(2,6,23,0.86)_0%,rgba(2,6,23,0.70)_34%,rgba(2,6,23,0.24)_58%,rgba(2,6,23,0.02)_78%)]" />
+      <section className="relative isolate overflow-hidden border-b border-white/10 bg-slate-950">
+        <Image src="/images/plugv-owned/plugv-travel-hero-2026-08.webp" alt="PlugV illustration of an electric vehicle travelling on an Indian highway" fill priority sizes="100vw" className="-z-30 object-contain object-top sm:object-cover sm:object-center" />
+        <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,rgba(2,6,23,0.08)_0%,rgba(2,6,23,0.86)_30%,rgba(2,6,23,0.98)_50%)] sm:bg-[linear-gradient(90deg,rgba(2,6,23,0.86)_0%,rgba(2,6,23,0.70)_34%,rgba(2,6,23,0.24)_58%,rgba(2,6,23,0.02)_78%)]" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_left,rgba(14,165,233,0.12),transparent_38%)]" />
         <div className="mx-auto flex min-h-[620px] w-full max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8">
           <div className="w-full max-w-[560px]">
