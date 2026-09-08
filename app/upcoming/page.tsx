@@ -67,15 +67,16 @@ export default function UpcomingEVsPage() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur sm:p-8">
+          <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.05] p-4 shadow-2xl shadow-black/25 backdrop-blur sm:rounded-[2rem] sm:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-200">How to read this page</p>
-            <div className="mt-6 space-y-4">
+            <p className="mt-2 text-xs leading-5 text-slate-400 sm:hidden">Status labels separate confirmed plans from concepts and exclude rumours.</p>
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:mt-6 sm:grid-cols-1 sm:gap-4">
               <TrustRow title="Manufacturer target" copy="The manufacturer has stated a market timing target. It can still change." tone="emerald" />
               <TrustRow title="Official announcement" copy="The manufacturer has announced an India programme and a stated launch window." tone="sky" />
               <TrustRow title="Official concept" copy="The vehicle has been revealed, but production or an India launch is not confirmed." tone="violet" />
               <TrustRow title="No unsupported rumours" copy="Unverified launch dates and invented prices are intentionally excluded." tone="slate" />
             </div>
-            <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-6">
+            <div className="mt-4 grid grid-cols-3 gap-3 border-t border-white/10 pt-4 sm:mt-6 sm:pt-6">
               <HeroMetric label="Tracked" value={`${upcomingVehicles.length}`} />
               <HeroMetric label="Targets" value={`${manufacturerTargets}`} />
               <HeroMetric label="Concepts" value={`${officialConcepts}`} />
@@ -120,7 +121,7 @@ function UpcomingCard({ vehicle }: { vehicle: UpcomingVehicle }) {
 
 function TrustRow({ title, copy, tone }: { title: string; copy: string; tone: "sky" | "emerald" | "violet" | "slate" }) {
   const dot = tone === "sky" ? "bg-sky-400" : tone === "emerald" ? "bg-emerald-400" : tone === "violet" ? "bg-violet-400" : "bg-slate-400";
-  return <div className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950/50 p-4"><span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} /><div><p className="text-sm font-semibold">{title}</p><p className="mt-1 text-xs leading-5 text-slate-400">{copy}</p></div></div>;
+  return <div className="flex min-w-0 gap-2 rounded-xl border border-white/10 bg-slate-950/50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4"><span className={`mt-1 h-2 w-2 shrink-0 rounded-full sm:h-2.5 sm:w-2.5 ${dot}`} /><div className="min-w-0"><p className="text-xs font-semibold leading-5 sm:text-sm">{title}</p><p className="mt-1 hidden text-xs leading-5 text-slate-400 sm:block">{copy}</p></div></div>;
 }
 
 function HeroMetric({ label, value }: { label: string; value: string }) {
