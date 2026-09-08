@@ -8,6 +8,17 @@ import { vehicles } from "@/data/vehicles";
 
 const priorities = ["Daily city driving", "Family & weekends", "Long highway runs", "Performance & design"];
 
+const budgetOptions = [
+  { label: "Under 10 lakh", min: 0, max: 10 },
+  { label: "10 lakh–15 lakh", min: 10, max: 15 },
+  { label: "15 lakh–20 lakh", min: 15, max: 20 },
+  { label: "20 lakh–25 lakh", min: 20, max: 25 },
+  { label: "25 lakh–30 lakh", min: 25, max: 30 },
+  { label: "30 lakh–40 lakh", min: 30, max: 40 },
+  { label: "40 lakh–50 lakh", min: 40, max: 50 },
+  { label: "Above 50 lakh", min: 50, max: Number.POSITIVE_INFINITY },
+] as const;
+
 function highestNumber(value?: string) {
   const numbers = value?.match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
   return numbers.length ? Math.max(...numbers) : 0;
@@ -18,11 +29,14 @@ function startingPriceLakh(value?: string) {
   return value && /\b(?:cr|crore)\b/i.test(value) ? amount * 100 : amount;
 }
 
-function matchesForProfile(priority: string, budget: number, dailyDistance: number, homeCharging: string) {
+function matchesForProfile(priority: string, budgetLabel: string, dailyDistance: number, homeCharging: string) {
+  const budget = budgetOptions.find((option) => option.label === budgetLabel) ?? budgetOptions[3];
+
   return vehicles
     .filter((vehicle) => {
       const price = startingPriceLakh(vehicle.price);
-      return (!price || price <= budget) && highestNumber(vehicle.range) >= Math.max(180, dailyDistance * 2);
+      const isWithinBudget = !price || (price >= budget.min && price <= budget.max);
+      return isWithinBudget && highestNumber(vehicle.range) >= Math.max(180, dailyDistance * 2);
     })
     .map((vehicle) => {
       const range = highestNumber(vehicle.range);
@@ -42,7 +56,7 @@ function matchesForProfile(priority: string, budget: number, dailyDistance: numb
 
 export default function HomeEvMatcher() {
   const [priority, setPriority] = useState(priorities[0]);
-  const [budget, setBudget] = useState(25);
+  const [budget, setBudget] = useState<string>(budgetOptions[3].label);
   const [dailyDistance, setDailyDistance] = useState(40);
   const [homeCharging, setHomeCharging] = useState("Yes");
   const matchedVehicles = matchesForProfile(priority, budget, dailyDistance, homeCharging);
@@ -60,7 +74,7 @@ export default function HomeEvMatcher() {
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <ProfileSelect label="Main priority" value={priority} options={priorities} onChange={setPriority} />
-        <ProfileNumber label="Maximum budget (₹ lakh)" value={budget} min={4} max={300} onChange={setBudget} />
+        <ProfileSelect label="Choose Your Budget" value={budget} options={budgetOptions.map((option) => option.label)} onChange={setBudget} />
         <ProfileNumber label="Daily travel (km)" value={dailyDistance} min={5} max={500} onChange={setDailyDistance} />
         <ProfileSelect label="Home charging" value={homeCharging} options={["Yes", "No", "Not sure"]} onChange={setHomeCharging} />
       </div>

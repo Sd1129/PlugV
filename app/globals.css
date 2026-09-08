@@ -27,8 +27,7 @@ a {
   text-decoration: none;
 }
 
-/* PlugV's car cursor replaces the generic hand only for clickable controls.
-   Touch devices and browsers without SVG cursor support retain native behavior. */
+/* Use the familiar hand pointer for every interactive control. */
 @media (hover: hover) and (pointer: fine) {
   :where(
     a[href],
@@ -43,7 +42,7 @@ a {
     [role="button"]:not([aria-disabled="true"]),
     .cursor-pointer
   ) {
-    cursor: url("/cursors/plugv-car.svg") 16 8, pointer;
+    cursor: pointer;
   }
 }
 

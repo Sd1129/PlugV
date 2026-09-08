@@ -137,8 +137,6 @@ export default function HomePage() {
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Your EV, in context</p>
-            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">Not a marketplace. A better way to move.</h2>
-            <p className="mt-5 text-base leading-8 text-slate-400">The tools below work together, so every answer leads naturally to the next useful decision.</p>
           </div>
 
           <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/10 sm:mt-12 sm:rounded-[2rem]">
@@ -162,8 +160,6 @@ export default function HomePage() {
         <div className="mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.15fr] lg:items-end lg:px-8">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Launch radar</p>
-            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">Know what&apos;s worth waiting for.</h2>
-            <p className="mt-5 max-w-md text-base leading-8 text-slate-400">Follow manufacturer targets and official EV concepts with clear sourcing—without confusing speculation with confirmed launches.</p>
             <Link href="/upcoming" className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.06]">
               View upcoming EVs
               <ArrowRight className="h-4 w-4" />
@@ -192,7 +188,7 @@ export default function HomePage() {
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">A better EV life, from day one.</h2>
             <p className="mt-5 text-base leading-8 text-slate-300">PlugV stays useful after the decision: charging, travel, ownership, alerts, and what comes next.</p>
           </div>
-          <Link href="/vehicles" className="inline-flex w-fit items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-slate-200">
+          <Link href="/vehicles" className="inline-flex w-fit items-center gap-2 rounded-full bg-sky-400 px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">
             Begin exploring
             <ArrowRight className="h-4 w-4" />
           </Link>
