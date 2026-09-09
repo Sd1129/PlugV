@@ -58,6 +58,7 @@ export default async function UpcomingVehiclePage({ params }: PageProps) {
           { "@type": "PropertyValue", name: "India launch status", value: vehicle.status },
           { "@type": "PropertyValue", name: "Launch information", value: vehicle.launch },
           { "@type": "PropertyValue", name: "Range", value: vehicle.range ?? "Not officially announced" },
+          { "@type": "PropertyValue", name: "Battery", value: vehicle.battery ?? "Not officially announced" },
           { "@type": "PropertyValue", name: "Expected price", value: vehicle.expectedPrice ?? "Not officially announced" },
         ],
       },
@@ -93,8 +94,9 @@ export default async function UpcomingVehiclePage({ params }: PageProps) {
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <Fact label="India launch information" value={vehicle.launch} />
         <Fact label="Vehicle category" value={vehicle.segment} />
-        <Fact label="Expected price" value={vehicle.expectedPrice ?? "Not officially announced"} />
+        <Fact label={vehicle.priceBasis ?? "Expected price"} value={vehicle.expectedPrice ?? "Not officially announced"} />
         <Fact label="Range information" value={vehicle.range ?? "Not officially announced"} />
+        <Fact label="Battery information" value={vehicle.battery ?? "Not officially announced"} />
       </div>
 
       <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_0.55fr]">
@@ -104,7 +106,7 @@ export default async function UpcomingVehiclePage({ params }: PageProps) {
           <p className="mt-5 text-base leading-8 text-slate-300">{vehicle.note}</p>
           <h2 className="mt-10 text-2xl font-semibold">Key details to watch</h2>
           <div className="mt-5 flex flex-wrap gap-3">{vehicle.features.map((feature) => <span key={feature} className="rounded-full border border-white/10 bg-slate-950/60 px-4 py-2 text-sm text-slate-300">{feature}</span>)}</div>
-          <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/[0.07] p-5"><p className="font-semibold text-amber-100">What has not been confirmed</p><p className="mt-2 text-sm leading-7 text-slate-300">Final India pricing, variants, booking dates and dealership availability should be treated as unconfirmed unless the manufacturer publishes them. PlugV does not convert rumours into launch facts.</p></div>
+          <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/[0.07] p-5"><p className="font-semibold text-amber-100">What has not been confirmed</p><p className="mt-2 text-sm leading-7 text-slate-300">Final India pricing, variants, booking dates and dealership availability should be treated as unconfirmed unless the manufacturer publishes them. PlugV planning price bands are broad editorial estimates—not OEM guidance, quotations or launch guarantees.</p></div>
         </article>
         <aside className="h-fit rounded-[2rem] border border-emerald-300/15 bg-emerald-400/[0.06] p-6">
           <Sparkles className="h-5 w-5 text-emerald-300" /><h2 className="mt-4 text-xl font-semibold">Official manufacturer source</h2><p className="mt-3 text-sm leading-7 text-slate-300">PlugV last checked this record on {checkedDate}. Read the manufacturer material before making a booking or purchase decision.</p><a href={vehicle.sourceUrl} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-300 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-200">{vehicle.sourceName}<ExternalLink className="h-4 w-4" /></a>

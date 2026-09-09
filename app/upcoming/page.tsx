@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
-import { ArrowUpRight, BadgeCheck, CalendarDays, Filter, Search, ShieldCheck, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowUpRight, BadgeCheck, Battery, Bell, BellRing, CalendarDays, Filter, Gauge, IndianRupee, Search, ShieldCheck, Sparkles } from "lucide-react";
 
 import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
-import { upcomingVehicles, type UpcomingVehicle } from "@/data/vehicles-upcoming";
+import { upcomingCatalogueLastUpdated, upcomingVehicles, type UpcomingVehicle } from "@/data/vehicles-upcoming";
+
+const WATCHLIST_KEY = "plugv-upcoming-status-watch-v1";
+type SavedWatch = Record<string, UpcomingVehicle["status"]>;
 
 const statuses = ["All statuses", "Official announcement", "Manufacturer target", "Official concept"] as const;
 const currentYear = new Date().getFullYear();
@@ -34,6 +37,23 @@ export default function UpcomingEVsPage() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<(typeof statuses)[number]>("All statuses");
   const [launchWindow, setLaunchWindow] = useState<(typeof launchWindows)[number]>("All launch windows");
+  const [watched, setWatched] = useState<SavedWatch>({});
+
+  useEffect(() => {
+    const hydrationTask = window.setTimeout(() => {
+      try { setWatched(JSON.parse(localStorage.getItem(WATCHLIST_KEY) ?? "{}") as SavedWatch); } catch { setWatched({}); }
+    }, 0);
+    return () => window.clearTimeout(hydrationTask);
+  }, []);
+
+  function toggleWatch(vehicle: UpcomingVehicle) {
+    setWatched((current) => {
+      const next = { ...current };
+      if (next[vehicle.slug]) delete next[vehicle.slug]; else next[vehicle.slug] = vehicle.status;
+      localStorage.setItem(WATCHLIST_KEY, JSON.stringify(next));
+      return next;
+    });
+  }
 
   const filteredVehicles = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -62,6 +82,7 @@ export default function UpcomingEVsPage() {
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-100"><Sparkles className="h-3.5 w-3.5" />PlugV launch tracker</div>
             <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl lg:text-7xl">Upcoming electric cars in India.</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">Track officially announced and manufacturer-targeted electric cars for India in {currentYear} and {nextYear}. Models without a stated date are separated clearly—never presented as confirmed launches.</p>
+            <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Catalogue last updated {upcomingCatalogueLastUpdated}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/vehicles" className="rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Explore EVs available now</Link>
               <Link href="/compare" className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold transition hover:bg-white/10">Compare launched EVs</Link>
@@ -103,7 +124,7 @@ export default function UpcomingEVsPage() {
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Verified future watch</p><h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Upcoming EVs, without the guesswork.</h2></div><p className="text-sm text-slate-400">{filteredVehicles.length} verified result{filteredVehicles.length === 1 ? "" : "s"}</p></div>
 
-          {filteredVehicles.length ? <div className="mt-8 space-y-14">{launchWindows.slice(1).map((year) => { const items = filteredVehicles.filter((vehicle) => vehicle.launchYear === year); const sectionId = `launch-${String(year).replaceAll(" ", "-")}`; return items.length ? <section key={year} aria-labelledby={sectionId}><div className="flex items-center gap-4"><h3 id={sectionId} className="text-2xl font-semibold">{year === "Timing not announced" ? "Official India watchlist — timing not announced" : `${year} India launch targets`}</h3><span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">{items.length}</span></div><div className="mt-6 grid gap-6 lg:grid-cols-3">{items.map((vehicle) => <UpcomingCard key={vehicle.slug} vehicle={vehicle} />)}</div></section> : null; })}</div> : <div className="mt-8 rounded-[2rem] border border-dashed border-white/15 bg-white/[0.03] p-10 text-center"><p className="text-xl font-semibold">No verified future EV matches those filters.</p><p className="mt-2 text-sm text-slate-400">Reset the filters to view the complete verified watchlist.</p></div>}
+          {filteredVehicles.length ? <div className="relative mt-10 space-y-14 before:absolute before:bottom-4 before:left-[11px] before:top-3 before:w-px before:bg-gradient-to-b before:from-sky-300/60 before:via-white/15 before:to-transparent sm:before:left-[15px]">{launchWindows.slice(1).map((year) => { const items = filteredVehicles.filter((vehicle) => vehicle.launchYear === year); const sectionId = `launch-${String(year).replaceAll(" ", "-")}`; return items.length ? <section key={year} aria-labelledby={sectionId} className="relative pl-9 sm:pl-12"><span className="absolute left-0 top-1.5 flex h-6 w-6 items-center justify-center rounded-full border border-sky-300/40 bg-slate-950 shadow-[0_0_20px_rgba(56,189,248,.3)] sm:h-8 sm:w-8"><span className="h-2 w-2 rounded-full bg-sky-300" /></span><div className="flex flex-wrap items-center gap-3"><h3 id={sectionId} className="text-2xl font-semibold">{year === "Timing not announced" ? "Timing not announced" : `${year} India launch targets`}</h3><span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">{items.length}</span></div><p className="mt-2 text-xs leading-5 text-slate-500">{year === "Timing not announced" ? "Officially revealed or India-linked vehicles without a confirmed sale year." : "Manufacturer timing can change; open each source before making a purchase decision."}</p><div className="mt-6 grid gap-6 lg:grid-cols-3">{items.map((vehicle) => <UpcomingCard key={vehicle.slug} vehicle={vehicle} watchedStatus={watched[vehicle.slug]} onToggleWatch={() => toggleWatch(vehicle)} />)}</div></section> : null; })}</div> : <div className="mt-8 rounded-[2rem] border border-dashed border-white/15 bg-white/[0.03] p-10 text-center"><p className="text-xl font-semibold">No verified future EV matches those filters.</p><p className="mt-2 text-sm text-slate-400">Reset the filters to view the complete verified watchlist.</p></div>}
         </div>
       </section>
 
@@ -113,11 +134,16 @@ export default function UpcomingEVsPage() {
   );
 }
 
-function UpcomingCard({ vehicle }: { vehicle: UpcomingVehicle }) {
+function UpcomingCard({ vehicle, watchedStatus, onToggleWatch }: { vehicle: UpcomingVehicle; watchedStatus?: UpcomingVehicle["status"]; onToggleWatch: () => void }) {
+  const statusChanged = Boolean(watchedStatus && watchedStatus !== vehicle.status);
   return <article id={vehicle.slug} className="group scroll-mt-24 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-[0_24px_80px_-30px_rgba(0,0,0,0.8)] transition hover:-translate-y-1 hover:border-sky-300/25">
     <div className={`relative h-64 overflow-hidden bg-gradient-to-br ${accentFor(`${vehicle.brand}-${vehicle.name}`)}`}><Image src="/images/vehicles/plugv-generic-ev-visual.webp" alt="Brand-neutral electric vehicle illustration" fill sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover transition duration-700 group-hover:scale-[1.035]" /><div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-slate-950/25" /><div className="absolute left-5 top-5"><StatusBadge status={vehicle.status} /></div><div className="absolute right-5 top-5 rounded-full border border-amber-300/20 bg-slate-950/70 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.13em] text-amber-100 backdrop-blur">Illustrative visual</div><div className="absolute inset-x-5 bottom-5"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200">{vehicle.brand}</p><h3 className="mt-2 text-3xl font-semibold">{vehicle.name}</h3><p className="mt-1 text-sm text-slate-300">{vehicle.segment}</p></div></div>
-    <div className="p-6"><div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4"><p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500"><CalendarDays className="h-3.5 w-3.5" />Launch clarity</p><p className="mt-2 text-sm font-semibold text-white">{vehicle.launch}</p></div><p className="mt-5 text-sm leading-7 text-slate-300">{vehicle.note}</p>{vehicle.range ? <p className="mt-4 text-xs font-semibold text-sky-200">Manufacturer claim: {vehicle.range}</p> : null}<div className="mt-5 flex flex-wrap gap-2">{vehicle.features.map((feature) => <span key={feature} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300">{feature}</span>)}</div><Link href={`/upcoming/${vehicle.slug}`} className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-sky-300">View verified profile</Link><div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5"><div><p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Verified</p><p className="mt-1 text-xs text-slate-300">{vehicle.verifiedAt}</p></div><a href={vehicle.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-sky-300 hover:text-sky-200">{vehicle.sourceName}<ArrowUpRight className="h-4 w-4" /></a></div></div>
+    <div className="p-6"><div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4"><p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500"><CalendarDays className="h-3.5 w-3.5" />Launch clarity</p><p className="mt-2 text-sm font-semibold text-white">{vehicle.launch}</p></div><p className="mt-5 text-sm leading-7 text-slate-300">{vehicle.note}</p><div className="mt-5 grid grid-cols-2 gap-2"><VehicleFact icon={Gauge} label="Range" value={vehicle.range ?? "Not announced"} /><VehicleFact icon={Battery} label="Battery" value={vehicle.battery ?? "Not announced"} /><div className="col-span-2"><VehicleFact icon={IndianRupee} label={vehicle.priceBasis ?? "Expected price"} value={vehicle.expectedPrice ?? "Not announced"} /></div></div>{vehicle.priceBasis === "PlugV planning estimate" ? <p className="mt-2 text-[10px] leading-4 text-amber-100/80">Broad editorial planning band—not OEM pricing, a quote or a launch guarantee. It may change materially.</p> : null}<div className="mt-5 flex flex-wrap gap-2">{vehicle.features.map((feature) => <span key={feature} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300">{feature}</span>)}</div>{statusChanged ? <p role="status" className="mt-5 rounded-xl border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-xs font-semibold text-amber-100">Status changed since your last saved watch: {watchedStatus} → {vehicle.status}</p> : null}<div className="mt-6 grid grid-cols-2 gap-2"><button type="button" onClick={onToggleWatch} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-xs font-semibold text-white hover:bg-white/5">{watchedStatus ? <BellRing className="h-4 w-4 text-emerald-300" /> : <Bell className="h-4 w-4" />}{watchedStatus ? "Watching" : "Watch status"}</button><Link href={`/upcoming/${vehicle.slug}`} className="inline-flex min-h-11 items-center justify-center rounded-full bg-sky-400 px-4 text-xs font-semibold text-slate-950 hover:bg-sky-300">View sourced profile</Link></div><p className="mt-3 text-[10px] leading-4 text-slate-500">On-device watch only: PlugV highlights a changed status when you revisit. No email or background push is sent.</p><div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5"><div><p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Source checked</p><p className="mt-1 text-xs text-slate-300">{vehicle.verifiedAt}</p></div><a href={vehicle.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-sky-300 hover:text-sky-200">{vehicle.sourceName}<ArrowUpRight className="h-4 w-4" /></a></div></div>
   </article>;
+}
+
+function VehicleFact({ icon: Icon, label, value }: { icon: typeof Gauge; label: string; value: string }) {
+  return <div className="h-full rounded-xl border border-white/10 bg-slate-950/55 p-3"><p className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.13em] text-slate-500"><Icon className="h-3.5 w-3.5 text-sky-300" />{label}</p><p className="mt-2 text-xs font-semibold leading-5 text-slate-100">{value}</p></div>;
 }
 
 function TrustRow({ title, copy, tone }: { title: string; copy: string; tone: "sky" | "emerald" | "violet" | "slate" }) {

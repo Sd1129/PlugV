@@ -10,6 +10,8 @@ import VehicleGrid from "@/components/vehicles/VehicleGrid";
 import VehicleHighlights from "@/components/vehicles/VehicleHighlights";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
+import { startingPriceRupees } from "@/data/vehicle-buying-specs";
+import { getVehicleInsights } from "@/lib/insights/vehicleInsights";
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -46,6 +48,7 @@ function VehiclesContent() {
   const [selectedBrand, setSelectedBrand] = useState("All brands");
   const [sortBy, setSortBy] = useState<SortOption["value"]>("recommended");
   const [minimumRange, setMinimumRange] = useState(0);
+  const [priceBand, setPriceBand] = useState("all");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   const filteredVehicles = useMemo(() => {
@@ -66,9 +69,16 @@ function VehiclesContent() {
       const matchesBrand =
         selectedBrand === "All brands" || vehicle.brand === selectedBrand;
       const matchesRange = parseNumeric(vehicle.range) >= minimumRange;
+      const priceLakh = startingPriceRupees(vehicle.price) / 100_000;
+      const matchesPrice = priceBand === "all" ||
+        (priceBand === "under-10" && priceLakh > 0 && priceLakh < 10) ||
+        (priceBand === "10-15" && priceLakh >= 10 && priceLakh < 15) ||
+        (priceBand === "15-25" && priceLakh >= 15 && priceLakh < 25) ||
+        (priceBand === "25-50" && priceLakh >= 25 && priceLakh < 50) ||
+        (priceBand === "above-50" && priceLakh >= 50);
       const matchesVerification = !verifiedOnly || Boolean(getVehicleTripProfile(vehicle.slug));
 
-      return matchesQuery && matchesType && matchesBrand && matchesRange && matchesVerification;
+      return matchesQuery && matchesType && matchesBrand && matchesRange && matchesPrice && matchesVerification;
     });
 
     const sorted = [...matches];
@@ -78,17 +88,18 @@ function VehiclesContent() {
         sorted.sort((a, b) => parseNumeric(b.range) - parseNumeric(a.range));
         break;
       case "price-asc":
-        sorted.sort((a, b) => parseNumeric(a.price) - parseNumeric(b.price));
+        sorted.sort((a, b) => startingPriceRupees(a.price) - startingPriceRupees(b.price));
         break;
       case "name-asc":
         sorted.sort((a, b) => a.name.localeCompare(b.name));
         break;
       default:
+        sorted.sort((a, b) => getVehicleInsights(b).score - getVehicleInsights(a).score);
         break;
     }
 
     return sorted;
-  }, [launchedVehicles, query, selectedType, selectedBrand, sortBy, minimumRange, verifiedOnly]);
+  }, [launchedVehicles, query, selectedType, selectedBrand, sortBy, minimumRange, priceBand, verifiedOnly]);
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
@@ -109,6 +120,8 @@ function VehiclesContent() {
         resultCount={filteredVehicles.length}
         minimumRange={minimumRange}
         onMinimumRange={setMinimumRange}
+        priceBand={priceBand}
+        onPriceBand={setPriceBand}
         verifiedOnly={verifiedOnly}
         onVerifiedOnly={setVerifiedOnly}
         onReset={() => {
@@ -117,6 +130,7 @@ function VehiclesContent() {
           setSelectedBrand("All brands");
           setSortBy("recommended");
           setMinimumRange(0);
+          setPriceBand("all");
           setVerifiedOnly(false);
         }}
           embedded

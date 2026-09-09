@@ -58,21 +58,21 @@ export default function VehiclesHero({ children }: { children: React.ReactNode }
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.16),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.12),transparent_28%)]" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),transparent_18%,transparent_82%,rgba(255,255,255,0.02))]" />
 
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-7 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.82fr_1.18fr] lg:px-8 lg:py-16">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200">
             Explore EVs
           </div>
 
-          <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-[4.2rem]">
+          <h1 className="mt-4 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
             Discover the EV that fits your life.
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
             Search launched EVs across India, compare the key details first, and move from browsing to confidence with a premium discovery experience.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
               href="/compare"
               className="inline-flex items-center justify-center rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
@@ -87,7 +87,7 @@ export default function VehiclesHero({ children }: { children: React.ReactNode }
             </Link>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-5 hidden flex-wrap gap-3 sm:flex">
             {["Premium discovery", "Sharper comparison", "Better EV decisions"].map(
               (item) => (
                 <span
@@ -100,7 +100,7 @@ export default function VehiclesHero({ children }: { children: React.ReactNode }
             )}
           </div>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="mt-6 hidden gap-3 lg:grid lg:grid-cols-3">
             <HeroStat
               label="Launched EVs"
               value={`${launchedVehicles.length}+`}

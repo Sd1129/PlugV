@@ -24,6 +24,8 @@ type VehicleFiltersProps = {
   resultCount: number;
   minimumRange: number;
   onMinimumRange: (value: number) => void;
+  priceBand: string;
+  onPriceBand: (value: string) => void;
   verifiedOnly: boolean;
   onVerifiedOnly: (value: boolean) => void;
   onReset: () => void;
@@ -52,6 +54,8 @@ export default function VehicleFilters({
   resultCount,
   minimumRange,
   onMinimumRange,
+  priceBand,
+  onPriceBand,
   verifiedOnly,
   onVerifiedOnly,
   onReset,
@@ -102,7 +106,7 @@ export default function VehicleFilters({
         </div>
 
         <div className={`${embedded ? "mt-6 rounded-2xl" : "mt-8 rounded-[2rem]"} border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/20 backdrop-blur lg:p-5`}>
-          <div className={`grid gap-4 md:grid-cols-2 ${embedded ? "" : "xl:grid-cols-[1.3fr_0.7fr_0.7fr_0.7fr_0.7fr]"}`}>
+          <div className={`grid gap-3 md:grid-cols-2 ${embedded ? "xl:grid-cols-3" : "xl:grid-cols-[1.3fr_repeat(5,0.7fr)]"}`}>
             <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
               <Search className="h-4 w-4 text-sky-300" />
               <input
@@ -120,11 +124,12 @@ export default function VehicleFilters({
               <select
                 value={selectedType}
                 onChange={(e) => onSelectedType(e.target.value)}
+                aria-label="Body style"
                 className="min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/70 py-3 pl-10 pr-4 text-sm font-semibold text-white outline-none"
               >
                 {types.map((type) => (
                   <option key={type} value={type}>
-                    {type}
+                    {type === "All types" ? "All body styles" : type}
                   </option>
                 ))}
               </select>
@@ -140,6 +145,15 @@ export default function VehicleFilters({
                   {brand}
                 </option>
               ))}
+            </select>
+
+            <select value={priceBand} onChange={(event) => onPriceBand(event.target.value)} className="min-h-12 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none" aria-label="Starting price range">
+              <option value="all">Any starting price</option>
+              <option value="under-10">Under ₹10 lakh</option>
+              <option value="10-15">₹10–15 lakh</option>
+              <option value="15-25">₹15–25 lakh</option>
+              <option value="25-50">₹25–50 lakh</option>
+              <option value="above-50">Above ₹50 lakh</option>
             </select>
 
             <select
@@ -164,6 +178,7 @@ export default function VehicleFilters({
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
+            {sortBy === "recommended" ? <p className="basis-full text-xs leading-5 text-slate-400"><span className="font-semibold text-sky-200">Recommended:</span> balances listed range, starting-price value, verified charging evidence and body-style practicality. It is not sponsored or personalised financial advice.</p> : null}
             <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300"><input type="checkbox" checked={verifiedOnly} onChange={(event) => onVerifiedOnly(event.target.checked)} className="h-4 w-4 accent-emerald-400" />Verified trip specs only</label>
 
             <button

@@ -174,9 +174,11 @@ function CompareContent() {
 
   const requestedSlug = searchParams.get("vehicle");
   const requestedVehicle = launchedVehicles.find((vehicle) => vehicle.slug === requestedSlug);
+  const requestedComparisonSlug = searchParams.get("with");
+  const requestedComparisonVehicle = launchedVehicles.find((vehicle) => vehicle.slug === requestedComparisonSlug);
   const [leftSlug, setLeftSlug] = useState(requestedVehicle?.slug ?? launchedVehicles[0]?.slug ?? "");
   const [rightSlug, setRightSlug] = useState(
-    launchedVehicles.find((vehicle) => vehicle.slug !== requestedVehicle?.slug)?.slug ?? launchedVehicles[0]?.slug ?? ""
+    requestedComparisonVehicle?.slug ?? launchedVehicles.find((vehicle) => vehicle.slug !== requestedVehicle?.slug)?.slug ?? launchedVehicles[0]?.slug ?? ""
   );
   const [annualDistanceKm, setAnnualDistanceKm] = useState(12000);
   const [electricityRate, setElectricityRate] = useState(10);

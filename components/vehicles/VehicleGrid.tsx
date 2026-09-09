@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, BatteryCharging, BadgeCheck, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, BatteryCharging, BadgeCheck, Check, ChevronDown, GitCompareArrows } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getVehicleVisual } from "@/data/vehicle-images";
@@ -43,9 +46,13 @@ function MiniStat({
 function VehicleCard({
   vehicle,
   index,
+  compareSelected,
+  onToggleCompare,
 }: {
   vehicle: (typeof vehicles)[number];
   index: number;
+  compareSelected: boolean;
+  onToggleCompare: () => void;
 }) {
   const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
   const tripProfile = getVehicleTripProfile(vehicle.slug);
@@ -90,11 +97,17 @@ function VehicleCard({
       </div>
 
       <div className="p-4">
-        <div className="grid grid-cols-3 gap-2">
-          <MiniStat label="Range" value={vehicle.range ?? "—"} />
+        <div className="grid grid-cols-2 gap-2">
+          <MiniStat label="ARAI / certified range" value={vehicle.range ?? "Not listed"} />
+          <MiniStat label="Estimated real-world" value={tripVariant ? `~${tripVariant.practicalRangeKm} km` : "Not estimated"} />
           <MiniStat label="Battery" value={tripVariant ? `${tripVariant.batteryCapacityKWh} kWh` : "Awaiting data"} />
           <MiniStat label="Price" value={vehicle.price ?? "—"} />
         </div>
+        <p className="mt-2 text-[10px] leading-4 text-slate-500">Practical range is a planning estimate for the displayed default variant—not a guarantee. Speed, weather, traffic, AC, elevation and load matter.</p>
+
+        <button type="button" onClick={onToggleCompare} className={`mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition ${compareSelected ? "border-emerald-300/30 bg-emerald-400/15 text-emerald-100" : "border-sky-300/20 bg-sky-400/10 text-sky-100 hover:bg-sky-400/15"}`}>
+          {compareSelected ? <Check className="h-4 w-4" /> : <GitCompareArrows className="h-4 w-4" />}{compareSelected ? "Added to compare" : "Add to compare"}
+        </button>
 
         <details className="mt-4 border-t border-white/10 pt-3 [&_summary::-webkit-details-marker]:hidden">
           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center gap-2 rounded-xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 [&_.expand-icon]:open:rotate-180">
@@ -173,6 +186,12 @@ type VehicleGridProps = {
 };
 
 export default function VehicleGrid({ vehicles: visibleVehicles }: VehicleGridProps) {
+  const [compareSlugs, setCompareSlugs] = useState<string[]>([]);
+
+  function toggleCompare(slug: string) {
+    setCompareSlugs((current) => current.includes(slug) ? current.filter((item) => item !== slug) : [...current.slice(-1), slug]);
+  }
+
   if (visibleVehicles.length === 0) {
     return (
       <section className="py-20 sm:py-24">
@@ -191,7 +210,7 @@ export default function VehicleGrid({ vehicles: visibleVehicles }: VehicleGridPr
   }
 
   return (
-    <section className="py-20 sm:py-24">
+    <section id="vehicle-results" className="py-10 sm:py-14">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -222,10 +241,11 @@ export default function VehicleGrid({ vehicles: visibleVehicles }: VehicleGridPr
 
         <div className="grid gap-8 lg:grid-cols-3">
           {visibleVehicles.map((vehicle, index) => (
-            <VehicleCard key={vehicle.slug} vehicle={vehicle} index={index} />
+            <VehicleCard key={vehicle.slug} vehicle={vehicle} index={index} compareSelected={compareSlugs.includes(vehicle.slug)} onToggleCompare={() => toggleCompare(vehicle.slug)} />
           ))}
         </div>
       </div>
+      {compareSlugs.length ? <div className="fixed inset-x-3 bottom-3 z-50 mx-auto flex max-w-xl items-center gap-3 rounded-2xl border border-white/15 bg-slate-950/95 p-3 shadow-2xl backdrop-blur"><div className="min-w-0 flex-1"><p className="text-xs font-semibold text-white">{compareSlugs.length}/2 vehicles selected</p><p className="truncate text-[10px] text-slate-400">{compareSlugs.map((slug) => vehicles.find((vehicle) => vehicle.slug === slug)?.name).filter(Boolean).join(" + ") || "Choose vehicles"}</p></div>{compareSlugs.length === 2 ? <Link href={`/compare?vehicle=${encodeURIComponent(compareSlugs[0])}&with=${encodeURIComponent(compareSlugs[1])}`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-sky-400 px-4 text-xs font-bold text-slate-950">Compare now</Link> : <span className="px-2 text-xs text-slate-400">Add one more</span>}<button type="button" onClick={() => setCompareSlugs([])} className="min-h-11 rounded-xl border border-white/10 px-3 text-xs font-semibold text-white">Clear</button></div> : null}
     </section>
   );
 }
