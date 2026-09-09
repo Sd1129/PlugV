@@ -18,6 +18,8 @@ export type ChargingStation = {
     chademo: boolean;
     acType2: boolean;
     gbt?: boolean;
+    bharatAc?: boolean;
+    bharatDc?: boolean;
   };
 
   charging: {
@@ -35,6 +37,14 @@ export type ChargingStation = {
     availableConnectors?: number;
     totalConnectors?: number;
     lastUpdated?: string;
+    source?: string;
+  };
+
+  reservation?: {
+    supported: boolean;
+    bookingUrl?: string;
+    provider?: string;
+    lastChecked?: string;
   };
 
   trust?: {

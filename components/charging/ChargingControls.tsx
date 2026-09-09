@@ -21,6 +21,12 @@ type ChargingControlsProps = {
   fastOnly: boolean;
   ccs2Only: boolean;
   chademoOnly: boolean;
+  connector: string;
+  operator: string;
+  operators: string[];
+  powerBand: string;
+  liveOnly: boolean;
+  reservableOnly: boolean;
   nearbyMode: boolean;
   userLocation: NearbyLocation | null;
   locationLoading: boolean;
@@ -30,6 +36,11 @@ type ChargingControlsProps = {
   onFastOnlyToggle: () => void;
   onCcs2OnlyToggle: () => void;
   onChademoOnlyToggle: () => void;
+  onConnectorChange: (value: string) => void;
+  onOperatorChange: (value: string) => void;
+  onPowerBandChange: (value: string) => void;
+  onLiveOnlyToggle: () => void;
+  onReservableOnlyToggle: () => void;
   onSortByChange: (value: ChargingSortMode) => void;
   onUseMyLocation: () => void;
   onBackToCitySearch: () => void;
@@ -42,6 +53,12 @@ export default function ChargingControls({
   fastOnly,
   ccs2Only,
   chademoOnly,
+  connector,
+  operator,
+  operators,
+  powerBand,
+  liveOnly,
+  reservableOnly,
   nearbyMode,
   userLocation,
   locationLoading,
@@ -51,6 +68,11 @@ export default function ChargingControls({
   onFastOnlyToggle,
   onCcs2OnlyToggle,
   onChademoOnlyToggle,
+  onConnectorChange,
+  onOperatorChange,
+  onPowerBandChange,
+  onLiveOnlyToggle,
+  onReservableOnlyToggle,
   onSortByChange,
   onUseMyLocation,
   onBackToCitySearch,
@@ -155,6 +177,52 @@ export default function ChargingControls({
               CHAdeMO
             </button>
           </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <label>
+              <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">Network</span>
+              <select value={operator} onChange={(event) => onOperatorChange(event.target.value)} className="mt-1.5 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm text-white outline-none focus:border-sky-400/40">
+                <option value="">All networks</option>
+                {operators.map((name) => <option key={name} value={name}>{name}</option>)}
+              </select>
+            </label>
+
+            <label>
+              <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">Connector</span>
+              <select value={connector} onChange={(event) => onConnectorChange(event.target.value)} className="mt-1.5 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm text-white outline-none focus:border-sky-400/40">
+                <option value="">All connectors</option>
+                <option value="ccs2">CCS2 (4-wheelers)</option>
+                <option value="type2">Type 2 AC</option>
+                <option value="bharat-ac">Bharat AC-001</option>
+                <option value="bharat-dc">Bharat DC-001</option>
+                <option value="chademo">CHAdeMO</option>
+                <option value="gbt">GB/T</option>
+              </select>
+            </label>
+
+            <label>
+              <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">Power / speed</span>
+              <select value={powerBand} onChange={(event) => onPowerBandChange(event.target.value)} className="mt-1.5 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm text-white outline-none focus:border-sky-400/40">
+                <option value="">Any power</option>
+                <option value="0-7.4">Up to 7.4 kW</option>
+                <option value="7.4-25">7.4–25 kW</option>
+                <option value="25-50">25–50 kW</option>
+                <option value="50-100">50–100 kW</option>
+                <option value="100-">100+ kW</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" onClick={onLiveOnlyToggle} aria-pressed={liveOnly} className={`rounded-full border px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] transition ${liveOnly ? "border-emerald-300/30 bg-emerald-300 text-slate-950" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>
+              Live status only
+            </button>
+            <button type="button" onClick={onReservableOnlyToggle} aria-pressed={reservableOnly} className={`rounded-full border px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] transition ${reservableOnly ? "border-violet-300/30 bg-violet-300 text-slate-950" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>
+              Bookable only
+            </button>
+          </div>
+
+          <p className="mt-3 text-[10px] leading-5 text-slate-500">Live and bookable filters return results only from timestamped, authorized operator integrations. PlugV never estimates availability or invents slots.</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur lg:sticky lg:top-4">

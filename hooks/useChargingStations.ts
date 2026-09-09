@@ -16,6 +16,7 @@ type ChargingApiResponse = {
   states?: string[];
   citiesByState?: Record<string, string[]>;
   suggestions?: string[];
+  operators?: string[];
   coverage?: {
     mode: "india" | "city-radius" | "location";
     city?: string;
@@ -66,6 +67,12 @@ export function useChargingStations(pageSize = 12) {
   const [fastOnly, setFastOnly] = useState(false);
   const [ccs2Only, setCcs2Only] = useState(false);
   const [chademoOnly, setChademoOnly] = useState(false);
+  const [connector, setConnector] = useState("");
+  const [operator, setOperator] = useState("");
+  const [powerBand, setPowerBand] = useState("");
+  const [liveOnly, setLiveOnly] = useState(false);
+  const [reservableOnly, setReservableOnly] = useState(false);
+  const [operators, setOperators] = useState<string[]>([]);
 
   const [nearbyMode, setNearbyMode] = useState(false);
   const [userLocation, setUserLocation] = useState<NearbyLocation | null>(null);
@@ -123,6 +130,15 @@ export function useChargingStations(pageSize = 12) {
         offset: String(nextOffset),
       });
 
+      if (connector) params.set("connector", connector);
+      if (operator) params.set("operator", operator);
+      if (liveOnly) params.set("liveOnly", "true");
+      if (reservableOnly) params.set("reservableOnly", "true");
+
+      const [minimumPower, maximumPower] = powerBand.split("-");
+      if (minimumPower) params.set("minPowerKW", minimumPower);
+      if (maximumPower) params.set("maxPowerKW", maximumPower);
+
       if (nearbyMode) {
         params.set("ignoreCityFilter", "true");
       } else if (selectedCity) {
@@ -138,10 +154,15 @@ export function useChargingStations(pageSize = 12) {
     },
     [
       chademoOnly,
+      connector,
       ccs2Only,
       fastOnly,
+      liveOnly,
       nearbyMode,
+      operator,
       pageSize,
+      powerBand,
+      reservableOnly,
       deferredSearchQuery,
       selectedCity,
       sortBy,
@@ -180,6 +201,7 @@ export function useChargingStations(pageSize = 12) {
         setTotal(data.total ?? 0);
         setOffset((data.stations ?? []).length);
         setSuggestions(data.suggestions ?? []);
+        setOperators(data.operators ?? []);
         setCoverage(data.coverage ?? { mode: "india" });
       } catch (err) {
         if (cancelled) return;
@@ -324,6 +346,17 @@ export function useChargingStations(pageSize = 12) {
     fastOnly,
     ccs2Only,
     chademoOnly,
+    connector,
+    setConnector,
+    operator,
+    setOperator,
+    operators,
+    powerBand,
+    setPowerBand,
+    liveOnly,
+    toggleLiveOnly: () => setLiveOnly((current) => !current),
+    reservableOnly,
+    toggleReservableOnly: () => setReservableOnly((current) => !current),
     toggleFastOnly: () => setFastOnly((current) => !current),
     toggleCcs2Only: () => setCcs2Only((current) => !current),
     toggleChademoOnly: () => setChademoOnly((current) => !current),

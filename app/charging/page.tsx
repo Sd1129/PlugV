@@ -43,6 +43,12 @@ export default function ChargingPage() {
             fastOnly={charging.fastOnly}
             ccs2Only={charging.ccs2Only}
             chademoOnly={charging.chademoOnly}
+            connector={charging.connector}
+            operator={charging.operator}
+            operators={charging.operators}
+            powerBand={charging.powerBand}
+            liveOnly={charging.liveOnly}
+            reservableOnly={charging.reservableOnly}
             nearbyMode={charging.nearbyMode}
             userLocation={charging.userLocation}
             locationLoading={charging.locationLoading}
@@ -52,6 +58,11 @@ export default function ChargingPage() {
             onFastOnlyToggle={charging.toggleFastOnly}
             onCcs2OnlyToggle={charging.toggleCcs2Only}
             onChademoOnlyToggle={charging.toggleChademoOnly}
+            onConnectorChange={charging.setConnector}
+            onOperatorChange={charging.setOperator}
+            onPowerBandChange={charging.setPowerBand}
+            onLiveOnlyToggle={charging.toggleLiveOnly}
+            onReservableOnlyToggle={charging.toggleReservableOnly}
             onSortByChange={charging.setSortBy}
             onUseMyLocation={charging.useMyLocation}
             onBackToCitySearch={charging.backToCitySearch}

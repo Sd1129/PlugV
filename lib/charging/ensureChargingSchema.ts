@@ -42,6 +42,8 @@ async function createChargingSchema() {
       "chademo" BOOLEAN NOT NULL DEFAULT false,
       "acType2" BOOLEAN NOT NULL DEFAULT false,
       "gbt" BOOLEAN NOT NULL DEFAULT false,
+      "bharatAc" BOOLEAN NOT NULL DEFAULT false,
+      "bharatDc" BOOLEAN NOT NULL DEFAULT false,
       "amenities" TEXT[] DEFAULT ARRAY[]::TEXT[],
       "searchText" TEXT NOT NULL DEFAULT '',
       "sourceStatus" public."VerificationStatus" NOT NULL DEFAULT 'PENDING',
@@ -49,6 +51,8 @@ async function createChargingSchema() {
       "updatedAt" TIMESTAMP(3) NOT NULL,
       CONSTRAINT "Station_pkey" PRIMARY KEY ("id")
     )`,
+    `ALTER TABLE public."Station" ADD COLUMN IF NOT EXISTS "bharatAc" BOOLEAN NOT NULL DEFAULT false`,
+    `ALTER TABLE public."Station" ADD COLUMN IF NOT EXISTS "bharatDc" BOOLEAN NOT NULL DEFAULT false`,
     `CREATE TABLE IF NOT EXISTS public."StationSource" (
       "id" TEXT NOT NULL,
       "stationId" TEXT NOT NULL,

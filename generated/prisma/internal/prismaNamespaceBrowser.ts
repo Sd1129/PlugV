@@ -107,6 +107,8 @@ export const StationScalarFieldEnum = {
   chademo: 'chademo',
   acType2: 'acType2',
   gbt: 'gbt',
+  bharatAc: 'bharatAc',
+  bharatDc: 'bharatDc',
   amenities: 'amenities',
   searchText: 'searchText',
   sourceStatus: 'sourceStatus',

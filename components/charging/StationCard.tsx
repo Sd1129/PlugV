@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Bookmark, CheckCircle2, MapPin, Phone, Zap } from "lucide-react";
+import { Bookmark, CalendarCheck, CheckCircle2, ExternalLink, MapPin, Navigation, Phone, Radio, ShieldAlert, Zap } from "lucide-react";
 import type { ChargingStation } from "@/data/charging/stations";
 import StationTrustRow from "@/components/charging/StationTrustRow";
 import ChargerConfidenceBadge from "@/components/charging/ChargerConfidenceBadge";
@@ -17,12 +17,14 @@ export default function StationCard({
   distanceLabel,
 }: StationCardProps) {
   const hasPower = station.charging.maxPowerKW > 0;
+  const hasLiveStatus = station.charging.reviewSource === "operator" && Boolean(station.availability?.lastUpdated) && station.availability?.status !== "unknown";
+  const bookingUrl = station.reservation?.supported && station.reservation.bookingUrl?.startsWith("https://") ? station.reservation.bookingUrl : null;
   const confidence = getChargerConfidence(station);
   const [isTrusted, setIsTrusted] = useState(() => typeof window !== "undefined" && readOwnerSavedItems().some((item) => item.type === "Charger" && item.stationId === station.id));
 
   function toggleSaved(event: React.MouseEvent<HTMLButtonElement>) {
     event.stopPropagation();
-    const connectors = [station.connectors.ccs2 ? "CCS2" : null, station.connectors.chademo ? "CHAdeMO" : null, station.connectors.acType2 ? "Type 2" : null, station.connectors.gbt ? "GB/T" : null].filter(Boolean).join(" · ");
+    const connectors = [station.connectors.ccs2 ? "CCS2" : null, station.connectors.chademo ? "CHAdeMO" : null, station.connectors.acType2 ? "Type 2" : null, station.connectors.bharatAc ? "Bharat AC" : null, station.connectors.bharatDc ? "Bharat DC" : null, station.connectors.gbt ? "GB/T" : null].filter(Boolean).join(" · ");
     setIsTrusted(toggleTrustedCharger({
       id: crypto.randomUUID(), type: "Charger", stationId: station.id, trustedByOwner: true,
       title: station.name,
@@ -145,11 +147,28 @@ export default function StationCard({
             </span>
           ) : null}
 
+          {station.connectors.bharatAc ? <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-300">Bharat AC-001</span> : null}
+          {station.connectors.bharatDc ? <span className="rounded-full border border-sky-400/15 bg-sky-400/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-sky-200">Bharat DC-001</span> : null}
+
           {station.openingHours ? (
             <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-300">
               {station.openingHours}
             </span>
           ) : null}
+        </div>
+
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className={`rounded-xl border px-3 py-2.5 ${hasLiveStatus ? "border-emerald-300/20 bg-emerald-300/10" : "border-white/10 bg-slate-950/50"}`}>
+            <p className={`flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${hasLiveStatus ? "text-emerald-200" : "text-slate-400"}`}>
+              {hasLiveStatus ? <Radio className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
+              {hasLiveStatus ? `${station.availability?.status} now` : "Live status unavailable"}
+            </p>
+            <p className="mt-1 text-[10px] leading-4 text-slate-500">{hasLiveStatus ? `Operator update · ${new Date(station.availability!.lastUpdated!).toLocaleString("en-IN")}` : "Confirm in the operator app before departure."}</p>
+          </div>
+          <div className={`rounded-xl border px-3 py-2.5 ${bookingUrl ? "border-violet-300/20 bg-violet-300/10" : "border-white/10 bg-slate-950/50"}`}>
+            <p className={`flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${bookingUrl ? "text-violet-200" : "text-slate-400"}`}><CalendarCheck className="h-3 w-3" />{bookingUrl ? "Advance booking available" : "Booking not connected"}</p>
+            <p className="mt-1 text-[10px] leading-4 text-slate-500">{bookingUrl ? `Secure handoff to ${station.reservation?.provider ?? station.operator}.` : "Shown only after an authorized operator integration."}</p>
+          </div>
         </div>
 
         {station.amenities?.length > 0 ? (
@@ -182,16 +201,22 @@ export default function StationCard({
             </p>
           </div>
 
-          <div className="mt-3 flex items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <a
               href={station.directionsUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-sky-400 px-3 py-2.5 text-xs font-semibold text-slate-950 transition hover:bg-sky-300"
             >
-              Directions
-              <ArrowRight className="h-3.5 w-3.5" />
+              Navigate
+              <Navigation className="h-3.5 w-3.5" />
             </a>
+
+            {bookingUrl ? (
+              <a href={bookingUrl} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()} className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-violet-300 px-3 py-2.5 text-xs font-semibold text-slate-950 transition hover:bg-violet-200">
+                Reserve slot <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            ) : null}
 
             {station.phone ? (
               <a

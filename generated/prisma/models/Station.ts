@@ -58,6 +58,8 @@ export type StationMinAggregateOutputType = {
   chademo: boolean | null
   acType2: boolean | null
   gbt: boolean | null
+  bharatAc: boolean | null
+  bharatDc: boolean | null
   searchText: string | null
   sourceStatus: $Enums.VerificationStatus | null
   createdAt: Date | null
@@ -84,6 +86,8 @@ export type StationMaxAggregateOutputType = {
   chademo: boolean | null
   acType2: boolean | null
   gbt: boolean | null
+  bharatAc: boolean | null
+  bharatDc: boolean | null
   searchText: string | null
   sourceStatus: $Enums.VerificationStatus | null
   createdAt: Date | null
@@ -110,6 +114,8 @@ export type StationCountAggregateOutputType = {
   chademo: number
   acType2: number
   gbt: number
+  bharatAc: number
+  bharatDc: number
   amenities: number
   searchText: number
   sourceStatus: number
@@ -151,6 +157,8 @@ export type StationMinAggregateInputType = {
   chademo?: true
   acType2?: true
   gbt?: true
+  bharatAc?: true
+  bharatDc?: true
   searchText?: true
   sourceStatus?: true
   createdAt?: true
@@ -177,6 +185,8 @@ export type StationMaxAggregateInputType = {
   chademo?: true
   acType2?: true
   gbt?: true
+  bharatAc?: true
+  bharatDc?: true
   searchText?: true
   sourceStatus?: true
   createdAt?: true
@@ -203,6 +213,8 @@ export type StationCountAggregateInputType = {
   chademo?: true
   acType2?: true
   gbt?: true
+  bharatAc?: true
+  bharatDc?: true
   amenities?: true
   searchText?: true
   sourceStatus?: true
@@ -317,6 +329,8 @@ export type StationGroupByOutputType = {
   chademo: boolean
   acType2: boolean
   gbt: boolean
+  bharatAc: boolean
+  bharatDc: boolean
   amenities: string[]
   searchText: string
   sourceStatus: $Enums.VerificationStatus
@@ -367,6 +381,8 @@ export type StationWhereInput = {
   chademo?: Prisma.BoolFilter<"Station"> | boolean
   acType2?: Prisma.BoolFilter<"Station"> | boolean
   gbt?: Prisma.BoolFilter<"Station"> | boolean
+  bharatAc?: Prisma.BoolFilter<"Station"> | boolean
+  bharatDc?: Prisma.BoolFilter<"Station"> | boolean
   amenities?: Prisma.StringNullableListFilter<"Station">
   searchText?: Prisma.StringFilter<"Station"> | string
   sourceStatus?: Prisma.EnumVerificationStatusFilter<"Station"> | $Enums.VerificationStatus
@@ -397,6 +413,8 @@ export type StationOrderByWithRelationInput = {
   chademo?: Prisma.SortOrder
   acType2?: Prisma.SortOrder
   gbt?: Prisma.SortOrder
+  bharatAc?: Prisma.SortOrder
+  bharatDc?: Prisma.SortOrder
   amenities?: Prisma.SortOrder
   searchText?: Prisma.SortOrder
   sourceStatus?: Prisma.SortOrder
@@ -430,6 +448,8 @@ export type StationWhereUniqueInput = Prisma.AtLeast<{
   chademo?: Prisma.BoolFilter<"Station"> | boolean
   acType2?: Prisma.BoolFilter<"Station"> | boolean
   gbt?: Prisma.BoolFilter<"Station"> | boolean
+  bharatAc?: Prisma.BoolFilter<"Station"> | boolean
+  bharatDc?: Prisma.BoolFilter<"Station"> | boolean
   amenities?: Prisma.StringNullableListFilter<"Station">
   searchText?: Prisma.StringFilter<"Station"> | string
   sourceStatus?: Prisma.EnumVerificationStatusFilter<"Station"> | $Enums.VerificationStatus
@@ -460,6 +480,8 @@ export type StationOrderByWithAggregationInput = {
   chademo?: Prisma.SortOrder
   acType2?: Prisma.SortOrder
   gbt?: Prisma.SortOrder
+  bharatAc?: Prisma.SortOrder
+  bharatDc?: Prisma.SortOrder
   amenities?: Prisma.SortOrder
   searchText?: Prisma.SortOrder
   sourceStatus?: Prisma.SortOrder
@@ -495,6 +517,8 @@ export type StationScalarWhereWithAggregatesInput = {
   chademo?: Prisma.BoolWithAggregatesFilter<"Station"> | boolean
   acType2?: Prisma.BoolWithAggregatesFilter<"Station"> | boolean
   gbt?: Prisma.BoolWithAggregatesFilter<"Station"> | boolean
+  bharatAc?: Prisma.BoolWithAggregatesFilter<"Station"> | boolean
+  bharatDc?: Prisma.BoolWithAggregatesFilter<"Station"> | boolean
   amenities?: Prisma.StringNullableListFilter<"Station">
   searchText?: Prisma.StringWithAggregatesFilter<"Station"> | string
   sourceStatus?: Prisma.EnumVerificationStatusWithAggregatesFilter<"Station"> | $Enums.VerificationStatus
@@ -521,6 +545,8 @@ export type StationCreateInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -551,6 +577,8 @@ export type StationUncheckedCreateInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -579,6 +607,8 @@ export type StationUpdateInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -609,6 +639,8 @@ export type StationUncheckedUpdateInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -638,6 +670,8 @@ export type StationCreateManyInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -664,6 +698,8 @@ export type StationUpdateManyMutationInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -691,6 +727,8 @@ export type StationUncheckedUpdateManyInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -736,6 +774,8 @@ export type StationCountOrderByAggregateInput = {
   chademo?: Prisma.SortOrder
   acType2?: Prisma.SortOrder
   gbt?: Prisma.SortOrder
+  bharatAc?: Prisma.SortOrder
+  bharatDc?: Prisma.SortOrder
   amenities?: Prisma.SortOrder
   searchText?: Prisma.SortOrder
   sourceStatus?: Prisma.SortOrder
@@ -769,6 +809,8 @@ export type StationMaxOrderByAggregateInput = {
   chademo?: Prisma.SortOrder
   acType2?: Prisma.SortOrder
   gbt?: Prisma.SortOrder
+  bharatAc?: Prisma.SortOrder
+  bharatDc?: Prisma.SortOrder
   searchText?: Prisma.SortOrder
   sourceStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -795,6 +837,8 @@ export type StationMinOrderByAggregateInput = {
   chademo?: Prisma.SortOrder
   acType2?: Prisma.SortOrder
   gbt?: Prisma.SortOrder
+  bharatAc?: Prisma.SortOrder
+  bharatDc?: Prisma.SortOrder
   searchText?: Prisma.SortOrder
   sourceStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -938,6 +982,8 @@ export type StationCreateWithoutCityInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -966,6 +1012,8 @@ export type StationUncheckedCreateWithoutCityInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -1024,6 +1072,8 @@ export type StationScalarWhereInput = {
   chademo?: Prisma.BoolFilter<"Station"> | boolean
   acType2?: Prisma.BoolFilter<"Station"> | boolean
   gbt?: Prisma.BoolFilter<"Station"> | boolean
+  bharatAc?: Prisma.BoolFilter<"Station"> | boolean
+  bharatDc?: Prisma.BoolFilter<"Station"> | boolean
   amenities?: Prisma.StringNullableListFilter<"Station">
   searchText?: Prisma.StringFilter<"Station"> | string
   sourceStatus?: Prisma.EnumVerificationStatusFilter<"Station"> | $Enums.VerificationStatus
@@ -1050,6 +1100,8 @@ export type StationCreateWithoutSourcesInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -1079,6 +1131,8 @@ export type StationUncheckedCreateWithoutSourcesInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -1122,6 +1176,8 @@ export type StationUpdateWithoutSourcesInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -1151,6 +1207,8 @@ export type StationUncheckedUpdateWithoutSourcesInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -1178,6 +1236,8 @@ export type StationCreateWithoutVerificationsInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -1207,6 +1267,8 @@ export type StationUncheckedCreateWithoutVerificationsInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -1250,6 +1312,8 @@ export type StationUpdateWithoutVerificationsInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -1279,6 +1343,8 @@ export type StationUncheckedUpdateWithoutVerificationsInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -1306,6 +1372,8 @@ export type StationCreateManyCityInput = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: Prisma.StationCreateamenitiesInput | string[]
   searchText?: string
   sourceStatus?: $Enums.VerificationStatus
@@ -1332,6 +1400,8 @@ export type StationUpdateWithoutCityInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -1360,6 +1430,8 @@ export type StationUncheckedUpdateWithoutCityInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -1388,6 +1460,8 @@ export type StationUncheckedUpdateManyWithoutCityInput = {
   chademo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acType2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gbt?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatAc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bharatDc?: Prisma.BoolFieldUpdateOperationsInput | boolean
   amenities?: Prisma.StationUpdateamenitiesInput | string[]
   searchText?: Prisma.StringFieldUpdateOperationsInput | string
   sourceStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
@@ -1455,6 +1529,8 @@ export type StationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: boolean
   searchText?: boolean
   sourceStatus?: boolean
@@ -1486,6 +1562,8 @@ export type StationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: boolean
   searchText?: boolean
   sourceStatus?: boolean
@@ -1514,6 +1592,8 @@ export type StationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: boolean
   searchText?: boolean
   sourceStatus?: boolean
@@ -1542,6 +1622,8 @@ export type StationSelectScalar = {
   chademo?: boolean
   acType2?: boolean
   gbt?: boolean
+  bharatAc?: boolean
+  bharatDc?: boolean
   amenities?: boolean
   searchText?: boolean
   sourceStatus?: boolean
@@ -1549,7 +1631,7 @@ export type StationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cityId" | "name" | "operator" | "slug" | "address" | "latitude" | "longitude" | "phone" | "website" | "openingHours" | "directionsUrl" | "chargingAc" | "chargingDcFast" | "maxPowerKW" | "ccs2" | "chademo" | "acType2" | "gbt" | "amenities" | "searchText" | "sourceStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["station"]>
+export type StationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cityId" | "name" | "operator" | "slug" | "address" | "latitude" | "longitude" | "phone" | "website" | "openingHours" | "directionsUrl" | "chargingAc" | "chargingDcFast" | "maxPowerKW" | "ccs2" | "chademo" | "acType2" | "gbt" | "bharatAc" | "bharatDc" | "amenities" | "searchText" | "sourceStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["station"]>
 export type StationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   city?: boolean | Prisma.CityDefaultArgs<ExtArgs>
   sources?: boolean | Prisma.Station$sourcesArgs<ExtArgs>
@@ -1590,6 +1672,8 @@ export type $StationPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     chademo: boolean
     acType2: boolean
     gbt: boolean
+    bharatAc: boolean
+    bharatDc: boolean
     amenities: string[]
     searchText: string
     sourceStatus: $Enums.VerificationStatus
@@ -2040,6 +2124,8 @@ export interface StationFieldRefs {
   readonly chademo: Prisma.FieldRef<"Station", 'Boolean'>
   readonly acType2: Prisma.FieldRef<"Station", 'Boolean'>
   readonly gbt: Prisma.FieldRef<"Station", 'Boolean'>
+  readonly bharatAc: Prisma.FieldRef<"Station", 'Boolean'>
+  readonly bharatDc: Prisma.FieldRef<"Station", 'Boolean'>
   readonly amenities: Prisma.FieldRef<"Station", 'String[]'>
   readonly searchText: Prisma.FieldRef<"Station", 'String'>
   readonly sourceStatus: Prisma.FieldRef<"Station", 'VerificationStatus'>

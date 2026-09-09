@@ -15,6 +15,14 @@ export type ChargingSort =
   | "power-desc"
   | "name-asc";
 
+export type ChargingConnector =
+  | "ccs2"
+  | "type2"
+  | "chademo"
+  | "gbt"
+  | "bharat-ac"
+  | "bharat-dc";
+
 export type ChargingQuery = {
   state?: string;
   city?: string;
@@ -22,6 +30,12 @@ export type ChargingQuery = {
   fastOnly?: boolean;
   ccs2Only?: boolean;
   chademoOnly?: boolean;
+  connector?: ChargingConnector;
+  operator?: string;
+  minPowerKW?: number;
+  maxPowerKW?: number;
+  liveOnly?: boolean;
+  reservableOnly?: boolean;
   sortBy?: ChargingSort;
   limit?: number;
   offset?: number;
@@ -38,6 +52,7 @@ export type ChargingResult = {
   states: string[];
   citiesByState: Record<string, string[]>;
   suggestions: string[];
+  operators: string[];
   coverage: {
     mode: "india" | "city-radius" | "location";
     city?: string;
@@ -122,6 +137,12 @@ function searchStationCollection(
     fastOnly = false,
     ccs2Only = false,
     chademoOnly = false,
+    connector,
+    operator,
+    minPowerKW = 0,
+    maxPowerKW,
+    liveOnly = false,
+    reservableOnly = false,
     sortBy = "recommended",
     limit = 12,
     offset = 0,
@@ -132,6 +153,7 @@ function searchStationCollection(
   const safeLimit = Math.min(Math.max(limit, 1), 500);
   const safeOffset = Math.max(offset, 0);
   const states = Array.from(new Set(collection.map((station) => station.state))).sort();
+  const operators = Array.from(new Set(collection.map((station) => station.operator).filter(Boolean))).sort((a, b) => a.localeCompare(b));
   const citiesByState = Object.fromEntries(
     states.map((stateName) => [
       stateName,
@@ -167,6 +189,20 @@ function searchStationCollection(
     if (fastOnly && !station.charging.dcFast) return false;
     if (ccs2Only && !station.connectors.ccs2) return false;
     if (chademoOnly && !station.connectors.chademo) return false;
+    if (operator && normalizePlace(station.operator) !== normalizePlace(operator)) return false;
+    if (minPowerKW > 0 && station.charging.maxPowerKW < minPowerKW) return false;
+    if (maxPowerKW !== undefined && station.charging.maxPowerKW > maxPowerKW) return false;
+    if (connector === "ccs2" && !station.connectors.ccs2) return false;
+    if (connector === "type2" && !station.connectors.acType2) return false;
+    if (connector === "chademo" && !station.connectors.chademo) return false;
+    if (connector === "gbt" && !station.connectors.gbt) return false;
+    if (connector === "bharat-ac" && !station.connectors.bharatAc) return false;
+    if (connector === "bharat-dc" && !station.connectors.bharatDc) return false;
+    if (liveOnly) {
+      const isLive = station.charging.reviewSource === "operator" && Boolean(station.availability?.lastUpdated) && station.availability?.status !== "unknown";
+      if (!isLive) return false;
+    }
+    if (reservableOnly && !(station.reservation?.supported && station.reservation.bookingUrl)) return false;
     if (!matchesSearch(station, search)) return false;
 
     return true;
@@ -227,6 +263,7 @@ function searchStationCollection(
     states,
     citiesByState,
     suggestions,
+    operators,
     coverage: originLat !== undefined && originLng !== undefined
       ? { mode: "location" }
       : city
@@ -275,6 +312,8 @@ async function databaseStations(): Promise<ChargingStation[]> {
         chademo: station.chademo,
         acType2: station.acType2,
         gbt: station.gbt,
+        bharatAc: station.bharatAc,
+        bharatDc: station.bharatDc,
       },
       charging: {
         ac: station.chargingAc,

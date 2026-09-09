@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   searchChargingStations,
+  type ChargingConnector,
   type ChargingSort,
 } from "@/lib/charging/chargingRepository";
 
@@ -10,6 +11,7 @@ const allowedSorts: ChargingSort[] = [
   "power-desc",
   "name-asc",
 ];
+const allowedConnectors: ChargingConnector[] = ["ccs2", "type2", "chademo", "gbt", "bharat-ac", "bharat-dc"];
 
 function getBoolean(value: string | null) {
   return value === "true";
@@ -40,6 +42,10 @@ export async function GET(request: Request) {
 
     const originLat = originLatRaw ? Number(originLatRaw) : undefined;
     const originLng = originLngRaw ? Number(originLngRaw) : undefined;
+    const requestedConnector = searchParams.get("connector");
+    const connector = requestedConnector && allowedConnectors.includes(requestedConnector as ChargingConnector)
+      ? requestedConnector as ChargingConnector
+      : undefined;
 
     const result = await searchChargingStations({
       state: searchParams.get("state") ?? undefined,
@@ -48,6 +54,12 @@ export async function GET(request: Request) {
       fastOnly: getBoolean(searchParams.get("fastOnly")),
       ccs2Only: getBoolean(searchParams.get("ccs2Only")),
       chademoOnly: getBoolean(searchParams.get("chademoOnly")),
+      connector,
+      operator: searchParams.get("operator") ?? undefined,
+      minPowerKW: clamp(getNumber(searchParams.get("minPowerKW"), 0), 0, 1000),
+      maxPowerKW: searchParams.has("maxPowerKW") ? clamp(getNumber(searchParams.get("maxPowerKW"), 1000), 0, 1000) : undefined,
+      liveOnly: getBoolean(searchParams.get("liveOnly")),
+      reservableOnly: getBoolean(searchParams.get("reservableOnly")),
       sortBy,
       limit: clamp(getNumber(searchParams.get("limit"), 12), 1, 100),
       offset: clamp(getNumber(searchParams.get("offset"), 0), 0, 10_000),

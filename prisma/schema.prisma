@@ -58,6 +58,8 @@ model Station {
   chademo        Boolean  @default(false)
   acType2        Boolean  @default(false)
   gbt            Boolean  @default(false)
+  bharatAc       Boolean  @default(false)
+  bharatDc       Boolean  @default(false)
 
   amenities      String[] @default([])
   searchText     String   @default("")

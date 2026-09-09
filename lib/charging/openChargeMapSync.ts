@@ -66,6 +66,8 @@ function connectorFacts(connections: OcmConnection[]) {
     chademo: titles.some((title) => title.includes("chademo")),
     acType2: titles.some((title) => title.includes("type 2") && !title.includes("ccs")),
     gbt: titles.some((title) => title.includes("gb/t") || title.includes("gbt")),
+    bharatAc: titles.some((title) => title.includes("bharat ac")),
+    bharatDc: titles.some((title) => title.includes("bharat dc")),
     chargingAc: titles.some((title) => title.includes("type 2") || title.includes("type 1") || title.includes("bharat ac")),
     chargingDcFast:
       connections.some((item) => item.Level?.IsFastChargeCapable) ||
