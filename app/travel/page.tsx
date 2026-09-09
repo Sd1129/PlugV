@@ -21,6 +21,7 @@ import {
   Share2,
   ShieldCheck,
   Sparkles,
+  WifiOff,
   Zap,
 } from "lucide-react";
 
@@ -88,6 +89,13 @@ const SAVED_ITEMS_KEY = "plugv-owner-saved";
 const DEFAULT_TRAVEL_VEHICLE_SLUG = vehicles.some((vehicle) => vehicle.slug === "tata-nexon-ev")
   ? "tata-nexon-ev"
   : vehicles.find((vehicle) => getVehicleTripProfile(vehicle.slug))?.slug ?? vehicles[0]?.slug ?? "";
+
+const POPULAR_ROUTES: Array<{ label: string; note: string; origin: Place; destination: Place }> = [
+  { label: "Mumbai → Pune", note: "Western Ghats corridor", origin: { id: "sample-mumbai", label: "Mumbai", detail: "Maharashtra", latitude: 19.076, longitude: 72.8777, type: "city" }, destination: { id: "sample-pune", label: "Pune", detail: "Maharashtra", latitude: 18.5204, longitude: 73.8567, type: "city" } },
+  { label: "Bengaluru → Mysuru", note: "Popular Karnataka drive", origin: { id: "sample-bengaluru", label: "Bengaluru", detail: "Karnataka", latitude: 12.9716, longitude: 77.5946, type: "city" }, destination: { id: "sample-mysuru", label: "Mysuru", detail: "Karnataka", latitude: 12.2958, longitude: 76.6394, type: "city" } },
+  { label: "Delhi → Jaipur", note: "Interstate highway trip", origin: { id: "sample-delhi", label: "Delhi", detail: "Delhi", latitude: 28.6139, longitude: 77.209, type: "city" }, destination: { id: "sample-jaipur", label: "Jaipur", detail: "Rajasthan", latitude: 26.9124, longitude: 75.7873, type: "city" } },
+  { label: "Hyderabad → Vijayawada", note: "Telangana–Andhra corridor", origin: { id: "sample-hyderabad", label: "Hyderabad", detail: "Telangana", latitude: 17.385, longitude: 78.4867, type: "city" }, destination: { id: "sample-vijayawada", label: "Vijayawada", detail: "Andhra Pradesh", latitude: 16.5062, longitude: 80.648, type: "city" } },
+];
 
 function formatDuration(minutes: number) {
   const hours = Math.floor(minutes / 60);
@@ -251,7 +259,7 @@ export default function TravelPage() {
     return items;
   }, []);
   const corridorHighlights = getCorridorHighlights(nearbyStations);
-  const routeConfidence = !route ? "Not calculated" : estimatedStops === 0 ? "High — no public stop required" : recommendedStops.length >= estimatedStops ? "Good — compatible stops identified" : "Limited — add backup planning";
+  const routeConfidence = !route ? "Not calculated" : estimatedStops === 0 ? "Estimate — no public stop projected" : recommendedStops.length >= estimatedStops ? "Mapped coverage — candidates identified" : "Limited mapped coverage — verify backups";
   const googleMapsUrl = origin && destination
     ? `https://www.google.com/maps/dir/?api=1&origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&travelmode=driving`
     : "";
@@ -346,23 +354,17 @@ export default function TravelPage() {
     setError("");
   }
 
-  async function planRoute() {
-    if (!origin || !destination) {
-      setError("Choose one place from the suggestions for both your origin and destination.");
-      return;
-    }
-
-    if (origin.id === destination.id) {
+  async function calculateRoute(from: Place, to: Place) {
+    if (from.id === to.id) {
       setError("Choose two different places to plan a trip.");
       return;
     }
-
     setIsPlanning(true);
     setError("");
     setConditions(null);
     try {
-      const routeUrl = `/api/travel?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}`;
-      const conditionsUrl = `/api/travel/conditions?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}`;
+      const routeUrl = `/api/travel?origin=${from.latitude},${from.longitude}&destination=${to.latitude},${to.longitude}`;
+      const conditionsUrl = `/api/travel/conditions?origin=${from.latitude},${from.longitude}&destination=${to.latitude},${to.longitude}`;
       const [response, conditionsResult] = await Promise.all([fetch(routeUrl), fetch(conditionsUrl).catch(() => null)]);
       const payload = (await response.json()) as RouteResult & { error?: string };
       if (!response.ok || payload.error) throw new Error(payload.error ?? "The route could not be calculated.");
@@ -374,6 +376,22 @@ export default function TravelPage() {
     } finally {
       setIsPlanning(false);
     }
+  }
+
+  async function planRoute() {
+    if (!origin || !destination) {
+      setError("Choose one place from the suggestions for both your origin and destination.");
+      return;
+    }
+    await calculateRoute(origin, destination);
+  }
+
+  async function loadPopularRoute(example: (typeof POPULAR_ROUTES)[number]) {
+    setOrigin(example.origin); setOriginInput(example.origin.label);
+    setDestination(example.destination); setDestinationInput(example.destination.label);
+    setSuggestions({ origin: [], destination: [] }); setActiveField(null);
+    document.getElementById("trip-planner")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    await calculateRoute(example.origin, example.destination);
   }
 
   function swapPlaces() {
@@ -537,13 +555,13 @@ export default function TravelPage() {
           <div className="w-full max-w-[560px]">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-slate-950/45 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-100 backdrop-blur-md"><Sparkles className="h-3.5 w-3.5" />PlugV Travel</div>
             <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">Plan any EV trip in India.</h1>
-            <p className="mt-5 text-base leading-8 text-slate-200">Search for any city, neighbourhood, landmark, or place in India. PlugV calculates the driving route and shows charging coverage from our verified dataset.</p>
+            <p className="mt-5 text-base leading-8 text-slate-200">Search for any city, neighbourhood, landmark, or place in India. PlugV calculates a road route and shows nearby entries from its current mapped-station dataset.</p>
             <div className="mt-8"><TravelRouteMap origin={origin} destination={destination} geometry={route?.geometry ?? []} primaryStops={recommendedStops} backupStops={backupStops.filter(Boolean) as NearbyStation[]} knownStops={nearbyStations.length} /></div>
           </div>
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-white/[0.02] py-12 sm:py-16">
+      <section id="trip-planner" className="scroll-mt-20 border-b border-white/10 bg-white/[0.02] py-12 sm:py-16">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-5 shadow-2xl shadow-black/20 backdrop-blur sm:p-7">
             <div className="flex flex-col gap-2 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
@@ -551,11 +569,22 @@ export default function TravelPage() {
               <p className="text-sm text-slate-400">India-wide place search</p>
             </div>
 
+            <div className="mt-6">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Try a popular route</p><p className="mt-1 text-sm text-slate-400">One tap fills the cities and requests a road route, then checks PlugV&apos;s current mapped-station coverage.</p></div><span className="text-xs text-slate-500">Examples are not saved automatically</span></div>
+              <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">{POPULAR_ROUTES.map((example) => <button key={example.label} type="button" onClick={() => loadPopularRoute(example)} disabled={isPlanning} className="min-h-20 rounded-2xl border border-white/10 bg-slate-950/55 p-3 text-left transition hover:border-sky-300/30 hover:bg-sky-400/[0.08] disabled:cursor-wait disabled:opacity-50"><span className="block text-sm font-semibold text-white">{example.label}</span><span className="mt-1 block text-xs leading-5 text-slate-500">{example.note}</span></button>)}</div>
+            </div>
+
             <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto] lg:items-start">
               {placeInput("origin", "From", originInput, origin)}
               <button type="button" onClick={swapPlaces} className="mx-auto mt-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sky-300 transition hover:bg-sky-400 hover:text-slate-950 lg:mt-9" aria-label="Swap origin and destination"><ArrowLeftRight className="h-4 w-4" /></button>
               {placeInput("destination", "To", destinationInput, destination)}
               <button type="button" onClick={planRoute} disabled={isPlanning} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-sky-400 px-6 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60 lg:mt-9 lg:w-auto"><Search className="h-4 w-4" />{isPlanning ? "Planning…" : "Plan route"}</button>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-xl border border-white/10 bg-white/[0.025] p-4"><Navigation className="h-5 w-5 text-sky-300" /><p className="mt-3 text-sm font-semibold">Google Maps hand-off</p><p className="mt-1 text-xs leading-5 text-slate-500">After planning, open the driving route in Google Maps for turn-by-turn navigation.</p></div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.025] p-4"><Share2 className="h-5 w-5 text-emerald-300" /><p className="mt-3 text-sm font-semibold">Share with co-travellers</p><p className="mt-1 text-xs leading-5 text-slate-500">Use native sharing or WhatsApp without giving PlugV a recipient&apos;s phone number.</p></div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.025] p-4"><WifiOff className="h-5 w-5 text-amber-300" /><p className="mt-3 text-sm font-semibold">Offline-ready summary</p><p className="mt-1 text-xs leading-5 text-slate-500">Export a text itinerary after planning. PlugV does not provide offline maps; download an offline area in your navigation app where supported.</p></div>
             </div>
 
             <div className="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:grid-cols-2 lg:grid-cols-5 sm:p-5">
@@ -586,7 +615,7 @@ export default function TravelPage() {
                 <div className="mt-2 flex h-11 items-center rounded-xl border border-white/10 bg-slate-900 px-3"><span className="text-slate-400">₹</span><input type="number" min="1" max="100" value={energyRate} onChange={(event) => setEnergyRate(Math.max(1, Number(event.target.value) || 1))} className="w-full bg-transparent px-2 text-sm font-semibold text-white outline-none" /><span className="text-xs text-slate-500">/kWh</span></div>
               </label>
               <p className="sm:col-span-2 lg:col-span-5 text-xs leading-5 text-slate-500">PlugV adjusts practical range for your selected conditions and preserves your chosen arrival reserve. Weather, speed, traffic, elevation, payload, tyre pressure and charger power can still change the result.</p>
-              {tripProfile && selectedVariant ? <div className="sm:col-span-2 lg:col-span-5 grid gap-3 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.06] p-4 sm:grid-cols-[1fr_auto] sm:items-end"><label><span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">Verified battery variant</span><select value={selectedVariant.name} onChange={(event) => setVariantName(event.target.value)} className="mt-2 h-10 w-full rounded-lg border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none">{tripProfile.variants.map((variant) => <option key={variant.name} value={variant.name}>{variant.name} · {variant.certifiedRangeKm} km · {variant.maxDcChargeKW} kW DC</option>)}</select></label><a href={tripProfile.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-emerald-200 hover:text-emerald-100">Official source · checked {tripProfile.verifiedAt}</a></div> : <p className="sm:col-span-2 lg:col-span-5 rounded-xl border border-amber-300/15 bg-amber-400/[0.06] px-4 py-3 text-xs leading-5 text-amber-100">Estimated profile: exact battery and charging specifications have not yet been verified for this model.</p>}
+              {tripProfile && selectedVariant ? <div className="sm:col-span-2 lg:col-span-5 grid gap-3 rounded-xl border border-emerald-300/15 bg-emerald-400/[0.06] p-4 sm:grid-cols-[1fr_auto] sm:items-end"><label><span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">Official-source specifications</span><select value={selectedVariant.name} onChange={(event) => setVariantName(event.target.value)} className="mt-2 h-10 w-full rounded-lg border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none">{tripProfile.variants.map((variant) => <option key={variant.name} value={variant.name}>{variant.name} · {variant.certifiedRangeKm} km · {variant.maxDcChargeKW} kW DC</option>)}</select></label><a href={tripProfile.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-emerald-200 hover:text-emerald-100">View official source · PlugV checked {tripProfile.verifiedAt}</a></div> : <p className="sm:col-span-2 lg:col-span-5 rounded-xl border border-amber-300/15 bg-amber-400/[0.06] px-4 py-3 text-xs leading-5 text-amber-100">Estimated profile: exact battery and charging specifications have not yet been verified for this model.</p>}
             </div>
 
             {error ? <p className="mt-5 rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">{error}</p> : null}
@@ -598,8 +627,8 @@ export default function TravelPage() {
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           {route && origin && destination ? (
             <>
-              {route.estimated ? <div className="mb-5 rounded-2xl border border-amber-300/20 bg-amber-400/[0.08] px-5 py-4"><p className="text-sm font-semibold text-amber-100">Live road routing is temporarily unavailable—showing a planning estimate.</p><p className="mt-1 text-xs leading-5 text-slate-300">Distance and journey time use a road-distance allowance between the selected places. Confirm the exact route in your navigation app before departure.</p></div> : <div className="mb-5 rounded-2xl border border-emerald-300/20 bg-emerald-400/[0.08] px-5 py-4 text-sm font-semibold text-emerald-100">Live road route calculated successfully.</div>}
-              <div className="mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Charging strategy</p><div className="mt-3 grid gap-2 sm:grid-cols-3">{([['fastest','Fastest charging','Prioritises higher-power chargers.'],['reliable','Highest confidence','Prioritises verified and available stations.'],['value','Lower-cost estimate','Prioritises smaller detours; cost uses your ₹/kWh.']] as const).map(([value,title,detail]) => <button key={value} type="button" onClick={() => setChargingStrategy(value)} className={`rounded-xl border p-4 text-left transition ${chargingStrategy === value ? 'border-sky-300/40 bg-sky-400/10' : 'border-white/10 bg-slate-950/50 hover:bg-white/5'}`}><span className="text-sm font-semibold text-white">{title}</span><span className="mt-1 block text-xs leading-5 text-slate-400">{detail}</span></button>)}</div><p className="mt-3 text-xs leading-5 text-slate-500">These options adjust charging-stop selection on the calculated road route. Traffic-aware alternative roads require a licensed live traffic provider.</p></div>
+              {route.estimated ? <div className="mb-5 rounded-2xl border border-amber-300/20 bg-amber-400/[0.08] px-5 py-4"><p className="text-sm font-semibold text-amber-100">The road-routing provider is temporarily unavailable—showing a planning estimate.</p><p className="mt-1 text-xs leading-5 text-slate-300">Distance and journey time use a road-distance allowance between the selected places. Confirm the exact route in your navigation app before departure.</p></div> : <div className="mb-5 rounded-2xl border border-emerald-300/20 bg-emerald-400/[0.08] px-5 py-4"><p className="text-sm font-semibold text-emerald-100">Road route calculated using a routing provider.</p><p className="mt-1 text-xs leading-5 text-slate-300">This is not live-traffic navigation. Confirm traffic, closures and the final route in your navigation app.</p></div>}
+              <div className="mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-5"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Charging strategy</p><div className="mt-3 grid gap-2 sm:grid-cols-3">{([['fastest','Higher-power first','Prioritises stations with higher listed maximum power.'],['reliable','Higher-confidence first','Prioritises better-sourced entries and reported status when present.'],['value','Smaller-detour estimate','Prioritises smaller mapped detours; cost uses your entered ₹/kWh.']] as const).map(([value,title,detail]) => <button key={value} type="button" onClick={() => setChargingStrategy(value)} className={`rounded-xl border p-4 text-left transition ${chargingStrategy === value ? 'border-sky-300/40 bg-sky-400/10' : 'border-white/10 bg-slate-950/50 hover:bg-white/5'}`}><span className="text-sm font-semibold text-white">{title}</span><span className="mt-1 block text-xs leading-5 text-slate-400">{detail}</span></button>)}</div><p className="mt-3 text-xs leading-5 text-slate-500">These options rank candidate stops; they do not guarantee access, uptime, charging speed or price. Traffic-aware alternatives require a licensed live-traffic provider.</p></div>
               {conditions ? <div className="mb-5 grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:grid-cols-2"><WeatherCard label={origin.label} point={conditions.origin} /><WeatherCard label={destination.label} point={conditions.destination} /><p className="text-xs leading-5 text-slate-500 sm:col-span-2">Current weather and elevation: {conditions.source}. Conditions can change during travel and are context only; traffic is not included.</p></div> : null}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Metric label="Driving distance" value={`${route.distanceKm.toLocaleString("en-IN")} km`} icon={Route} />
@@ -614,7 +643,7 @@ export default function TravelPage() {
 
               <div className={`mt-5 rounded-2xl border px-5 py-4 ${nearbyStations.length >= estimatedStops ? "border-emerald-300/20 bg-emerald-400/10" : "border-amber-300/20 bg-amber-400/10"}`}>
                 <p className="text-sm font-semibold text-white">{selectedVehicle.brand} {selectedVehicle.name}{selectedVariant ? ` · ${selectedVariant.name}` : ""} · {selectedVariant?.connector ?? "connector not verified"}</p>
-                <p className="mt-1 text-xs leading-5 text-slate-300">{nearbyStations.length >= estimatedStops ? `${nearbyStations.length} compatible stations are within 25 km of this corridor. PlugV found ${recommendedStops.length} practical stop candidate${recommendedStops.length === 1 ? "" : "s"} for the estimated ${estimatedStops} stop${estimatedStops === 1 ? "" : "s"}.` : `Only ${nearbyStations.length} compatible stations are close to this corridor. Add operator-app checks and backup stops before departure.`}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-300">{nearbyStations.length >= estimatedStops ? `${nearbyStations.length} mapped stations with the selected connector are within 25 km of this corridor. PlugV identified ${recommendedStops.length} candidate stop${recommendedStops.length === 1 ? "" : "s"} for the estimated ${estimatedStops} stop${estimatedStops === 1 ? "" : "s"}. Availability and access must be confirmed.` : `Only ${nearbyStations.length} mapped stations with the selected connector are close to this corridor. Add operator-app checks and backup stops before departure.`}</p>
               </div>
 
               <div className="mt-5 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
@@ -650,7 +679,7 @@ export default function TravelPage() {
               )}
             </>
           ) : (
-            <div className="rounded-[2rem] border border-dashed border-white/15 bg-white/[0.03] p-10 text-center"><MapPin className="mx-auto h-7 w-7 text-sky-300" /><p className="mt-4 text-2xl font-semibold text-white">Your trip is ready when you are.</p><p className="mx-auto mt-3 max-w-xl text-base leading-7 text-slate-400">Type any two places in India above, choose them from the suggestions, and PlugV will calculate the driving route.</p></div>
+            <div className="rounded-[2rem] border border-dashed border-white/15 bg-white/[0.03] p-10 text-center"><MapPin className="mx-auto h-7 w-7 text-sky-300" /><p className="mt-4 text-2xl font-semibold text-white">Your trip is ready when you are.</p><p className="mx-auto mt-3 max-w-xl text-base leading-7 text-slate-400">Type any two places in India above, choose them from the suggestions, and PlugV will request a road route. Results are planning aids—not navigation or charger reservations.</p></div>
           )}
         </div>
       </section>
@@ -712,7 +741,7 @@ function StationCard({ station }: { station: NearbyStation }) {
       </div>
       <div className="mt-5 flex flex-wrap gap-2" aria-label="Charger types and availability">
         {station.charging.dcFast ? <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/30 bg-emerald-400/15 px-3 py-1.5 text-xs font-semibold text-emerald-200"><Zap className="h-3.5 w-3.5" />DC Fast</span> : null}
-        {station.charging.ac ? <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-300/30 bg-yellow-400/15 px-3 py-1.5 text-xs font-semibold text-yellow-100"><BatteryCharging className="h-3.5 w-3.5" />AC Fast</span> : null}
+      {station.charging.ac ? <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-300/30 bg-yellow-400/15 px-3 py-1.5 text-xs font-semibold text-yellow-100"><BatteryCharging className="h-3.5 w-3.5" />AC charging</span> : null}
         <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${availabilityStyle}`}><CircleHelp className="h-3.5 w-3.5" />{availabilityLabel}</span>
       </div>
       <div className="mt-3"><ChargerConfidenceBadge confidence={confidence} /></div>

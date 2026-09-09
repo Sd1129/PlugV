@@ -70,7 +70,11 @@ export default function TravelRouteMap({ origin, destination, geometry, primaryS
   }, [backupStops, destination, map, origin, primaryStops, routePath]);
 
   if (!origin || !destination || routePath.length < 2) {
-    return <div className="flex h-[280px] flex-col items-center justify-center rounded-[1.75rem] border border-white/15 bg-[#071525]/90 px-6 text-center shadow-2xl shadow-black/30"><MapPin className="h-8 w-8 text-sky-300" /><p className="mt-3 text-sm font-semibold text-white">Plan a route to view the map</p><p className="mt-2 max-w-md text-xs leading-5 text-slate-400">Choose a start and destination to calculate distance, journey time and charging coverage.</p></div>;
+    return <div className="relative h-[280px] overflow-hidden rounded-[1.75rem] border border-white/15 bg-[#071525]/90 px-6 text-center shadow-2xl shadow-black/30">
+      <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(125,211,252,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,.16)_1px,transparent_1px)] [background-size:34px_34px]" />
+      <svg aria-hidden="true" viewBox="0 0 500 180" className="absolute inset-x-5 top-8 h-36 w-[calc(100%-2.5rem)]"><path d="M35 135 C115 20 180 155 260 78 S390 38 465 48" fill="none" stroke="#38bdf8" strokeWidth="6" strokeLinecap="round" strokeDasharray="10 12" opacity=".8" /><circle cx="35" cy="135" r="11" fill="#fff" /><circle cx="260" cy="78" r="9" fill="#38bdf8" /><circle cx="465" cy="48" r="11" fill="#86efac" /></svg>
+      <div className="relative flex h-full flex-col items-center justify-end pb-6"><MapPin className="h-7 w-7 text-sky-300" /><p className="mt-2 text-sm font-semibold text-white">Your interactive route will appear here</p><p className="mt-1 max-w-md text-xs leading-5 text-slate-400">Choose your places or try a popular route below to calculate distance, weather context and charging coverage.</p></div>
+    </div>;
   }
 
   const navigationUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${origin.latitude},${origin.longitude}`)}&destination=${encodeURIComponent(`${destination.latitude},${destination.longitude}`)}&travelmode=driving`;
@@ -85,7 +89,7 @@ export default function TravelRouteMap({ origin, destination, geometry, primaryS
     <LoadScript id="plugv-travel-google-maps" googleMapsApiKey={apiKey} libraries={GOOGLE_MAP_LIBRARIES} onError={() => setMapLoadError(true)} loadingElement={<div className="flex h-[320px] items-center justify-center bg-[#071525] text-sm text-slate-400 sm:h-[390px]">Loading route map…</div>}>
       <GoogleMap mapContainerClassName="h-[320px] w-full sm:h-[390px]" center={{ lat: origin.latitude, lng: origin.longitude }} zoom={6} options={{ mapId, mapTypeControl: false, streetViewControl: false, clickableIcons: false, backgroundColor: "#020617" }} onLoad={setMap} onUnmount={() => setMap(null)} />
     </LoadScript>
-    <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/85 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-100 backdrop-blur"><Route className="h-3.5 w-3.5" />Interactive route · {knownStops} compatible stations</div>
+    <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/85 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-100 backdrop-blur"><Route className="h-3.5 w-3.5" />Interactive route · {knownStops} mapped connector matches</div>
     <div className="pointer-events-none absolute bottom-3 left-3 rounded-xl border border-white/10 bg-slate-950/85 px-3 py-2 text-[10px] text-slate-200 backdrop-blur"><span className="text-sky-300">●</span> Primary &nbsp; <span className="text-amber-300">●</span> Backup</div>
   </div>;
 }
