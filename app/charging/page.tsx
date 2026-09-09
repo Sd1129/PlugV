@@ -1,6 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useState } from "react";
+import { MapPinned } from "lucide-react";
 import ChargingHero from "@/components/charging/ChargingHero";
 import ChargingControls from "@/components/charging/ChargingControls";
 import StationCard from "@/components/charging/StationCard";
@@ -25,6 +27,7 @@ function getCityImage(city: string, state: string) {
 
 export default function ChargingPage() {
   const charging = useChargingStations(PAGE_SIZE);
+  const [showMap, setShowMap] = useState(false);
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
@@ -104,7 +107,19 @@ export default function ChargingPage() {
             </div>
           ) : null}
 
-          {charging.mapStations.length > 0 ? (
+          {charging.mapStations.length > 0 && !showMap ? (
+            <div className="mt-5 rounded-2xl border border-sky-300/20 bg-sky-400/[0.07] p-4 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-5">
+              <div>
+                <p className="font-semibold text-white">Interactive charger map</p>
+                <p className="mt-1 text-sm leading-6 text-slate-400">Open the map when you need location context. The station list stays quick to load and fully usable without it.</p>
+              </div>
+              <button type="button" onClick={() => setShowMap(true)} className="mt-4 inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-300 px-5 text-sm font-bold text-slate-950 transition hover:bg-sky-200 sm:mt-0 sm:w-auto">
+                <MapPinned className="h-4 w-4" /> Show map
+              </button>
+            </div>
+          ) : null}
+
+          {charging.mapStations.length > 0 && showMap ? (
             <div className="mt-5">
               <ChargingAdvancedMap
                 stations={charging.mapStations}
@@ -114,6 +129,9 @@ export default function ChargingPage() {
                 distanceByStationId={charging.distanceByStationId}
                 total={charging.total}
               />
+              <button type="button" onClick={() => setShowMap(false)} className="mt-3 min-h-11 w-full rounded-xl border border-white/10 px-4 text-sm font-semibold text-slate-300 transition hover:bg-white/5 sm:w-auto">
+                Hide interactive map
+              </button>
             </div>
           ) : null}
 

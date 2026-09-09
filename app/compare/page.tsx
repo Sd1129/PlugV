@@ -380,7 +380,7 @@ function CompareContent() {
           <select
             value={leftSlug}
             onChange={(e) => setLeftSlug(e.target.value)}
-            className="mt-3 w-full rounded-xl border border-white/10 bg-slate-950/90 px-3 py-3 text-sm font-semibold text-white outline-none [color-scheme:dark]"
+            className="mt-3 min-h-12 w-full rounded-xl border border-white/10 bg-slate-950/90 px-3 py-3 text-sm font-semibold text-white outline-none [color-scheme:dark]"
           >
             {launchedVehicles.map((vehicle) => (
               <option
@@ -408,7 +408,7 @@ function CompareContent() {
           <select
             value={rightSlug}
             onChange={(e) => setRightSlug(e.target.value)}
-            className="mt-3 w-full rounded-xl border border-white/10 bg-slate-950/90 px-3 py-3 text-sm font-semibold text-white outline-none [color-scheme:dark]"
+            className="mt-3 min-h-12 w-full rounded-xl border border-white/10 bg-slate-950/90 px-3 py-3 text-sm font-semibold text-white outline-none [color-scheme:dark]"
           >
             {launchedVehicles.map((vehicle) => (
               <option
@@ -453,7 +453,10 @@ function CompareContent() {
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7">
             <div className="flex flex-col gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key specifications</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Every important difference, side by side.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Highlighted rows contain different values. Unverified trim-level fields are labelled instead of estimated.</p></div><span className="rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold text-sky-200">{specificationRows.filter((row) => differentValues(row.left, row.right)).length} differences found</span></div>
-            <div className="mt-6 overflow-x-auto rounded-2xl border border-white/10"><div className="min-w-[700px]">
+            <div className="mt-6 space-y-3 sm:hidden">
+              {specificationRows.map((row) => { const different = differentValues(row.left, row.right); return <article key={row.label} className={`rounded-2xl border p-4 ${different ? "border-sky-300/20 bg-sky-400/[0.06]" : "border-white/10 bg-slate-950/35"}`}><div className="flex items-center justify-between gap-2"><h3 className="text-sm font-semibold text-slate-300">{row.label}</h3>{different ? <span className="rounded-full bg-sky-400/10 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-sky-300">Different</span> : null}</div><dl className="mt-3 grid grid-cols-2 gap-3"><div><dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{leftVehicle?.name}</dt><dd className="mt-1 text-sm font-semibold leading-5 text-white">{row.left}</dd></div><div className="border-l border-white/10 pl-3"><dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{rightVehicle?.name}</dt><dd className="mt-1 text-sm font-semibold leading-5 text-white">{row.right}</dd></div></dl></article>; })}
+            </div>
+            <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-white/10 sm:block"><div className="min-w-[700px]">
               <div className="grid grid-cols-[190px_repeat(2,minmax(240px,1fr))] border-b border-white/10 bg-slate-950/80 text-sm font-semibold"><div className="p-4 text-slate-400">Specification</div><div className="border-l border-white/10 p-4 text-white">{leftVehicle?.brand} {leftVehicle?.name}</div><div className="border-l border-white/10 p-4 text-white">{rightVehicle?.brand} {rightVehicle?.name}</div></div>
               {specificationRows.map((row) => { const different = differentValues(row.left, row.right); return <div key={row.label} className={`grid grid-cols-[190px_repeat(2,minmax(240px,1fr))] border-b border-white/10 text-sm last:border-0 ${different ? "bg-sky-400/[0.06]" : "bg-slate-950/35"}`}><div className="flex items-center justify-between gap-2 p-4 font-semibold text-slate-400"><span>{row.label}</span>{different ? <span className="rounded-full bg-sky-400/10 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-sky-300">Different</span> : null}</div><div className={`border-l p-4 font-semibold ${different ? "border-sky-300/20 text-sky-100" : "border-white/10 text-slate-200"}`}>{row.left}</div><div className={`border-l p-4 font-semibold ${different ? "border-sky-300/20 text-sky-100" : "border-white/10 text-slate-200"}`}>{row.right}</div></div>; })}
             </div></div>

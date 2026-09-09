@@ -89,7 +89,7 @@ export default function VehicleFilters({
                 type="button"
                 onClick={() => onSelectedType(type)}
                 className={[
-                  "inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition",
+                  "inline-flex min-h-11 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition",
                   selectedType === type
                     ? "border-sky-400/25 bg-sky-400 text-slate-950"
                     : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white",
@@ -103,7 +103,7 @@ export default function VehicleFilters({
 
         <div className={`${embedded ? "mt-6 rounded-2xl" : "mt-8 rounded-[2rem]"} border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/20 backdrop-blur lg:p-5`}>
           <div className={`grid gap-4 md:grid-cols-2 ${embedded ? "" : "xl:grid-cols-[1.3fr_0.7fr_0.7fr_0.7fr_0.7fr]"}`}>
-            <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
+            <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-sm">
               <Search className="h-4 w-4 text-sky-300" />
               <input
                 type="text"
@@ -120,7 +120,7 @@ export default function VehicleFilters({
               <select
                 value={selectedType}
                 onChange={(e) => onSelectedType(e.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-slate-950/70 py-3 pl-10 pr-4 text-sm font-semibold text-white outline-none"
+                className="min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/70 py-3 pl-10 pr-4 text-sm font-semibold text-white outline-none"
               >
                 {types.map((type) => (
                   <option key={type} value={type}>
@@ -133,7 +133,7 @@ export default function VehicleFilters({
             <select
               value={selectedBrand}
               onChange={(e) => onSelectedBrand(e.target.value)}
-              className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none"
+              className="min-h-12 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none"
             >
               {brands.map((brand) => (
                 <option key={brand} value={brand}>
@@ -145,7 +145,7 @@ export default function VehicleFilters({
             <select
               value={sortBy}
               onChange={(e) => onSortBy(e.target.value as SortOption["value"])}
-              className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none"
+              className="min-h-12 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -154,7 +154,7 @@ export default function VehicleFilters({
               ))}
             </select>
 
-            <select value={minimumRange} onChange={(e) => onMinimumRange(Number(e.target.value))} className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none" aria-label="Minimum driving range">
+            <select value={minimumRange} onChange={(e) => onMinimumRange(Number(e.target.value))} className="min-h-12 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white outline-none" aria-label="Minimum driving range">
               <option value={0}>Any range</option>
               <option value={300}>300+ km range</option>
               <option value={400}>400+ km range</option>
@@ -164,12 +164,12 @@ export default function VehicleFilters({
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300"><input type="checkbox" checked={verifiedOnly} onChange={(event) => onVerifiedOnly(event.target.checked)} className="accent-emerald-400" />Verified trip specs only</label>
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300"><input type="checkbox" checked={verifiedOnly} onChange={(event) => onVerifiedOnly(event.target.checked)} className="h-4 w-4 accent-emerald-400" />Verified trip specs only</label>
 
             <button
               type="button"
               onClick={onReset}
-              className="rounded-full border border-white/10 bg-slate-950/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300 transition hover:bg-white/10 hover:text-white"
+              className="min-h-11 rounded-full border border-white/10 bg-slate-950/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300 transition hover:bg-white/10 hover:text-white"
             >
               Reset filters
             </button>

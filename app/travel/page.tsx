@@ -516,7 +516,7 @@ export default function TravelPage() {
       {activeField === field && value.trim().length >= 2 ? (
         <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl shadow-black/40">
           {searching[field] ? <p className="px-4 py-3 text-xs text-slate-400">Searching Indian cities, chargers and places…</p> : suggestions[field].length ? suggestions[field].map((place) => (
-            <button key={place.id} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => choosePlace(field, place)} className="block w-full border-b border-white/5 px-4 py-3 text-left last:border-b-0 hover:bg-white/5">
+            <button key={place.id} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => choosePlace(field, place)} className="block min-h-12 w-full border-b border-white/5 px-4 py-3 text-left last:border-b-0 hover:bg-white/5">
               <p className="text-sm font-semibold text-white">{place.label}</p>
               <p className="mt-1 truncate text-xs text-slate-400">{place.type === "charging_station" ? "Charging station · " : ""}{place.detail}</p>
             </button>
@@ -553,21 +553,21 @@ export default function TravelPage() {
 
             <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto] lg:items-start">
               {placeInput("origin", "From", originInput, origin)}
-              <button type="button" onClick={swapPlaces} className="mx-auto mt-4 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sky-300 transition hover:bg-sky-400 hover:text-slate-950 lg:mt-9" aria-label="Swap origin and destination"><ArrowLeftRight className="h-4 w-4" /></button>
+              <button type="button" onClick={swapPlaces} className="mx-auto mt-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sky-300 transition hover:bg-sky-400 hover:text-slate-950 lg:mt-9" aria-label="Swap origin and destination"><ArrowLeftRight className="h-4 w-4" /></button>
               {placeInput("destination", "To", destinationInput, destination)}
-              <button type="button" onClick={planRoute} disabled={isPlanning} className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sky-400 px-6 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60 lg:mt-9"><Search className="h-4 w-4" />{isPlanning ? "Planning…" : "Plan route"}</button>
+              <button type="button" onClick={planRoute} disabled={isPlanning} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-sky-400 px-6 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60 lg:mt-9 lg:w-auto"><Search className="h-4 w-4" />{isPlanning ? "Planning…" : "Plan route"}</button>
             </div>
 
             <div className="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:grid-cols-2 lg:grid-cols-5 sm:p-5">
               <label className="sm:col-span-2 lg:col-span-1">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Your EV</span>
-                <select value={vehicleSlug} onChange={(event) => { const slug = event.target.value; setVehicleSlug(slug); setVariantName(getVehicleTripProfile(slug)?.defaultVariant ?? ""); }} className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/50">
+                <select value={vehicleSlug} onChange={(event) => { const slug = event.target.value; setVehicleSlug(slug); setVariantName(getVehicleTripProfile(slug)?.defaultVariant ?? ""); }} className="mt-2 h-12 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/50">
                   {vehicles.filter((vehicle) => highestNumber(vehicle.range) > 0).map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name}</option>)}
                 </select>
               </label>
               <label>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Trip conditions</span>
-                <select value={drivingCondition} onChange={(event) => setDrivingCondition(event.target.value as DrivingCondition)} className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/50">
+                <select value={drivingCondition} onChange={(event) => setDrivingCondition(event.target.value as DrivingCondition)} className="mt-2 h-12 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/50">
                   <option value="balanced">Balanced driving</option>
                   <option value="highway">Fast highway driving</option>
                   <option value="demanding">Heat, hills or heavy load</option>
