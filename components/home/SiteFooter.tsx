@@ -72,6 +72,15 @@ export default function SiteFooter() {
               experience.
             </p>
 
+            <a
+              href="https://x.com/plugvplatform"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex min-h-11 items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-sky-300/30 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
+            >
+              Follow us on X: @plugvplatform
+            </a>
+
             <div className="mt-6 hidden flex-wrap gap-3 lg:flex">
               <a
                 href={INSTAGRAM_URL}

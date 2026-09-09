@@ -38,6 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@plugvplatform",
     title: "PlugV.in — India's EV Platform",
     description: "Electric cars, comparisons, charging and EV travel in one place.",
     images: ["/brand/plugv-social-card.png"],
@@ -82,6 +83,7 @@ export default function RootLayout({
         url: SITE_URL,
         logo: absoluteUrl("/brand/logo-icon.png"),
         sameAs: [
+          "https://x.com/plugvplatform",
           "https://www.instagram.com/plugvplatform/",
           "https://www.youtube.com/channel/UC0YJUyVpgbX5eClR-UBp_oQ",
         ],
