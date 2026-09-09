@@ -12,6 +12,7 @@ const footerLinks = [
   { label: "Charging", href: "/charging" },
   { label: "Upcoming", href: "/upcoming" },
   { label: "Knowledge Hub", href: "/knowledge" },
+  { label: "EV Calculators", href: "/calculators" },
   { label: "About", href: "/about" },
   { label: "Founder", href: "/founder" },
 ];
@@ -21,6 +22,7 @@ const supportLinks = [
   { label: "Plan an EV trip", href: "/travel" },
   { label: "Ask the EV Assistant", href: "/assistant" },
   { label: "Data methodology", href: "/methodology" },
+  { label: "EV calculators", href: "/calculators" },
 ];
 
 const legalLinks = [
@@ -41,6 +43,7 @@ const mobilePrimaryLinks = [
 
 const mobileTrustLinks = [
   { label: "Knowledge Hub", href: "/knowledge" },
+  { label: "EV Calculators", href: "/calculators" },
   { label: "Data Methodology", href: "/methodology" },
   { label: "Data Clarity", href: "/disclaimer#data-clarity" },
   { label: "Report incorrect data", href: "mailto:support@plugv.in?subject=PlugV%20data%20correction" },

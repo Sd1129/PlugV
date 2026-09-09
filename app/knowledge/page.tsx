@@ -43,6 +43,7 @@ export default function KnowledgeHubPage() {
               <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-300" />Daily freshness audit</span>
               <span className="inline-flex items-center gap-2"><Calculator className="h-4 w-4 text-sky-300" />Interactive tools</span>
             </div>
+            <Link href="/calculators" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-sky-300 px-5 text-sm font-semibold text-slate-950">Open EV calculators <ArrowRight className="h-4 w-4" /></Link>
           </div>
         </div>
       </section>

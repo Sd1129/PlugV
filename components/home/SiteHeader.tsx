@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, ArrowRight, BookOpen, ChevronDown, Gauge, Menu, X } from "lucide-react";
+import { Search, ArrowRight, BookOpen, Calculator, ChevronDown, Gauge, Menu, X } from "lucide-react";
 
 import { vehicles } from "@/data/vehicles";
 
@@ -118,7 +118,7 @@ function isActiveLink(href: string) {
       aria-current={pathname === "/my-ev" ? "page" : undefined}
       className={[
         "flex items-center gap-1 rounded-full px-3 py-1.5 text-sm transition",
-        pathname === "/my-ev" || pathname.startsWith("/knowledge")
+        pathname === "/my-ev" || pathname.startsWith("/knowledge") || pathname === "/calculators"
           ? "bg-sky-400/10 font-semibold text-sky-400 ring-1 ring-sky-400/20"
           : "font-medium text-slate-300 hover:bg-white/5 hover:text-white",
       ].join(" ")}
@@ -148,6 +148,10 @@ function isActiveLink(href: string) {
             <span className="block text-sm font-semibold">Knowledge Hub</span>
             <span className="mt-0.5 block text-xs leading-5 text-slate-500">EV guides, facts and calculators</span>
           </span>
+        </Link>
+        <Link href="/calculators" className="flex items-start gap-3 rounded-xl px-3 py-3 text-slate-300 transition hover:bg-white/5 hover:text-white focus:bg-white/5 focus:text-white focus:outline-none">
+          <Calculator className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
+          <span><span className="block text-sm font-semibold">EV Calculators</span><span className="mt-0.5 block text-xs leading-5 text-slate-500">EMI, running cost, range and verified records</span></span>
         </Link>
       </div>
     </div>
@@ -254,6 +258,8 @@ function isActiveLink(href: string) {
             placeholder="Search EVs or brands"
             enterKeyHint="search"
             aria-label="Search EVs"
+            role="combobox"
+            aria-autocomplete="list"
             aria-expanded={open && query.trim().length > 0}
             aria-controls="mobile-search-suggestions"
             className="min-w-0 w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
@@ -345,6 +351,10 @@ function isActiveLink(href: string) {
                 >
                   <BookOpen className="h-4 w-4 text-emerald-300" />
                   Knowledge Hub
+                </Link>
+                <Link href="/calculators" onClick={() => setMobileOpen(false)} aria-current={pathname === "/calculators" ? "page" : undefined} className={`mt-1 flex min-h-12 items-center gap-3 rounded-xl px-4 text-base font-semibold ${pathname === "/calculators" ? "bg-sky-400/10 text-sky-300" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
+                  <Calculator className="h-4 w-4 text-violet-300" />
+                  EV Calculators
                 </Link>
               </div>
             </nav>
