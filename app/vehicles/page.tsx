@@ -11,7 +11,6 @@ import VehicleHighlights from "@/components/vehicles/VehicleHighlights";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { startingPriceRupees } from "@/data/vehicle-buying-specs";
-import { getVehicleInsights } from "@/lib/insights/vehicleInsights";
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -94,7 +93,9 @@ function VehiclesContent() {
         sorted.sort((a, b) => a.name.localeCompare(b.name));
         break;
       default:
-        sorted.sort((a, b) => getVehicleInsights(b).score - getVehicleInsights(a).score);
+        // The catalogue is maintained newest-first from verified launch data.
+        // Keep that editorial order for the default Explore view so the latest
+        // India launches appear at the top; users can still choose another sort.
         break;
     }
 
