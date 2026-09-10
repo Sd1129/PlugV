@@ -36,6 +36,16 @@ export const chargingStations: ChargingStation[] = allChargingStations.filter((s
   return true;
 });
 
+export const chargingDataLastVerified = chargingStations
+  .map((station) => station.trust?.lastCheckedAt ?? station.charging.lastChecked ?? "")
+  .filter(Boolean)
+  .sort()
+  .at(-1) ?? "Not recorded";
+
+export const chargingDataSources = Array.from(
+  new Set(chargingStations.map((station) => station.trust?.sourceName ?? station.trust?.sourceType ?? "PlugV dataset"))
+).sort();
+
 export const states = Array.from(
   new Set(chargingStations.map((station) => station.state))
 ).sort();

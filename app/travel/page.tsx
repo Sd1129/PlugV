@@ -29,7 +29,7 @@ import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
 import TravelRouteMap from "@/components/travel/TravelRouteMap";
 import ChargerConfidenceBadge from "@/components/charging/ChargerConfidenceBadge";
-import { chargingStations, type ChargingStation } from "@/data/charging/stations";
+import { chargingDataLastVerified, chargingDataSources, chargingStations, type ChargingStation } from "@/data/charging/stations";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { readOwnerSavedItems, toggleTrustedCharger } from "@/lib/owner-saved-items";
@@ -557,6 +557,39 @@ export default function TravelPage() {
             <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">Plan any EV trip in India.</h1>
             <p className="mt-5 text-base leading-8 text-slate-200">Search for any city, neighbourhood, landmark, or place in India. PlugV calculates a road route and shows nearby entries from its current mapped-station dataset.</p>
             <div className="mt-8"><TravelRouteMap origin={origin} destination={destination} geometry={route?.geometry ?? []} primaryStops={recommendedStops} backupStops={backupStops.filter(Boolean) as NearbyStation[]} knownStops={nearbyStations.length} /></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-slate-950 py-12 sm:py-16">
+        <div className="mx-auto grid w-full max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+          <div className="rounded-[2rem] border border-sky-300/15 bg-sky-400/[0.06] p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">How the planner works</p>
+            <h2 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">A clear planning estimate in three steps.</h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              {["Choose two Indian places and PlugV requests a road route.", "Select your EV, battery reserve and driving conditions.", "PlugV ranks compatible mapped chargers near the route and shows backups."].map((step, index) => (
+                <div key={step} className="rounded-2xl border border-white/10 bg-slate-950/55 p-4">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-300 text-sm font-bold text-slate-950">{index + 1}</span>
+                  <p className="mt-4 text-sm leading-6 text-slate-200">{step}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-5 text-xs leading-5 text-slate-400">The live interactive map below is the demo: after you plan a route, it draws the route and places primary and backup charging markers on it.</p>
+          </div>
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-300">Data and privacy</p>
+            <h2 className="mt-3 text-2xl font-semibold text-white">Know what is stored and what is verified.</h2>
+            <ul className="mt-5 space-y-3 text-sm leading-6 text-slate-300">
+              <li>Routes are calculated when you request them; they are not saved unless you select <strong>Save trip</strong>.</li>
+              <li>Saved trips stay in this browser. Sharing happens only after you choose a share action.</li>
+              <li>Charging data was last checked on <strong>{chargingDataLastVerified}</strong>.</li>
+              <li>Sources: {chargingDataSources.join(", ")}.</li>
+            </ul>
+            <div className="mt-6 flex flex-wrap gap-4 text-sm font-semibold">
+              <Link href="/privacy" className="text-sky-200 hover:text-white">Privacy policy</Link>
+              <Link href="/terms" className="text-sky-200 hover:text-white">Terms of use</Link>
+              <Link href="/disclaimer#data-clarity" className="text-sky-200 hover:text-white">Data usage and clarity</Link>
+            </div>
           </div>
         </div>
       </section>
