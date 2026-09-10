@@ -1,5 +1,6 @@
 "use client";
 
+import { stationStatus } from "@/lib/charging/stationStatus";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GoogleMap, LoadScript, type Libraries } from "@react-google-maps/api";
 import { ExternalLink, MapPin, Radio, ShieldAlert, Zap } from "lucide-react";
@@ -35,10 +36,10 @@ function connectorNames(station: ChargingStation) {
 
 function liveStatus(station: ChargingStation) {
   const availability = station.availability;
-  const isLive = false; // Recorded metadata is not an authenticated live feed.
+  const isLive = stationStatus(station).live;
 
   if (!isLive || !availability) {
-    return { live: false, label: "Live status unavailable", colour: "#94a3b8" };
+    return { live: false, label: stationStatus(station).label, colour: "#94a3b8" };
   }
 
   const colours = {

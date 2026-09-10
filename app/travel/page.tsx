@@ -1,5 +1,6 @@
 "use client";
 
+import { stationStatus } from "@/lib/charging/stationStatus";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -166,7 +167,7 @@ function pickRecommendedStops(stations: NearbyStation[], count: number, distance
       .filter((station) => Math.abs(station.routeProgressKm - targetKm) <= Math.max(70, rechargeLegKm * 0.45))
       .sort((a, b) => {
         const score = (station: NearbyStation) => {
-          const availabilityBonus = 0; // Recorded status cannot establish current availability.
+          const availabilityBonus = stationStatus(station).status === "available" ? 22 : stationStatus(station).status === "offline" ? -50 : 0;
           const verifiedBonus = station.trust?.verified ? 10 : 0;
           const powerBonus = Math.min(station.charging.maxPowerKW ?? 0, 180) / (strategy === "fastest" ? 8 : 20);
           const detourWeight = strategy === "value" ? 7 : 4;
@@ -742,7 +743,7 @@ function StationCard({ station }: { station: NearbyStation }) {
   ].filter(Boolean) as string[];
   const availability = station.availability?.status ?? "unknown";
   const availabilityStyle = "border-white/10 text-slate-400";
-  const availabilityLabel = "Live availability not confirmed";
+  const availabilityLabel = stationStatus(station).label;
   const confidence = getChargerConfidence(station, { compatible: true });
 
   function toggleSaved() {

@@ -1,5 +1,6 @@
 "use client";
 
+import { stationStatus, operatorBookingUrl } from "@/lib/charging/stationStatus";
 import { useState } from "react";
 import { Bookmark, CalendarCheck, CheckCircle2, ExternalLink, MapPin, Navigation, Phone, Radio, ShieldAlert, Zap } from "lucide-react";
 import type { ChargingStation } from "@/data/charging/stations";
@@ -18,8 +19,8 @@ export default function StationCard({
   distanceLabel,
 }: StationCardProps) {
   const hasPower = station.charging.maxPowerKW > 0;
-  const hasLiveStatus = false; // No authenticated live operator feed is connected.
-  const bookingUrl = station.reservation?.supported && station.reservation.bookingUrl?.startsWith("https://") ? station.reservation.bookingUrl : null;
+  const hasLiveStatus = stationStatus(station).live;
+  const bookingUrl = operatorBookingUrl(station);
   const confidence = getChargerConfidence(station);
   const [isTrusted, setIsTrusted] = useState(() => typeof window !== "undefined" && readOwnerSavedItems().some((item) => item.type === "Charger" && item.stationId === station.id));
 
@@ -162,7 +163,7 @@ export default function StationCard({
           <div className={`rounded-xl border px-3 py-2.5 ${hasLiveStatus ? "border-emerald-300/20 bg-emerald-300/10" : "border-white/10 bg-slate-950/50"}`}>
             <p className={`flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${hasLiveStatus ? "text-emerald-200" : "text-slate-400"}`}>
               {hasLiveStatus ? <Radio className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
-              {hasLiveStatus ? `${station.availability?.status} now` : "Live status unavailable"}
+              {stationStatus(station).label}
             </p>
             <p className="mt-1 text-[10px] leading-4 text-slate-500">{hasLiveStatus ? `Operator update · ${new Date(station.availability!.lastUpdated!).toLocaleString("en-IN")}` : "Confirm in the operator app before departure."}</p>
           </div>

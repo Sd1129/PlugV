@@ -38,6 +38,8 @@ export type ChargingStation = {
     totalConnectors?: number;
     lastUpdated?: string;
     source?: string;
+    /** Set only by an authenticated operator integration, never a static import. */
+    liveFeedVerified?: boolean;
   };
 
   reservation?: {
@@ -45,6 +47,7 @@ export type ChargingStation = {
     bookingUrl?: string;
     provider?: string;
     lastChecked?: string;
+    verifiedBookingUrl?: boolean;
   };
 
   trust?: {

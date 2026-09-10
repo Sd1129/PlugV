@@ -1,3 +1,4 @@
+import { stationStatus, operatorBookingUrl } from "@/lib/charging/stationStatus";
 import { chargingStations } from "@/data/charging/stations";
 import type { ChargingStation } from "@/data/charging/types";
 import {
@@ -199,10 +200,10 @@ function searchStationCollection(
     if (connector === "bharat-ac" && !station.connectors.bharatAc) return false;
     if (connector === "bharat-dc" && !station.connectors.bharatDc) return false;
     if (liveOnly) {
-      const isLive = false; // Live operator integration is not connected.
+      const isLive = stationStatus(station).live;
       if (!isLive) return false;
     }
-    if (reservableOnly && !(station.reservation?.supported && station.reservation.bookingUrl)) return false;
+    if (reservableOnly && !operatorBookingUrl(station)) return false;
     if (!matchesSearch(station, search)) return false;
 
     return true;
