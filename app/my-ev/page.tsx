@@ -7,19 +7,19 @@ import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
-import { createDefaultOwnerProfile, profileCompletion, readOwnerProfile, writeOwnerProfile, type DriveCondition } from "@/lib/owner-profile";
+import { createDefaultOwnerProfile, readOwnerProfile, writeOwnerProfile, type DriveCondition } from "@/lib/owner-profile";
 
 type Reminder = { id: string; type: "Service" | "Insurance" | "Warranty" | "Registration" | "PUC" | "Tyres"; title: string; date: string; notifyDays?: number; createdAt?: string; email?: boolean };
 type EmailStatus = { verified: boolean; email?: string; reminders: Reminder[] };
 type SavedItem = { id: string; type: "Trip" | "Charger"; title: string; detail: string; href?: string; createdAt?: string; stationId?: string; trustedByOwner?: boolean };
-type AlertKey = "recalls" | "software" | "chargers" | "network";
 type ChargingLog = { id: string; date: string; location: string; type: "Home" | "Public"; energyKwh: number; cost: number; distanceKm: number };
 type ChecklistItem = { id: string; label: string; complete: boolean };
+type AssistanceContacts = { roadsideName: string; roadsidePhone: string; insurerName: string; insurerPhone: string };
 
-const STORAGE = { reminders: "plugv-owner-reminders", saved: "plugv-owner-saved", alerts: "plugv-owner-alerts", chargingLog: "plugv-owner-charging-log", checklist: "plugv-owner-checklist" };
-const defaultAlerts: Record<AlertKey, boolean> = { recalls: true, software: true, chargers: true, network: false };
+const STORAGE = { reminders: "plugv-owner-reminders", saved: "plugv-owner-saved", chargingLog: "plugv-owner-charging-log", checklist: "plugv-owner-checklist", assistance: "plugv-owner-assistance" };
 const defaultProfile = createDefaultOwnerProfile(vehicles[0]?.slug ?? "");
 const defaultChecklist: ChecklistItem[] = ["Tyre pressure and tread", "Charging cable and adapters", "Brakes, lights and wipers", "Coolant and washer fluid", "Roadside-assistance contacts"].map((label, index) => ({ id: `check-${index}`, label, complete: false }));
+const defaultAssistance: AssistanceContacts = { roadsideName: "", roadsidePhone: "", insurerName: "", insurerPhone: "" };
 
 function readLocal<T>(key: string, fallback: T): T {
   try { const value = window.localStorage.getItem(key); return value ? JSON.parse(value) as T : fallback; } catch { return fallback; }
@@ -39,10 +39,10 @@ export default function MyEvPage() {
   const [loss, setLoss] = useState(10);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [saved, setSaved] = useState<SavedItem[]>([]);
-  const [alerts, setAlerts] = useState(defaultAlerts);
   const [profile, setProfile] = useState(defaultProfile);
   const [chargingLog, setChargingLog] = useState<ChargingLog[]>([]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(defaultChecklist);
+  const [assistance, setAssistance] = useState<AssistanceContacts>(defaultAssistance);
   const [logDate, setLogDate] = useState(new Date().toISOString().slice(0, 10));
   const [logType, setLogType] = useState<ChargingLog["type"]>("Home");
   const [logLocation, setLogLocation] = useState("Home");
@@ -65,7 +65,6 @@ export default function MyEvPage() {
     const timeout = window.setTimeout(() => {
       setReminders(readLocal(STORAGE.reminders, []));
       setSaved(readLocal(STORAGE.saved, []));
-      setAlerts(readLocal(STORAGE.alerts, defaultAlerts));
       const storedProfile = readOwnerProfile(defaultProfile.vehicleSlug);
       const storedTripProfile = getVehicleTripProfile(storedProfile.vehicleSlug);
       const storedVariant = storedTripProfile?.variants.find((variant) => variant.name === storedProfile.variantName)
@@ -76,6 +75,7 @@ export default function MyEvPage() {
       if (storedVariant?.batteryCapacityKWh) setBattery(storedVariant.batteryCapacityKWh);
       setChargingLog(readLocal(STORAGE.chargingLog, []));
       setChecklist(readLocal(STORAGE.checklist, defaultChecklist));
+      setAssistance(readLocal(STORAGE.assistance, defaultAssistance));
       setNotificationPermission("Notification" in window ? Notification.permission : "unsupported");
       setReady(true);
     }, 0);
@@ -84,10 +84,10 @@ export default function MyEvPage() {
   useEffect(() => { fetch("/api/reminders/email", { cache: "no-store" }).then((response) => response.json()).then((data: EmailStatus) => { setEmailStatus(data); setSendByEmail(data.verified); if (data.reminders?.length) setReminders((items) => [...items.filter((item) => !data.reminders.some((remote) => remote.id === item.id)), ...data.reminders].sort((a,b) => a.date.localeCompare(b.date))); }).catch(() => undefined); }, []);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.reminders, JSON.stringify(reminders)); }, [ready, reminders]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.saved, JSON.stringify(saved)); }, [ready, saved]);
-  useEffect(() => { if (ready) localStorage.setItem(STORAGE.alerts, JSON.stringify(alerts)); }, [ready, alerts]);
   useEffect(() => { if (ready) writeOwnerProfile(profile); }, [ready, profile]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.chargingLog, JSON.stringify(chargingLog)); }, [ready, chargingLog]);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE.checklist, JSON.stringify(checklist)); }, [ready, checklist]);
+  useEffect(() => { if (ready) localStorage.setItem(STORAGE.assistance, JSON.stringify(assistance)); }, [ready, assistance]);
   useEffect(() => {
     if (!ready || notificationPermission !== "granted") return;
     const timeout = window.setTimeout(() => {
@@ -109,7 +109,6 @@ export default function MyEvPage() {
   const selectedVehicle = vehicles.find((vehicle) => vehicle.slug === profile.vehicleSlug) ?? vehicles[0];
   const selectedTripProfile = getVehicleTripProfile(profile.vehicleSlug);
   const selectedVariant = selectedTripProfile?.variants.find((variant) => variant.name === profile.variantName) ?? selectedTripProfile?.variants.find((variant) => variant.name === selectedTripProfile.defaultVariant) ?? selectedTripProfile?.variants[0];
-  const completion = profileCompletion(profile);
   const readiness = (() => {
     const conditionFactor = profile.condition === "city" ? 0.82 : profile.condition === "highway" ? 0.74 : 0.66;
     const practicalFullRange = selectedVariant?.practicalRangeKm ?? maximumRange(selectedVehicle?.range) * conditionFactor;
@@ -126,7 +125,9 @@ export default function MyEvPage() {
     const cost = entries.reduce((sum, item) => sum + item.cost, 0);
     const energy = entries.reduce((sum, item) => sum + item.energyKwh, 0);
     const distance = entries.reduce((sum, item) => sum + item.distanceKm, 0);
-    return { sessions: entries.length, cost, energy, efficiency: energy > 0 ? distance / energy : 0 };
+    const homeCost = entries.filter((item) => item.type === "Home").reduce((sum, item) => sum + item.cost, 0);
+    const publicCost = entries.filter((item) => item.type === "Public").reduce((sum, item) => sum + item.cost, 0);
+    return { sessions: entries.length, cost, energy, distance, homeCost, publicCost, efficiency: energy > 0 ? distance / energy : 0, costPerKm: distance > 0 ? cost / distance : 0 };
   }, [chargingLog]);
 
   const reminderSummary = useMemo(() => {
@@ -197,32 +198,6 @@ export default function MyEvPage() {
       </section>
 
       <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-12 sm:px-6 lg:px-8">
-        <section className="overflow-hidden rounded-[2rem] border border-sky-300/15 bg-white/[0.045]">
-          <OwnerSectionHeader icon={Car} eyebrow="Personal EV profile" title="Set it once. Personalize every PlugV decision." copy="Your vehicle, variant, driving and charging context improve range, cost and trip estimates across PlugV." />
-          <div className="grid gap-6 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label><span className="text-xs font-semibold text-slate-300">City</span><input value={profile.city} onChange={(event) => setProfile((value) => ({ ...value, city: event.target.value }))} placeholder="e.g. Hyderabad" className="field mt-2 w-full" /></label>
-              <label><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(event) => { const vehicleSlug = event.target.value; const tripProfile = getVehicleTripProfile(vehicleSlug); const variantName = tripProfile?.defaultVariant ?? ""; const variant = tripProfile?.variants.find((item) => item.name === variantName) ?? tripProfile?.variants[0]; setProfile((value) => ({ ...value, vehicleSlug, variantName })); if (variant?.batteryCapacityKWh) setBattery(variant.batteryCapacityKWh); }} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name}</option>)}</select></label>
-              <label><span className="text-xs font-semibold text-slate-300">Variant</span><select value={profile.variantName} onChange={(event) => { const variantName = event.target.value; const variant = selectedTripProfile?.variants.find((item) => item.name === variantName); setProfile((value) => ({ ...value, variantName })); if (variant?.batteryCapacityKWh) setBattery(variant.batteryCapacityKWh); }} className="field mt-2 w-full" disabled={!selectedTripProfile?.variants.length}><option value="">{selectedTripProfile?.variants.length ? "Select variant" : "Variant data unavailable"}</option>{selectedTripProfile?.variants.map((variant) => <option key={variant.name}>{variant.name}</option>)}</select></label>
-              <NumberField label="Daily distance" value={profile.dailyDistanceKm} onChange={(dailyDistanceKm) => setProfile((value) => ({ ...value, dailyDistanceKm }))} suffix="km" min={1} max={1000} />
-              <label><span className="text-xs font-semibold text-slate-300">Home charging</span><select value={profile.homeCharging} onChange={(event) => setProfile((value) => ({ ...value, homeCharging: event.target.value as typeof value.homeCharging }))} className="field mt-2 w-full"><option value="unknown">Not decided</option><option value="dedicated">Dedicated home charger</option><option value="shared">Shared parking charger</option><option value="workplace">Workplace charging</option><option value="public-only">Public charging only</option></select></label>
-              <NumberField label="Electricity tariff" value={profile.electricityTariff} onChange={(electricityTariff) => { setProfile((value) => ({ ...value, electricityTariff })); setTariff(electricityTariff); }} suffix="₹/kWh" min={0} max={100} step={0.5} />
-              <label><span className="text-xs font-semibold text-slate-300">Highway travel</span><select value={profile.highwayFrequency} onChange={(event) => setProfile((value) => ({ ...value, highwayFrequency: event.target.value as typeof value.highwayFrequency }))} className="field mt-2 w-full"><option value="rarely">Rarely</option><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></label>
-              <NumberField label="Family size" value={profile.familySize} onChange={(familySize) => setProfile((value) => ({ ...value, familySize }))} suffix="people" min={1} max={12} />
-              <NumberField label="Budget / vehicle value" value={profile.budgetLakhs} onChange={(budgetLakhs) => setProfile((value) => ({ ...value, budgetLakhs }))} suffix="₹ lakh" min={1} max={500} step={0.5} />
-            </div>
-            <div className="rounded-[1.5rem] border border-sky-300/15 bg-sky-400/[0.07] p-6">
-              <div className="flex items-center justify-between"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200">Profile readiness</p><span className="text-lg font-semibold">{completion}%</span></div>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-950/70"><div className="h-full rounded-full bg-sky-300" style={{ width: `${completion}%` }} /></div>
-              <div className="mt-6 space-y-3 text-sm leading-6 text-slate-300">
-                <p>{selectedVariant ? `${selectedVariant.name}: ${selectedVariant.practicalRangeKm} km planning range and ${selectedVariant.batteryCapacityKWh} kWh battery.` : "Select a supported variant for variant-specific range and battery estimates."}</p>
-                {profile.homeCharging === "public-only" ? <p className="rounded-xl border border-amber-300/15 bg-amber-400/[0.07] p-3 text-amber-100">Public-charging dependent: save at least two compatible, recently verified chargers near home.</p> : null}
-                <p>Profile data is stored only in this browser. Cross-device sync requires a future secure PlugV account and is not active yet.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className="overflow-hidden rounded-[2rem] border border-emerald-300/15 bg-white/[0.045]">
           <OwnerSectionHeader icon={Gauge} eyebrow="Today’s EV check" title="Can your EV comfortably complete today’s drive?" copy="Enter your current battery and expected driving. PlugV keeps a 15% reserve and adjusts claimed range for everyday conditions." />
           <div className="grid gap-6 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr]">
@@ -247,6 +222,29 @@ export default function MyEvPage() {
           <OwnerSnapshot icon={Bookmark} label="Saved trips & chargers" value={`${saved.length} saved`} href="#owner-saved" />
           <OwnerSnapshot icon={ShieldCheck} label="Need help?" value="Safety steps & helplines" href="#emergency-help" />
         </section>
+
+        <details className="group overflow-hidden rounded-[2rem] border border-sky-300/15 bg-white/[0.045]" open={!profile.variantName}>
+          <summary className="cursor-pointer list-none"><OwnerSectionHeader icon={Car} eyebrow="My EV profile" title="Vehicle and charging setup" copy="Set this once to personalize range and charging-cost estimates. Changes save automatically on this device." /></summary>
+          <div className="grid gap-6 border-t border-white/10 p-5 sm:p-7 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label><span className="text-xs font-semibold text-slate-300">City</span><input value={profile.city} onChange={(event) => setProfile((value) => ({ ...value, city: event.target.value }))} placeholder="e.g. Hyderabad" className="field mt-2 w-full" /></label>
+              <label><span className="text-xs font-semibold text-slate-300">Your EV</span><select value={profile.vehicleSlug} onChange={(event) => { const vehicleSlug = event.target.value; const tripProfile = getVehicleTripProfile(vehicleSlug); const variantName = tripProfile?.defaultVariant ?? ""; const variant = tripProfile?.variants.find((item) => item.name === variantName) ?? tripProfile?.variants[0]; setProfile((value) => ({ ...value, vehicleSlug, variantName })); if (variant?.batteryCapacityKWh) setBattery(variant.batteryCapacityKWh); }} className="field mt-2 w-full">{vehicles.map((vehicle) => <option key={vehicle.slug} value={vehicle.slug}>{vehicle.brand} {vehicle.name}</option>)}</select></label>
+              <label><span className="text-xs font-semibold text-slate-300">Variant</span><select value={profile.variantName} onChange={(event) => { const variantName = event.target.value; const variant = selectedTripProfile?.variants.find((item) => item.name === variantName); setProfile((value) => ({ ...value, variantName })); if (variant?.batteryCapacityKWh) setBattery(variant.batteryCapacityKWh); }} className="field mt-2 w-full" disabled={!selectedTripProfile?.variants.length}><option value="">{selectedTripProfile?.variants.length ? "Select variant" : "Variant data unavailable"}</option>{selectedTripProfile?.variants.map((variant) => <option key={variant.name}>{variant.name}</option>)}</select></label>
+              <NumberField label="Typical daily driving" value={profile.dailyDistanceKm} onChange={(dailyDistanceKm) => setProfile((value) => ({ ...value, dailyDistanceKm }))} suffix="km" min={1} max={1000} />
+              <label><span className="text-xs font-semibold text-slate-300">Usual charging access</span><select value={profile.homeCharging} onChange={(event) => setProfile((value) => ({ ...value, homeCharging: event.target.value as typeof value.homeCharging }))} className="field mt-2 w-full"><option value="unknown">Not set</option><option value="dedicated">Dedicated home charger</option><option value="shared">Shared parking charger</option><option value="workplace">Workplace charging</option><option value="public-only">Public charging only</option></select></label>
+              <NumberField label="Home electricity tariff" value={profile.electricityTariff} onChange={(electricityTariff) => { setProfile((value) => ({ ...value, electricityTariff })); setTariff(electricityTariff); }} suffix="₹/kWh" min={0} max={100} step={0.5} />
+              <label><span className="text-xs font-semibold text-slate-300">Highway travel</span><select value={profile.highwayFrequency} onChange={(event) => setProfile((value) => ({ ...value, highwayFrequency: event.target.value as typeof value.highwayFrequency }))} className="field mt-2 w-full"><option value="rarely">Rarely</option><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></label>
+            </div>
+            <div className="rounded-[1.5rem] border border-sky-300/15 bg-sky-400/[0.07] p-6">
+              <div className="flex items-center justify-between"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200">Owner profile</p><span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-200"><CheckCircle2 className="h-4 w-4" />Auto-saved</span></div>
+              <div className="mt-6 space-y-3 text-sm leading-6 text-slate-300">
+                <p>{selectedVariant ? `${selectedVehicle.brand} ${selectedVehicle.name} ${selectedVariant.name}: ${selectedVariant.practicalRangeKm} km planning range and ${selectedVariant.batteryCapacityKWh} kWh battery.` : "Select a supported variant for variant-specific range and battery estimates."}</p>
+                {profile.homeCharging === "public-only" ? <p className="rounded-xl border border-amber-300/15 bg-amber-400/[0.07] p-3 text-amber-100">Public-charging dependent: keep one primary and one backup compatible charger near home.</p> : null}
+                <p>Your profile remains in this browser. It is not synced to another device or used for advertising.</p>
+              </div>
+            </div>
+          </div>
+        </details>
 
         <section id="charging-cost" className="overflow-hidden rounded-[2rem] border border-sky-300/15 bg-white/[0.045]">
           <OwnerSectionHeader icon={Calculator} eyebrow="Charging cost calculator" title="Know what the next charge may cost" copy="Adjust the battery, charge level, tariff and charging loss. The result is a planning estimate." />
@@ -297,7 +295,7 @@ export default function MyEvPage() {
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.04]">
             <OwnerSectionHeader icon={WalletCards} eyebrow="Charging log" title="Track energy, spend and efficiency" copy="Record home and public charging sessions to understand your real monthly ownership cost." />
-            <div className="grid grid-cols-2 gap-3 border-t border-white/10 p-5 sm:grid-cols-4"><Metric label="This month" value={`₹${monthlyCharging.cost.toFixed(0)}`} /><Metric label="Energy" value={`${monthlyCharging.energy.toFixed(1)} kWh`} /><Metric label="Sessions" value={`${monthlyCharging.sessions}`} /><Metric label="Efficiency" value={monthlyCharging.efficiency ? `${monthlyCharging.efficiency.toFixed(1)} km/kWh` : "—"} /></div>
+            <div className="grid grid-cols-2 gap-3 border-t border-white/10 p-5 sm:grid-cols-3 lg:grid-cols-6"><Metric label="This month" value={`₹${monthlyCharging.cost.toFixed(0)}`} /><Metric label="Distance" value={monthlyCharging.distance ? `${monthlyCharging.distance.toFixed(0)} km` : "—"} /><Metric label="Efficiency" value={monthlyCharging.efficiency ? `${monthlyCharging.efficiency.toFixed(1)} km/kWh` : "—"} /><Metric label="Running cost" value={monthlyCharging.costPerKm ? `₹${monthlyCharging.costPerKm.toFixed(2)}/km` : "—"} /><Metric label="Home spend" value={`₹${monthlyCharging.homeCost.toFixed(0)}`} /><Metric label="Public spend" value={`₹${monthlyCharging.publicCost.toFixed(0)}`} /></div>
             <form onSubmit={addChargingLog} className="grid gap-3 border-t border-white/10 p-5 sm:grid-cols-2">
               <input type="date" value={logDate} onChange={(event) => setLogDate(event.target.value)} className="field" aria-label="Charging date" />
               <select value={logType} onChange={(event) => { const type = event.target.value as ChargingLog["type"]; setLogType(type); if (!logLocation || logLocation === "Home" || logLocation === "Public charger") setLogLocation(type === "Home" ? "Home" : "Public charger"); }} className="field"><option>Home</option><option>Public</option></select>
@@ -319,15 +317,23 @@ export default function MyEvPage() {
 
         <div className="grid gap-6 xl:grid-cols-[1fr_0.85fr]">
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.04]">
-            <OwnerSectionHeader icon={Bell} eyebrow="Owner alerts" title="Choose what matters to you" copy="Preferences are ready; live manufacturer and charging-network alert delivery will be added after official feeds are connected." />
+            <OwnerSectionHeader icon={Bell} eyebrow="Verified updates" title="Check official information without false alerts" copy="PlugV does not claim live recall or software alerts until an official, dependable feed is connected." />
             <div className="grid gap-3 border-t border-white/10 p-5 sm:grid-cols-2">
-              {([{ key: "recalls", label: "Safety recalls", detail: "Manufacturer-issued safety campaigns" }, { key: "software", label: "Software updates", detail: "Official vehicle update notices" }, { key: "chargers", label: "New nearby chargers", detail: "Verified network additions" }, { key: "network", label: "Charging-network changes", detail: "Tariff or access updates" }] as const).map((item) => <label key={item.key} className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4"><span><span className="block text-sm font-semibold">{item.label}</span><span className="mt-1 block text-xs leading-5 text-slate-500">{item.detail}</span></span><input type="checkbox" checked={alerts[item.key]} onChange={() => setAlerts((value) => ({ ...value, [item.key]: !value[item.key] }))} className="h-5 w-5 accent-sky-400" /></label>)}
+              <Link href={`/vehicles/${selectedVehicle.slug}`} className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/50 p-4 hover:bg-white/[0.06]"><span><span className="block text-sm font-semibold">Your vehicle details</span><span className="mt-1 block text-xs leading-5 text-slate-500">Recheck specifications, variants and source notes</span></span><ChevronRight className="h-4 w-4 text-slate-500" /></Link>
+              <Link href="/upcoming" className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/50 p-4 hover:bg-white/[0.06]"><span><span className="block text-sm font-semibold">India EV launch radar</span><span className="mt-1 block text-xs leading-5 text-slate-500">Official announcements, targets and concepts</span></span><ChevronRight className="h-4 w-4 text-slate-500" /></Link>
+              <Link href="/charging" className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/50 p-4 hover:bg-white/[0.06]"><span><span className="block text-sm font-semibold">Charging network</span><span className="mt-1 block text-xs leading-5 text-slate-500">Search compatible stations and check data freshness</span></span><ChevronRight className="h-4 w-4 text-slate-500" /></Link>
+              <Link href="/knowledge" className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/50 p-4 hover:bg-white/[0.06]"><span><span className="block text-sm font-semibold">Owner guides</span><span className="mt-1 block text-xs leading-5 text-slate-500">Practical charging, cost and ownership guidance</span></span><ChevronRight className="h-4 w-4 text-slate-500" /></Link>
             </div>
           </section>
 
           <section id="emergency-help" className="scroll-mt-24 rounded-[2rem] border border-red-300/15 bg-red-400/[0.045]">
             <OwnerSectionHeader icon={HeartPulse} eyebrow="Emergency assistance" title="Help when it matters" copy="PlugV provides verified public contact shortcuts; it does not operate emergency or roadside services." />
             <div className="space-y-3 border-t border-white/10 p-5">
+              <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-4">
+                <p className="text-sm font-semibold">Your roadside contacts</p><p className="mt-1 text-xs leading-5 text-slate-500">Save the numbers printed in your owner manual, insurance policy or manufacturer app. They stay on this device.</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2"><input value={assistance.roadsideName} onChange={(event) => setAssistance((value) => ({ ...value, roadsideName: event.target.value }))} placeholder="Roadside provider" className="field" aria-label="Roadside provider" /><input type="tel" value={assistance.roadsidePhone} onChange={(event) => setAssistance((value) => ({ ...value, roadsidePhone: event.target.value }))} placeholder="Roadside phone" className="field" aria-label="Roadside phone" /><input value={assistance.insurerName} onChange={(event) => setAssistance((value) => ({ ...value, insurerName: event.target.value }))} placeholder="Insurer" className="field" aria-label="Insurer name" /><input type="tel" value={assistance.insurerPhone} onChange={(event) => setAssistance((value) => ({ ...value, insurerPhone: event.target.value }))} placeholder="Insurance helpline" className="field" aria-label="Insurance helpline" /></div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">{assistance.roadsidePhone ? <a href={`tel:${assistance.roadsidePhone.replace(/[^\d+]/g, "")}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-sky-300/20 bg-sky-400/10 px-4 text-sm font-semibold text-sky-100"><Phone className="h-4 w-4" />Call {assistance.roadsideName || "roadside assistance"}</a> : null}{assistance.insurerPhone ? <a href={`tel:${assistance.insurerPhone.replace(/[^\d+]/g, "")}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-sky-300/20 bg-sky-400/10 px-4 text-sm font-semibold text-sky-100"><Phone className="h-4 w-4" />Call {assistance.insurerName || "insurer"}</a> : null}</div>
+              </div>
               <EmergencyLink number="112" title="Pan-India emergency" detail="Police, fire, medical and rescue emergencies" href="https://112.gov.in/" />
               <EmergencyLink number="1033" title="National Highway helpline" detail="Incident and road assistance on National Highways" href="https://nhai.gov.in/" />
               <Link href="/charging" className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/55 p-4 hover:bg-white/[0.06]"><span className="flex items-center gap-3"><MapPin className="h-5 w-5 text-sky-300" /><span><span className="block text-sm font-semibold">Find a nearby charger</span><span className="mt-1 block text-xs text-slate-500">Open PlugV charging search</span></span></span><ChevronRight className="h-4 w-4 text-slate-500" /></Link>
