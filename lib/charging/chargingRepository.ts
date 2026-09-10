@@ -199,7 +199,7 @@ function searchStationCollection(
     if (connector === "bharat-ac" && !station.connectors.bharatAc) return false;
     if (connector === "bharat-dc" && !station.connectors.bharatDc) return false;
     if (liveOnly) {
-      const isLive = station.charging.reviewSource === "operator" && Boolean(station.availability?.lastUpdated) && station.availability?.status !== "unknown";
+      const isLive = false; // Live operator integration is not connected.
       if (!isLive) return false;
     }
     if (reservableOnly && !(station.reservation?.supported && station.reservation.bookingUrl)) return false;

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bookmark, CalendarCheck, CheckCircle2, ExternalLink, MapPin, Navigation, Phone, Radio, ShieldAlert, Zap } from "lucide-react";
 import type { ChargingStation } from "@/data/charging/stations";
+import StationDataNote from "@/components/charging/StationDataNote";
 import StationTrustRow from "@/components/charging/StationTrustRow";
 import ChargerConfidenceBadge from "@/components/charging/ChargerConfidenceBadge";
 import { getChargerConfidence } from "@/lib/charging/chargerConfidence";
@@ -17,7 +18,7 @@ export default function StationCard({
   distanceLabel,
 }: StationCardProps) {
   const hasPower = station.charging.maxPowerKW > 0;
-  const hasLiveStatus = station.charging.reviewSource === "operator" && Boolean(station.availability?.lastUpdated) && station.availability?.status !== "unknown";
+  const hasLiveStatus = false; // No authenticated live operator feed is connected.
   const bookingUrl = station.reservation?.supported && station.reservation.bookingUrl?.startsWith("https://") ? station.reservation.bookingUrl : null;
   const confidence = getChargerConfidence(station);
   const [isTrusted, setIsTrusted] = useState(() => typeof window !== "undefined" && readOwnerSavedItems().some((item) => item.type === "Charger" && item.stationId === station.id));
@@ -48,7 +49,7 @@ export default function StationCard({
 </h3>
 
 <div className="mt-2">
-  <StationTrustRow trust={station.trust} />
+  <StationTrustRow trust={station.trust} /><StationDataNote station={station} />
 </div>
 
 <div className="mt-2"><ChargerConfidenceBadge confidence={confidence} /></div>
@@ -166,8 +167,8 @@ export default function StationCard({
             <p className="mt-1 text-[10px] leading-4 text-slate-500">{hasLiveStatus ? `Operator update · ${new Date(station.availability!.lastUpdated!).toLocaleString("en-IN")}` : "Confirm in the operator app before departure."}</p>
           </div>
           <div className={`rounded-xl border px-3 py-2.5 ${bookingUrl ? "border-violet-300/20 bg-violet-300/10" : "border-white/10 bg-slate-950/50"}`}>
-            <p className={`flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${bookingUrl ? "text-violet-200" : "text-slate-400"}`}><CalendarCheck className="h-3 w-3" />{bookingUrl ? "Advance booking available" : "Booking not connected"}</p>
-            <p className="mt-1 text-[10px] leading-4 text-slate-500">{bookingUrl ? `Secure handoff to ${station.reservation?.provider ?? station.operator}.` : "Shown only after an authorized operator integration."}</p>
+            <p className={`flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${bookingUrl ? "text-violet-200" : "text-slate-400"}`}><CalendarCheck className="h-3 w-3" />{bookingUrl ? "Check operator booking" : "Booking not connected"}</p>
+            <p className="mt-1 text-[10px] leading-4 text-slate-500">{bookingUrl ? `Booking handled by ${station.reservation?.provider ?? station.operator}.` : "Shown only after an authorized operator integration."}</p>
           </div>
         </div>
 

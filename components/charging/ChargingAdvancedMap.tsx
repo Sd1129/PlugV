@@ -35,11 +35,7 @@ function connectorNames(station: ChargingStation) {
 
 function liveStatus(station: ChargingStation) {
   const availability = station.availability;
-  const isLive = Boolean(
-    station.charging.reviewSource === "operator" &&
-      availability?.lastUpdated &&
-      availability.status !== "unknown"
-  );
+  const isLive = false; // Recorded metadata is not an authenticated live feed.
 
   if (!isLive || !availability) {
     return { live: false, label: "Live status unavailable", colour: "#94a3b8" };
@@ -192,7 +188,7 @@ export default function ChargingAdvancedMap({
             <a href={selectedStation.directionsUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-400 px-4 py-2.5 text-xs font-semibold text-slate-950 transition hover:bg-sky-300">Open directions <ExternalLink className="h-3.5 w-3.5" /></a>
           </div>
         ) : (
-          <p className="text-sm text-slate-400">Select a marker to inspect its operator, plug types, power and verified availability state.</p>
+          <p className="text-sm text-slate-400">Select a marker to inspect its operator, plug types, power and recorded station details.</p>
         )}
       </div>
     </section>

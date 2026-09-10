@@ -11,13 +11,13 @@ function timestampAgeHours(value?: string) {
 
 export function getChargerConfidence(station: ChargingStation, context: { compatible?: boolean; backupAvailable?: boolean } = {}): ChargerConfidence {
   const isOfficial = station.trust?.sourceType === "OFFICIAL";
-  const ageHours = timestampAgeHours(station.availability?.lastUpdated ?? station.trust?.lastCheckedAt ?? station.charging.lastChecked);
+  const ageHours = timestampAgeHours(station.trust?.lastCheckedAt ?? station.charging.lastChecked);
   const freshness = ageHours === null ? 0 : ageHours <= 1 ? 25 : ageHours <= 24 ? 20 : ageHours <= 168 ? 12 : 5;
-  const availability = station.availability?.status === "available" ? 15 : station.availability?.status === "limited" ? 10 : station.availability?.status === "busy" ? 6 : 0;
+  const availability = 0; // Historical status must not increase confidence in current availability.
   const factors: ConfidenceFactor[] = [
     { label: "Data source", points: isOfficial ? 25 : station.trust?.sourceName ? 14 : 6, maximum: 25, detail: isOfficial ? "Official source" : station.trust?.sourceName ?? "Source not identified" },
     { label: "Freshness", points: freshness, maximum: 25, detail: ageHours === null ? "No verification timestamp" : ageHours <= 24 ? "Checked within 24 hours" : `Checked about ${Math.round(ageHours / 24)} days ago` },
-    { label: "Current status", points: availability, maximum: 15, detail: station.availability?.status ? `Reported ${station.availability.status}` : "No live status" },
+    { label: "Live availability", points: availability, maximum: 15, detail: "No live operator feed connected" },
     { label: "Station verification", points: station.trust?.verified ? 15 : 4, maximum: 15, detail: station.trust?.verified ? "Station details verified" : "Verification pending" },
     { label: "Access information", points: station.openingHours ? 5 : 0, maximum: 5, detail: station.openingHours ?? "Opening hours unavailable" },
     { label: "Vehicle compatibility", points: context.compatible === false ? 0 : 5, maximum: 5, detail: context.compatible === false ? "Not compatible with selected EV" : context.compatible ? "Compatible with selected EV" : "Check connector compatibility" },
