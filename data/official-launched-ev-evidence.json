@@ -1,14 +1,142 @@
 [
-  { "slug": "mahindra-be-6", "brand": "Mahindra", "model": "BE 6 SPORTEQ series", "sourceUrl": "https://www.mahindra.com/news-room/press-release/en/mahindra-introduces-the-be-6-sporteq-a-bold-new-expression-of-sport-technology-and-electric-performance", "verifiedOn": "2026-08-29" },
-  { "slug": "tata-tigor-ev", "brand": "Tata", "model": "Tigor EV", "sourceUrl": "https://ev.tatamotors.com/tigor/ev.html", "verifiedOn": "2026-08-26" },
-  { "slug": "mahindra-xev-9s", "brand": "Mahindra", "model": "XEV 9S", "sourceUrl": "https://www.mahindraelectricsuv.com/", "verifiedOn": "2026-08-26" },
-  { "slug": "mahindra-xuv-3xo-ev", "brand": "Mahindra", "model": "XUV 3XO EV", "sourceUrl": "https://auto.mahindra.com/press-release/mahindra-introduces-xuv-3xo-ev-range.html", "verifiedOn": "2026-08-26" },
-  { "slug": "byd-emax-7", "brand": "BYD", "model": "eMAX 7", "sourceUrl": "https://bydautoindia.com/bydemax7", "verifiedOn": "2026-08-26" },
-  { "slug": "volvo-ex40", "brand": "Volvo", "model": "EX40", "sourceUrl": "https://www.volvocars.com/in/cars/electric-cars/", "verifiedOn": "2026-08-26" },
-  { "slug": "volvo-ec40", "brand": "Volvo", "model": "EC40", "sourceUrl": "https://www.volvocars.com/in/cars/ec40-electric/", "verifiedOn": "2026-08-26" },
-  { "slug": "hyundai-ioniq-5", "brand": "Hyundai", "model": "IONIQ 5", "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/ioniq-5/highlights", "verifiedOn": "2026-09-07" },
-  { "slug": "kia-ev9", "brand": "Kia", "model": "EV9", "sourceUrl": "https://www.kia.com/in/our-vehicles/ev9/showroom.html", "verifiedOn": "2026-09-07" },
-  { "slug": "bmw-ix1-lwb", "brand": "BMW", "model": "iX1 LWB", "sourceUrl": "https://www.bmw.in/en/all-models/bmw-i/iX1/2025/bmw-ix1-highlights.html", "verifiedOn": "2026-08-26" },
-  { "slug": "bmw-i5-m60", "brand": "BMW", "model": "i5 M60", "sourceUrl": "https://www.bmw.in/en/all-models.html?bmwM=yes", "verifiedOn": "2026-08-26" },
-  { "slug": "mg-hector-tomahawk-ev", "brand": "MG", "model": "Hector Tomahawk EV", "sourceUrl": "https://www.mgmotor.co.in/vehicles/hector-tomahawk/ev", "verifiedOn": "2026-09-07" }
+  {
+    "slug": "mahindra-be-6",
+    "brand": "Mahindra",
+    "model": "BE 6 SPORTEQ series",
+    "sourceUrl": "https://www.mahindra.com/news-room/press-release/en/mahindra-introduces-the-be-6-sporteq-a-bold-new-expression-of-sport-technology-and-electric-performance",
+    "verifiedOn": "2026-08-29"
+  },
+  {
+    "slug": "tata-tigor-ev",
+    "brand": "Tata",
+    "model": "Tigor EV",
+    "sourceUrl": "https://ev.tatamotors.com/tigor/ev.html",
+    "verifiedOn": "2026-08-26"
+  },
+  {
+    "slug": "mahindra-xev-9s",
+    "brand": "Mahindra",
+    "model": "XEV 9S",
+    "sourceUrl": "https://www.mahindraelectricsuv.com/",
+    "verifiedOn": "2026-08-26"
+  },
+  {
+    "slug": "mahindra-xuv-3xo-ev",
+    "brand": "Mahindra",
+    "model": "XUV 3XO EV",
+    "sourceUrl": "https://auto.mahindra.com/press-release/mahindra-introduces-xuv-3xo-ev-range.html",
+    "verifiedOn": "2026-08-26"
+  },
+  {
+    "slug": "byd-emax-7",
+    "brand": "BYD",
+    "model": "eMAX 7",
+    "sourceUrl": "https://bydautoindia.com/bydemax7",
+    "verifiedOn": "2026-08-26"
+  },
+  {
+    "slug": "volvo-ex40",
+    "brand": "Volvo",
+    "model": "EX40",
+    "sourceUrl": "https://www.volvocars.com/in/cars/electric-cars/",
+    "verifiedOn": "2026-08-26"
+  },
+  {
+    "slug": "volvo-ec40",
+    "brand": "Volvo",
+    "model": "EC40",
+    "sourceUrl": "https://www.volvocars.com/in/cars/ec40-electric/",
+    "verifiedOn": "2026-08-26"
+  },
+  {
+    "slug": "hyundai-ioniq-5",
+    "brand": "Hyundai",
+    "model": "IONIQ 5",
+    "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/ioniq-5/highlights",
+    "verifiedOn": "2026-09-07"
+  },
+  {
+    "slug": "kia-ev9",
+    "brand": "Kia",
+    "model": "EV9",
+    "sourceUrl": "https://www.kia.com/in/our-vehicles/ev9/showroom.html",
+    "verifiedOn": "2026-09-07"
+  },
+  {
+    "slug": "bmw-ix1-lwb",
+    "brand": "BMW",
+    "model": "iX1 LWB",
+    "sourceUrl": "https://www.bmw.in/en/all-models/bmw-i/iX1/2025/bmw-ix1-highlights.html",
+    "verifiedOn": "2026-08-26"
+  },
+  {
+    "slug": "bmw-i5-m60",
+    "brand": "BMW",
+    "model": "i5 M60",
+    "sourceUrl": "https://www.bmw.in/en/all-models.html?bmwM=yes",
+    "verifiedOn": "2026-08-26"
+  },
+  {
+    "slug": "mg-hector-tomahawk-ev",
+    "brand": "MG",
+    "model": "Hector Tomahawk EV",
+    "sourceUrl": "https://www.mgmotor.co.in/vehicles/hector-tomahawk/ev",
+    "verifiedOn": "2026-09-07"
+  },
+  {
+    "slug": "maruti-suzuki-e-vitara",
+    "brand": "Maruti Suzuki",
+    "model": "e Vitara",
+    "sourceUrl": "https://www.marutisuzuki.com/corporate/media/press-releases/2026/february/india-goes-electric-with-maruti-suzuki-e-vitara-introductory-baas-price-starts",
+    "verifiedOn": "2026-09-11",
+    "verificationScope": "India launch only; current price and variant specifications require separate verification"
+  },
+  {
+    "slug": "vinfast-vf6",
+    "brand": "VinFast",
+    "model": "VF6",
+    "sourceUrl": "https://vinfastauto.in/en/press-release/vinfast-makes-its-landmark-debut-with-launch-of-made-in-india-premium-electric-suvs",
+    "verifiedOn": "2026-09-11",
+    "verificationScope": "India launch only; current price and variant specifications require separate verification"
+  },
+  {
+    "slug": "vinfast-vf7",
+    "brand": "VinFast",
+    "model": "VF7",
+    "sourceUrl": "https://vinfastauto.in/en/press-release/vinfast-makes-its-landmark-debut-with-launch-of-made-in-india-premium-electric-suvs",
+    "verifiedOn": "2026-09-11",
+    "verificationScope": "India launch only; current price and variant specifications require separate verification"
+  },
+  {
+    "slug": "vinfast-vf-mpv-7",
+    "brand": "VinFast",
+    "model": "VF MPV 7",
+    "sourceUrl": "https://vinfastauto.in/en/press-release/vinfast-launches-the-all-new-vf-mpv-7-a-spacious-electric-seven-seater-for-indian",
+    "verifiedOn": "2026-09-11",
+    "verificationScope": "India launch only; current price and variant specifications require separate verification"
+  },
+  {
+    "slug": "tata-tiago-ev",
+    "brand": "Tata",
+    "model": "Tiago EV",
+    "sourceUrl": "https://www.tatamotors.com/press-releases/get-ready-to-go-ev-with-tiago-ev-tata-motors-launches-its-first-electric-hatch-with-segment-first-premium-features/",
+    "verifiedOn": "2026-09-11",
+    "verificationScope": "Historical India launch only. Current pricing, variants and availability require separate review."
+  },
+  {
+    "slug": "tata-punch-ev",
+    "brand": "Tata",
+    "model": "Punch EV",
+    "sourceUrl": "https://www.tatamotors.com/press-releases/tata-passenger-electric-mobility-launches-its-first-pure-ev-punch-ev-powered-by-acti-ev/",
+    "verifiedOn": "2026-09-11",
+    "verificationScope": "Historical India launch only. Current pricing, variants and availability require separate review."
+  },
+  {
+    "slug": "mg-windsor-ev",
+    "brand": "MG",
+    "model": "Windsor EV",
+    "sourceUrl": "https://www.mgmotor.co.in/media-center/newsroom/mg-windsor-to-disrupt-the-car-industry",
+    "verifiedOn": "2026-09-11",
+    "verificationScope": "Historical India launch only. Current pricing, variants and availability require separate review."
+  }
 ]

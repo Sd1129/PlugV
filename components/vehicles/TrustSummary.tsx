@@ -1,112 +1,19 @@
-import { getVehicleInsights } from "@/lib/insights/vehicleInsights";
+import evidence from "@/data/official-launched-ev-evidence.json";
 
-type Vehicle = {
-  name: string;
-  brand: string;
-  type: string;
-  status: string;
-  range?: string;
-  charging?: string;
-  price?: string;
-};
-
-function ScoreRing({ score }: { score: number }) {
-  const pct = Math.max(0, Math.min(100, score));
-  return (
-    <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-slate-950/70 shadow-inner shadow-black/30">
-      <div className="text-center">
-        <div className="text-2xl font-black text-white">{pct}</div>
-        <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
-          PlugV Score
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MetricPill({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-        {label}
-      </p>
-      <p className="mt-2 text-sm font-semibold text-white">{value}</p>
-    </div>
-  );
-}
+type Vehicle = { slug?: string; name: string; brand: string };
 
 export default function TrustSummary({ vehicle }: { vehicle: Vehicle }) {
-  const insights = getVehicleInsights(vehicle as never);
-
+  const record = evidence.find((item) => item.slug === vehicle.slug);
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300/80">
-            Trust & intelligence
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white">
-            Buyer score and evidence-led verdict.
-          </h2>
-          <p className="mt-4 text-sm leading-7 text-slate-300">
-            A relative buying indicator based on listed range, entry price,
-            verified charging evidence and body-style practicality.
-          </p>
-
-          <p className="mt-6 text-base leading-7 text-slate-200">
-            {insights.verdict}
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
-              {insights.buyNow ? "Strong on paper" : "Compare closely"}
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
-              Data confidence {insights.confidence}%
-            </span>
-          </div>
-        </div>
-
-        <ScoreRing score={insights.score} />
-      </div>
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <MetricPill label="Best for" value={insights.bestFor.join(" · ") || "—"} />
-        <MetricPill
-          label="Evidence quality"
-          value={`${insights.confidence}% data confidence`}
-        />
-        <MetricPill
-          label="Ownership fit"
-          value={insights.considerAlternatives ? "Compare alternatives" : "Strong match"}
-        />
-      </div>
-
-      <div className="mt-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300/80">
-          Ownership snapshot
-        </p>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {insights.ownership.map((item) => (
-            <div
-              key={item.label}
-              className="rounded-2xl border border-white/10 bg-slate-950/70 p-4"
-            >
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                {item.label}
-              </p>
-              <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+    <section className="rounded-[2rem] border border-white/10 bg-white/5 p-6">
+      <p className="text-xs uppercase tracking-widest text-sky-300">Evidence status</p>
+      <h2 className="mt-3 text-2xl font-semibold text-white">{vehicle.brand} {vehicle.name}</h2>
+      <p className="mt-4 text-sm leading-7 text-slate-300">
+        {record ? "An India launch source is recorded for this model." : "India launch evidence review is pending for this model."}
+        {" "}Launch evidence does not verify every price, variant or range figure. Catalogue specification review is ongoing.
+      </p>
+      {record && <p className="mt-4 text-sm text-sky-300"><a href={record.sourceUrl} target="_blank" rel="noopener noreferrer">View manufacturer source</a><span className="text-slate-400"> · Recorded check: {record.verifiedOn}</span></p>}
+      <p className="mt-4 text-sm leading-7 text-slate-400">No numerical trust rating or overall buyer score is assigned. Confirm the selected variant, battery-inclusive price and range test cycle before making a purchase decision.</p>
     </section>
   );
 }

@@ -15,7 +15,7 @@ const launchedSlugs = new Set([...launchedBody.matchAll(/slug:\s*"([^"]+)"/g)].m
 const transitioned = [];
 const officialHosts = [
   "hyundai.com", "kia.com", "mgmotor.co.in", "volvocars.com", "vinfastauto.in",
-  "hondacarindia.com", "tatamotors.com", "mahindra.com", "mahindraelectricsuv.com",
+  "hondacarindia.com", "honda.com", "global.honda", "tatamotors.com", "mahindra.com", "mahindraelectricsuv.com",
   "toyota.com", "global.toyota", "toyotabharat.com", "marutisuzuki.com",
 ];
 
@@ -36,13 +36,13 @@ for (const block of blocks) {
     if (!officialHosts.some((allowed) => host === allowed || host.endsWith(`.${allowed}`))) blockers.push(`${slug}: source is not on the approved manufacturer domain list (${host})`);
   }
   if (!["Official announcement", "Manufacturer target", "Official concept"].includes(status ?? "")) blockers.push(`${slug}: invalid evidence status`);
-  if (typeof year === "number" && year !== currentYear && year !== nextYear) blockers.push(`${slug}: launch year ${year} is outside the active ${currentYear}–${nextYear} window`);
+  if (typeof year === "number" && year !== currentYear && year !== nextYear) blockers.push(`${slug}: launch year ${year} is outside the active ${currentYear}Ã¢â‚¬â€œ${nextYear} window`);
   if (year === null) blockers.push(`${slug}: missing launchYear`);
 }
 
 if (!slugs.size) blockers.push("Upcoming catalogue is empty");
 else passes.push(`${slugs.size} upcoming entries have structured launch evidence`);
-passes.push(`Active launch window is calculated automatically as ${currentYear}–${nextYear}`);
+passes.push(`Active launch window is calculated automatically as ${currentYear}Ã¢â‚¬â€œ${nextYear}`);
 if (transitioned.length) passes.push(`${transitioned.length} launched model(s) are automatically excluded from Upcoming: ${transitioned.join(", ")}`);
 else passes.push("No vehicle is simultaneously visible in Explore EVs and Upcoming");
 
@@ -52,7 +52,7 @@ const lines = [
   ...passes.map((item) => `- PASS: ${item}`),
   ...warnings.map((item) => `- REVIEW: ${item}`),
   ...blockers.map((item) => `- BLOCK: ${item}`), "",
-  `Result: ${blockers.length ? "NOT READY" : warnings.length ? "READY WITH REVIEWS" : "READY"}`,
+  `Result: ${blockers.length ? "NOT READY" : warnings.length ? "READY WITH REVIEWS" : "STRUCTURAL CHECKS PASSED â€” factual source review still required"}`,
 ];
 
 console.log(`\n${lines.join("\n")}`);

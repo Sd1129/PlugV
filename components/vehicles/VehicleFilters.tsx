@@ -33,7 +33,7 @@ type VehicleFiltersProps = {
 };
 
 const DEFAULT_SORT_OPTIONS: readonly SortOption[] = [
-  { value: "recommended", label: "Recommended" },
+  { value: "recommended", label: "Verified launch date (newest first)" },
   { value: "range-desc", label: "Range (high to low)" },
   { value: "price-asc", label: "Price (low to high)" },
   { value: "name-asc", label: "Name (A–Z)" },
@@ -178,7 +178,7 @@ export default function VehicleFilters({
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            {sortBy === "recommended" ? <p className="basis-full text-xs leading-5 text-slate-400"><span className="font-semibold text-sky-200">Recommended:</span> balances listed range, starting-price value, verified charging evidence and body-style practicality. It is not sponsored or personalised financial advice.</p> : null}
+            {sortBy === "recommended" ? <p className="basis-full text-xs leading-5 text-slate-400"><span className="font-semibold text-sky-200">Launch order:</span> newest recorded India launch dates first. Models without a verified launch date appear afterwards; date verification is still in progress.</p> : null}
             <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300"><input type="checkbox" checked={verifiedOnly} onChange={(event) => onVerifiedOnly(event.target.checked)} className="h-4 w-4 accent-emerald-400" />Verified trip specs only</label>
 
             <button

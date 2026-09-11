@@ -93,9 +93,8 @@ function VehiclesContent() {
         sorted.sort((a, b) => a.name.localeCompare(b.name));
         break;
       default:
-        // The catalogue is maintained newest-first from verified launch data.
-        // Keep that editorial order for the default Explore view so the latest
-        // India launches appear at the top; users can still choose another sort.
+        // ISO dates sort chronologically; undated entries stay below dated entries.
+        sorted.sort((a, b) => (b.launchDate ?? "").localeCompare(a.launchDate ?? ""));
         break;
     }
 

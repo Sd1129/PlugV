@@ -178,7 +178,7 @@ function CompareContent() {
   const requestedComparisonVehicle = launchedVehicles.find((vehicle) => vehicle.slug === requestedComparisonSlug);
   const [leftSlug, setLeftSlug] = useState(requestedVehicle?.slug ?? launchedVehicles[0]?.slug ?? "");
   const [rightSlug, setRightSlug] = useState(
-    requestedComparisonVehicle?.slug ?? launchedVehicles.find((vehicle) => vehicle.slug !== requestedVehicle?.slug)?.slug ?? launchedVehicles[0]?.slug ?? ""
+    (requestedComparisonVehicle?.slug !== leftSlug ? requestedComparisonVehicle?.slug : undefined) ?? launchedVehicles.find((vehicle) => vehicle.slug !== leftSlug)?.slug ?? ""
   );
   const [annualDistanceKm, setAnnualDistanceKm] = useState(12000);
   const [electricityRate, setElectricityRate] = useState(10);
@@ -381,13 +381,14 @@ function CompareContent() {
 
           <select
             value={leftSlug}
-            onChange={(e) => setLeftSlug(e.target.value)}
+            onChange={(e) => { if (e.target.value !== rightSlug) setLeftSlug(e.target.value); }}
             className="mt-3 min-h-12 w-full rounded-xl border border-white/10 bg-slate-950/90 px-3 py-3 text-sm font-semibold text-white outline-none [color-scheme:dark]"
           >
             {launchedVehicles.map((vehicle) => (
               <option
                 key={vehicle.slug}
                 value={vehicle.slug}
+                disabled={vehicle.slug === rightSlug}
                 className="bg-slate-950 text-white"
               >
                 {vehicle.brand} — {vehicle.name}
@@ -409,13 +410,14 @@ function CompareContent() {
 
           <select
             value={rightSlug}
-            onChange={(e) => setRightSlug(e.target.value)}
+            onChange={(e) => { if (e.target.value !== leftSlug) setRightSlug(e.target.value); }}
             className="mt-3 min-h-12 w-full rounded-xl border border-white/10 bg-slate-950/90 px-3 py-3 text-sm font-semibold text-white outline-none [color-scheme:dark]"
           >
             {launchedVehicles.map((vehicle) => (
               <option
                 key={vehicle.slug}
                 value={vehicle.slug}
+                disabled={vehicle.slug === leftSlug}
                 className="bg-slate-950 text-white"
               >
                 {vehicle.brand} — {vehicle.name}
@@ -562,11 +564,10 @@ function CompareContent() {
                 Trust & intelligence
               </p>
               <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                One intelligence standard everywhere.
+                Check the evidence for each model.
               </h2>
               <p className="mt-4 text-base leading-7 text-slate-400">
-                The same PlugV score, verdict, and ownership snapshot now
-                appears across comparison flows too.
+                Review recorded manufacturer sources and the limits of the ongoing catalogue audit.
               </p>
             </div>
           </div>

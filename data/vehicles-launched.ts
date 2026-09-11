@@ -9,6 +9,9 @@ export type LaunchedVehicle = {
     range?: string;
     charging?: string;
     slug: string;
+    launchDate?: string;
+    launchSourceUrl?: string;
+    launchCheckedAt?: string;
   };
   
   export const launchedVehicles: LaunchedVehicle[] = [
@@ -20,7 +23,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹15.99 - ₹20.01 Lakh",
       range: "440 - 543 km",
-      charging: "142 - 172 bhp",
+      charging: "Charging specification not verified",
       slug: "maruti-suzuki-e-vitara",
     },
     {
@@ -31,7 +34,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹9.69 - ₹12.79 Lakh",
       range: "365 - 468 km",
-      charging: "87 - 127 bhp",
+      charging: "Charging specification not verified",
       slug: "tata-punch-ev",
     },
     {
@@ -42,7 +45,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹18.90 - ₹28.49 Lakh",
       range: "556 - 682 km",
-      charging: "228 - 282 bhp",
+      charging: "Charging specification not verified",
       slug: "mahindra-be-6",
     },
     {
@@ -53,7 +56,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹6.99 - ₹9.99 Lakh",
       range: "226 - 285 km",
-      charging: "19.2 - 24 kWh",
+      charging: "Charging specification not verified",
       slug: "tata-tiago-ev",
     },
     {
@@ -64,7 +67,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹21.90 - ₹31.25 Lakh",
       range: "542 - 656 km",
-      charging: "228 - 282 bhp",
+      charging: "Charging specification not verified",
       slug: "mahindra-xev-9e",
     },
     {
@@ -75,7 +78,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹13.50 - ₹20 Lakh",
       range: "443 - 526 km",
-      charging: "133 - 169 bhp",
+      charging: "Charging specification not verified",
       slug: "kia-syros-ev",
     },
     {
@@ -86,7 +89,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹14.70 - ₹19 Lakh",
       range: "332 - 449 km",
-      charging: "134 bhp",
+      charging: "Charging specification not verified",
       slug: "mg-windsor-ev",
     },
     {
@@ -97,7 +100,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹18.79 - ₹26.48 Lakh",
       range: "566 - 665 km",
-      charging: "63 - 75 kWh",
+      charging: "Charging specification not verified",
       slug: "tata-sierra-ev",
     },
     {
@@ -108,7 +111,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹12.49 - ₹17.69 Lakh",
       range: "275 - 489 km",
-      charging: "127 - 142 bhp",
+      charging: "Charging specification not verified",
       slug: "tata-nexon-ev",
     },
     {
@@ -119,7 +122,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹7.80 - ₹10.07 Lakh",
       range: "230 km",
-      charging: "41.42 - 42 bhp",
+      charging: "Charging specification not verified",
       slug: "mg-comet-ev",
     },
     {
@@ -130,7 +133,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹21.69 - ₹30.43 Lakh",
       range: "538 - 627 km",
-      charging: "235 - 390 bhp",
+      charging: "Charging specification not verified",
       slug: "tata-harrier-ev",
     },
     {
@@ -141,7 +144,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹82.50 - ₹87.49 Lakh",
       range: "580 km",
-      charging: "503 bhp",
+      charging: "Charging specification not verified",
       slug: "mg-cyberster",
     },
     {
@@ -152,7 +155,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹18.03 - ₹24.70 Lakh",
       range: "390 - 510 km",
-      charging: "133 - 169 bhp",
+      charging: "Charging specification not verified",
       slug: "hyundai-creta-electric",
     },
     {
@@ -163,7 +166,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹16.99 - ₹19.49 Lakh",
       range: "502 km",
-      charging: "165 bhp",
+      charging: "Charging specification not verified",
       slug: "tata-curvv-ev",
     },
     {
@@ -174,7 +177,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹3.99 - ₹5.99 Lakh",
       range: "125 - 250 km",
-      charging: "16 - 20.11 bhp",
+      charging: "Charging specification not verified",
       slug: "vayve-mobility-eva",
     },
     {
@@ -185,7 +188,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹24.99 - ₹34.49 Lakh",
       range: "468 - 521 km",
-      charging: "201 bhp",
+      charging: "Charging specification not verified",
       slug: "byd-atto-3",
     },
     {
@@ -196,8 +199,11 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹22.99 - ₹28.09 Lakh",
       range: "438 - 532 km",
-      charging: "174.33 - 348.66 bhp",
+      charging: "Charging specification not verified",
       slug: "vinfast-vf7",
+      launchDate: "2025-09-06",
+      launchSourceUrl: "https://vinfastauto.in/en/press-release/vinfast-makes-its-landmark-debut-with-launch-of-made-in-india-premium-electric-suvs",
+      launchCheckedAt: "2026-09-11",
     },
     {
       brand: "BMW",
@@ -207,7 +213,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹2.10 - ₹2.58 Cr",
       range: "560 - 625 km",
-      charging: "536.4 - 650.39 bhp",
+      charging: "Charging specification not verified",
       slug: "bmw-i7",
     },
     {
@@ -218,7 +224,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹65.97 Lakh",
       range: "663 km",
-      charging: "321 bhp",
+      charging: "Charging specification not verified",
       slug: "kia-ev6",
     },
     {
@@ -229,7 +235,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹17.99 - ₹20.75 Lakh",
       range: "461 km",
-      charging: "174.33 bhp",
+      charging: "Charging specification not verified",
       slug: "mg-zs-ev",
     },
     {
@@ -240,7 +246,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹49.90 - ₹55.90 Lakh",
       range: "542 - 567 km",
-      charging: "308 - 523 bhp",
+      charging: "Charging specification not verified",
       slug: "byd-sealion-7",
     },
     {
@@ -251,7 +257,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹41.50 - ₹53.65 Lakh",
       range: "510 - 650 km",
-      charging: "201.15 - 523 bhp",
+      charging: "Charging specification not verified",
       slug: "byd-seal",
     },
     {
@@ -262,8 +268,11 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹18.19 - ₹20.09 Lakh",
       range: "463 - 468 km",
-      charging: "174.33 - 201.15 bhp",
+      charging: "Charging specification not verified",
       slug: "vinfast-vf6",
+      launchDate: "2025-09-06",
+      launchSourceUrl: "https://vinfastauto.in/en/press-release/vinfast-makes-its-landmark-debut-with-launch-of-made-in-india-premium-electric-suvs",
+      launchCheckedAt: "2026-09-11",
     },
     {
       brand: "Kia",
@@ -273,7 +282,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹18.04 - ₹25 Lakh",
       range: "404 - 490 km",
-      charging: "133 - 169 bhp",
+      charging: "Charging specification not verified",
       slug: "kia-carens-clavis-ev",
     },
     {
@@ -284,7 +293,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹79.95 - ₹84.94 Lakh",
       range: "548 km",
-      charging: "242 bhp",
+      charging: "Charging specification not verified",
       slug: "mg-m9",
     },
     {
@@ -295,7 +304,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹15.49 - ₹17.69 Lakh",
       range: "375 - 456 km",
-      charging: "34.5 - 39.4 kWh",
+      charging: "Charging specification not verified",
       slug: "mahindra-xuv400-ev",
     },
     {
@@ -327,9 +336,12 @@ export type LaunchedVehicle = {
       status: "Launched",
       launched: true,
       price: "₹24.49 Lakh",
-      range: "—",
-      charging: "—",
+      range: "517 km (ARAI certified)",
+      charging: "DC 10-70% in 30 min (manufacturer claim)",
       slug: "vinfast-vf-mpv-7",
+      launchDate: "2026-04-15",
+      launchSourceUrl: "https://vinfastauto.in/en/press-release/vinfast-launches-the-all-new-vf-mpv-7-a-spacious-electric-seven-seater-for-indian",
+      launchCheckedAt: "2026-09-11",
     },
     {
       brand: "Tata",
@@ -350,8 +362,11 @@ export type LaunchedVehicle = {
       launched: true,
       price: "₹19.95 - ₹29.45 Lakh",
       range: "521 - 679 km",
-      charging: "70 - 79 kWh",
+      charging: "Charging specification not verified",
       slug: "mahindra-xev-9s",
+      launchDate: "2025-11-27",
+      launchSourceUrl: "https://www.mahindra.com/news-room/press-release/en/mahindra-unveils-xev-9s-indias-big-new-electric-7-seater-suv-starting-at-rupees-19.95-lakh",
+      launchCheckedAt: "2026-09-11",
     },
     {
       brand: "Mahindra",
@@ -427,7 +442,7 @@ export type LaunchedVehicle = {
       launched: true,
       price: "From ₹52.40 Lakh",
       range: "Up to 546 km (MIDC)",
-      charging: "66.4 kWh",
+      charging: "Charging specification not verified",
       slug: "bmw-ix1-lwb",
     },
     {
@@ -449,7 +464,10 @@ export type LaunchedVehicle = {
       launched: true,
       price: "From ₹13.99 Lakh + ₹4.90/km BaaS",
       range: "Up to 517 km (certified)",
-      charging: "69.2 kWh",
+      charging: "Charging specification not verified",
       slug: "mg-hector-tomahawk-ev",
+      launchDate: "2026-08-26",
+      launchSourceUrl: "https://www.mgmotor.co.in/media-center/newsroom/jsw-mg-motor-india-redefines-the-future-of-mobility-launches-the-mg-hector-tomahawk-in-ev-and-phev",
+      launchCheckedAt: "2026-09-11",
     },
   ];

@@ -65,6 +65,10 @@ function VehicleCard({
 
   return (
     <article className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 shadow-[0_20px_60px_-28px_rgba(0,0,0,0.72)] backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-sky-400/20 hover:shadow-[0_24px_80px_-24px_rgba(56,189,248,0.18)]">
+      <div className="px-4 py-3 text-sm leading-6 text-slate-300">
+        {vehicle.launchSourceUrl ? <a href={vehicle.launchSourceUrl} target="_blank" rel="noopener noreferrer" className="text-sky-200 underline">India launch: {vehicle.launchDate} · source checked {vehicle.launchCheckedAt}</a> : <p>India launch date: verification pending</p>}
+        <p>Price and range: catalogue figures under review. Confirm the variant, test cycle and current price with the manufacturer.</p>
+      </div>
       <div className={`relative h-[230px] overflow-hidden bg-gradient-to-br ${accent}`}>
         <Image
             src={vehicleVisual.src}
@@ -77,12 +81,12 @@ function VehicleCard({
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(225deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:26px_26px] opacity-15" />
 
         <div className="absolute left-4 top-4 rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200 backdrop-blur">
-          #{index + 1} pick
+          #{index + 1}
         </div>
 
         {vehicleVisual.plugvConcept ? <div className="absolute right-4 top-4 rounded-full border border-sky-300/20 bg-slate-950/70 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-sky-100 backdrop-blur">PlugV concept</div> : null}
 
-        {tripProfile && vehicleVisual.modelSpecific ? <div className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/15 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-emerald-100 backdrop-blur"><BadgeCheck className="h-3.5 w-3.5" />Official specs</div> : null}
+        {tripProfile && vehicleVisual.modelSpecific ? <div className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/15 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-emerald-100 backdrop-blur"><BadgeCheck className="h-3.5 w-3.5" />Trip specification source</div> : null}
 
         <div className="absolute inset-x-0 bottom-0 p-4">
           <div className="rounded-[1.25rem] border border-white/10 bg-slate-950/70 px-4 py-3 backdrop-blur">
