@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "brand": "Hyundai",
+    "url": "https://www.hyundai.com/content/hyundai/in/en/find-a-car/kona-electric/highlights",
+    "status": "REVIEW_REQUIRED",
+    "evidenceType": "OFFICIAL_MANUFACTURER_LINK"
+  },
+  {
+    "brand": "Lotus",
+    "url": "https://www.lotuscars.com/en-in/emeya",
+    "status": "REVIEW_REQUIRED",
+    "evidenceType": "OFFICIAL_MANUFACTURER_LINK"
+  }
+]
