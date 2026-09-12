@@ -5,11 +5,8 @@ import Link from "next/link";
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  ArrowRight,
-  BatteryCharging,
   CheckCircle2,
   Gauge,
-  MapPinned,
   Sparkles,
   Zap,
 } from "lucide-react";
@@ -19,15 +16,7 @@ import TrustSummary from "@/components/vehicles/TrustSummary";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getVehicleVisual } from "@/data/vehicle-images";
-import { getCompareInsights } from "@/lib/compare/compareEngine";
 import { getBuyingSpecs } from "@/data/vehicle-buying-specs";
-
-function parseNumeric(value?: string) {
-  if (!value) return 0;
-  const cleaned = value.replace(/,/g, "");
-  const match = cleaned.match(/(\d+(\.\d+)?)/);
-  return match ? Number(match[1]) : 0;
-}
 
 function accentFor(seed: string) {
   const accents = [
@@ -114,57 +103,6 @@ function Pill({
   return <span className={classes}>{children}</span>;
 }
 
-function InsightCard({
-  title,
-  subtitle,
-  value,
-  icon,
-}: {
-  title: string;
-  subtitle: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <article className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur">
-      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/70 text-sky-200">
-        {icon}
-      </div>
-      <h3 className="mt-5 text-xl font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-sm leading-7 text-slate-400">{subtitle}</p>
-      <p className="mt-4 text-sm font-semibold text-sky-300">{value}</p>
-    </article>
-  );
-}
-
-function StatusBar({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  const numeric = parseNumeric(value);
-  const width = Math.max(12, Math.min(100, numeric > 0 ? numeric / 5 : 20));
-
-  return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
-          {label}
-        </p>
-        <p className="text-sm font-semibold text-white">{value}</p>
-      </div>
-      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/5">
-        <div
-          className="h-full rounded-full bg-sky-400"
-          style={{ width: `${width}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
 function CompareContent() {
   const searchParams = useSearchParams();
   const launchedVehicles = useMemo(
@@ -199,20 +137,13 @@ function CompareContent() {
     [rightSlug, launchedVehicles]
   );
 
-  const compareInsights = useMemo(() => getCompareInsights(vehicles), []);
 
-  const leftRange = parseNumeric(leftVehicle?.range);
-  const rightRange = parseNumeric(rightVehicle?.range);
-  const leftPrice = parseNumeric(leftVehicle?.price);
-  const rightPrice = parseNumeric(rightVehicle?.price);
   const leftTripVariant = defaultTripVariant(leftVehicle?.slug);
   const rightTripVariant = defaultTripVariant(rightVehicle?.slug);
   const leftBuyingSpecs = getBuyingSpecs(leftVehicle?.slug ?? "");
   const rightBuyingSpecs = getBuyingSpecs(rightVehicle?.slug ?? "");
   const leftVariantSpecs = leftBuyingSpecs.variantDetails[0];
   const rightVariantSpecs = rightBuyingSpecs.variantDetails[0];
-  const leftCharging = leftTripVariant?.maxDcChargeKW ?? 0;
-  const rightCharging = rightTripVariant?.maxDcChargeKW ?? 0;
   const leftEfficiency = leftTripVariant ? leftTripVariant.batteryCapacityKWh / leftTripVariant.practicalRangeKm : 0.16;
   const rightEfficiency = rightTripVariant ? rightTripVariant.batteryCapacityKWh / rightTripVariant.practicalRangeKm : 0.16;
   const leftEnergyCost = Math.round(annualDistanceKm * ownershipYears * leftEfficiency * electricityRate);
@@ -255,48 +186,7 @@ function CompareContent() {
     },
   ];
 
-  const decisionCards = [
-    {
-      title: "Best for city",
-      subtitle:
-        "Optimized for daily commutes, practicality, and easy urban ownership.",
-      value: compareInsights.bestCity?.vehicle?.name ?? "—",
-      icon: <Sparkles className="h-4 w-4" />,
-    },
-    {
-      title: "Best for highway",
-      subtitle:
-        "Strong for longer drives, range confidence, and fast-charge planning.",
-      value: compareInsights.bestHighway?.vehicle?.name ?? "—",
-      icon: <MapPinned className="h-4 w-4" />,
-    },
-    {
-      title: "Best for family",
-      subtitle:
-        "More confidence for family trips, cabin utility, and everyday versatility.",
-      value: compareInsights.bestFamily?.vehicle?.name ?? "—",
-      icon: <BatteryCharging className="h-4 w-4" />,
-    },
-    {
-      title: "Best value",
-      subtitle: "A stronger balance of price and usability for smart buyers.",
-      value: compareInsights.bestValue?.vehicle?.name ?? "—",
-      icon: <Gauge className="h-4 w-4" />,
-    },
-    {
-      title: "Best range",
-      subtitle:
-        "For shoppers who care about travel confidence and fewer charging stops.",
-      value: compareInsights.bestRange?.vehicle?.name ?? "—",
-      icon: <ArrowRight className="h-4 w-4" />,
-    },
-    {
-      title: "Best charging",
-      subtitle: "The quickest charging experience in the launched lineup.",
-      value: compareInsights.bestCharging?.vehicle?.name ?? "—",
-      icon: <BatteryCharging className="h-4 w-4" />,
-    },
-  ];
+
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
@@ -579,124 +469,7 @@ function CompareContent() {
         </div>
       </section>
 
-      <section className="py-20 sm:py-24">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300/80">
-                Smart compare
-              </p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Richer recommendations for real buyers.
-              </h2>
-            </div>
-          </div>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {decisionCards.map((item) => (
-              <InsightCard key={item.title} {...item} />
-            ))}
-          </div>
-
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur lg:col-span-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300/80">
-                Head-to-head signals
-              </p>
-              <h3 className="mt-3 text-2xl font-semibold text-white">
-                Current comparison signals
-              </h3>
-
-              <div className="mt-6 grid gap-4">
-                <StatusBar
-                  label="Range advantage"
-                  value={
-                    leftRange === rightRange
-                      ? "Even"
-                      : leftRange > rightRange
-                        ? leftVehicle?.name ?? "—"
-                        : rightVehicle?.name ?? "—"
-                  }
-                />
-                <StatusBar
-                  label="Charging advantage"
-                  value={
-                    leftCharging === 0 && rightCharging === 0
-                      ? "Not verified"
-                      : leftCharging === rightCharging
-                      ? "Even"
-                      : leftCharging > rightCharging
-                        ? leftVehicle?.name ?? "—"
-                        : rightVehicle?.name ?? "—"
-                  }
-                />
-                <StatusBar
-                  label="Price position"
-                  value={
-                    leftPrice === rightPrice
-                      ? "Even"
-                      : leftPrice < rightPrice
-                        ? leftVehicle?.name ?? "—"
-                        : rightVehicle?.name ?? "—"
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300/80">
-                Quick verdict
-              </p>
-              <h3 className="mt-3 text-2xl font-semibold text-white">
-                Better EV decision flow.
-              </h3>
-
-              <div className="mt-5 space-y-4">
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-                    Range
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-white">
-                    {leftRange === rightRange
-                      ? "Even"
-                      : leftRange > rightRange
-                        ? leftVehicle?.name ?? "—"
-                        : rightVehicle?.name ?? "—"}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-                    Charging
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-white">
-                    {leftCharging === 0 && rightCharging === 0
-                      ? "Not verified"
-                      : leftCharging === rightCharging
-                      ? "Even"
-                      : leftCharging > rightCharging
-                        ? leftVehicle?.name ?? "—"
-                        : rightVehicle?.name ?? "—"}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-                    Value
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-white">
-                    {leftPrice === rightPrice
-                      ? "Even"
-                      : leftPrice < rightPrice
-                        ? leftVehicle?.name ?? "—"
-                        : rightVehicle?.name ?? "—"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section className="border-t border-white/10 bg-white/[0.02] py-14">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">

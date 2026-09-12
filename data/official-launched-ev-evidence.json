@@ -138,5 +138,29 @@
     "sourceUrl": "https://www.mgmotor.co.in/media-center/newsroom/mg-windsor-to-disrupt-the-car-industry",
     "verifiedOn": "2026-09-11",
     "verificationScope": "Historical India launch only. Current pricing, variants and availability require separate review."
+  },
+  {
+    "slug": "mahindra-xev-9e",
+    "brand": "Mahindra",
+    "model": "XEV 9e",
+    "sourceUrl": "https://auto.mahindra.com/press-release/mahindra-launches-be-6e-starting-at-indian-rupee-19-lakh-and-xev-9e-starting-at-indian-rupee-22-lakh.html",
+    "verifiedOn": "2026-09-12",
+    "verificationScope": "Historical India launch only; current prices and variants require separate review."
+  },
+  {
+    "slug": "tata-curvv-ev",
+    "brand": "Tata",
+    "model": "Curvv EV",
+    "sourceUrl": "https://www.tatamotors.com/press-releases/shapedforyou-tata-motors-disrupts-the-mid-suv-segment-with-indias-first-suv-coupe/",
+    "verifiedOn": "2026-09-12",
+    "verificationScope": "Historical India launch only; current prices and variants require separate review."
+  },
+  {
+    "slug": "mg-comet-ev",
+    "brand": "MG",
+    "model": "Comet EV",
+    "sourceUrl": "https://www.mgmotor.co.in/content/dam/mg-redesign/mg-comet-ev/documents/cm-dc-pdf-002.pdf",
+    "verifiedOn": "2026-09-12",
+    "verificationScope": "Historical India launch only; current prices and variants require separate review."
   }
 ]
