@@ -14,7 +14,7 @@ const slugs = new Set();
 const launchedSlugs = new Set([...launchedBody.matchAll(/slug:\s*"([^"]+)"/g)].map((match) => match[1]));
 const transitioned = [];
 const officialHosts = [
-  "hyundai.com", "kia.com", "mgmotor.co.in", "volvocars.com", "vinfastauto.in",
+  "evayve.com", "hyundai.com", "kia.com", "mgmotor.co.in", "volvocars.com", "vinfastauto.in",
   "hondacarindia.com", "honda.com", "global.honda", "tatamotors.com", "mahindra.com", "mahindraelectricsuv.com",
   "toyota.com", "global.toyota", "toyotabharat.com", "marutisuzuki.com",
 ];

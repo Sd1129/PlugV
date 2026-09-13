@@ -162,5 +162,133 @@
     "sourceUrl": "https://www.mgmotor.co.in/content/dam/mg-redesign/mg-comet-ev/documents/cm-dc-pdf-002.pdf",
     "verifiedOn": "2026-09-12",
     "verificationScope": "Historical India launch only; current prices and variants require separate review."
+  },
+  {
+    "slug": "kia-ev6",
+    "brand": "Kia",
+    "model": "EV6",
+    "sourceUrl": "https://www.kia.com/in/our-vehicles/ev6/showroom.html",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Current India manufacturer listing with booking flow; launch date, current prices and variant details require separate review."
+  },
+  {
+    "slug": "kia-carens-clavis-ev",
+    "brand": "Kia",
+    "model": "Carens Clavis EV",
+    "sourceUrl": "https://www.kia.com/in/our-vehicles/carens-clavis-ev/showroom.html",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Current India manufacturer sales listing; full catalogue pricing and variant reconciliation remains pending."
+  },
+  {
+    "slug": "volvo-ex30",
+    "brand": "Volvo",
+    "model": "EX30",
+    "sourceUrl": "https://www.volvocars.com/in/cars/ex30-electric/",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Current India purchase listing; range and charging figures on this page are preliminary manufacturer estimates, not independently verified performance."
+  },
+  {
+    "slug": "hyundai-creta-electric",
+    "brand": "Hyundai",
+    "model": "Creta Electric",
+    "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/creta-electric/highlights",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Current India sales listing and manufacturer-claimed range: 420 km for 42 kWh and 510 km for 51.4 kWh. Current prices and all variant details require separate review."
+  },
+  {
+    "slug": "mg-cyberster",
+    "brand": "MG",
+    "model": "Cyberster",
+    "sourceUrl": "https://www.mgmotor.co.in/content/dam/brand/mgmotor/press-release/documents/mgi-pr-pdf-0049.pdf",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Historical India launch only; current availability, prices and variants require separate review."
+  },
+  {
+    "slug": "tata-nexon-ev",
+    "brand": "Tata",
+    "model": "Nexon EV",
+    "sourceUrl": "https://www.tatamotors.com/press-releases/tata-motors-ushers-in-a-new-wave-of-e-mobility-in-india-launches-the-nexon-ev-at-inr-13-99-lakhs/",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Historical India launch only; current availability, prices and variants require separate review."
+  },
+  {
+    "slug": "tata-harrier-ev",
+    "brand": "Tata",
+    "model": "Harrier EV",
+    "sourceUrl": "https://www.tatamotors.com/press-releases/tata-motors-consolidated-q1-fy26-results/",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Historical India launch only; current availability, prices and variants require separate review."
+  },
+  {
+    "slug": "byd-sealion-7",
+    "brand": "BYD",
+    "model": "Sealion 7",
+    "sourceUrl": "https://bydautoindia.com/news/BYD-India-announces-scheduled-price-hike-for-the-BYD-SEALION-7-from-early-2026",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Historical India launch only; current availability, prices and variants require separate review."
+  },
+  {
+    "slug": "byd-atto-3",
+    "brand": "BYD",
+    "model": "Atto 3",
+    "sourceUrl": "https://www.bydautoindia.com/news/the_first_sporty_born_ev_byd_atto_3_launched_in_india",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Historical India launch only; current availability, prices and variants require separate review."
+  },
+  {
+    "slug": "mahindra-xuv400-ev",
+    "brand": "Mahindra",
+    "model": "XUV400 EV",
+    "sourceUrl": "https://www.mahindra.com/news-room/press-release/en/mahindra-launches-its-first-csegment-electric-suv-the-fun-and-fast-xuv400-starting-at-inr-15-99-lakh",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Historical India launch only; current availability, prices and variants require separate review."
+  },
+  {
+    "slug": "byd-seal",
+    "brand": "BYD",
+    "model": "Seal",
+    "sourceUrl": "https://bydautoindia.com/news/byd-india-enters-the-luxury-electric-sedan-segment-with-the-byd-seal",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Historical India launch or India-market manufacturer specification record only; current availability, prices and variants require separate review."
+  },
+  {
+    "slug": "mg-m9",
+    "brand": "MG",
+    "model": "M9",
+    "sourceUrl": "https://www.mgmotor.co.in/media-center/newsroom/mg-m9-indias-presidential-limousine-launched-at-an-introductory-price-of-inr-69-90lakhs",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Historical India launch or India-market manufacturer specification record only; current availability, prices and variants require separate review."
+  },
+  {
+    "slug": "bmw-i7",
+    "brand": "BMW",
+    "model": "i7",
+    "sourceUrl": "https://www.bmw.in/content/dam/bmw/marketIN/bmw_in/brochure%20download/specsheets/2023/bmw-i-series/i7/bmw-specsheet-i7-a4-december-2023.pdf.asset.1703657424654.pdf",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Historical India launch or India-market manufacturer specification record only; current availability, prices and variants require separate review."
+  },
+  {
+    "slug": "kia-syros-ev",
+    "brand": "Kia",
+    "model": "Syros EV",
+    "sourceUrl": "https://www.kia.com/in/our-vehicles/syros-ev/showroom.html",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Current India manufacturer sales listing with booking flow only; exact launch date, prices and full variant specifications require separate review."
+  },
+  {
+    "slug": "tata-sierra-ev",
+    "brand": "Tata",
+    "model": "Sierra EV",
+    "sourceUrl": "https://ev.tata.cars/sierra/ev.html",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Current India manufacturer sales listing with booking flow only; exact launch date, prices and full variant specifications require separate review."
+  },
+  {
+    "slug": "mg-zs-ev",
+    "brand": "MG",
+    "model": "ZS EV",
+    "sourceUrl": "https://www.mgmotor.co.in/vehicles/mgzsev-electric-car-in-india",
+    "verifiedOn": "2026-09-13",
+    "verificationScope": "Current India manufacturer sales listing with booking flow only; exact launch date, prices and full variant specifications require separate review."
   }
 ]

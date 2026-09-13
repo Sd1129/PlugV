@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import {
   BadgeCheck,
   Clock3,
@@ -18,7 +20,8 @@ type StationTrust = {
   lastCheckedAt?: string;
 };
 
-function formatLastChecked(value?: string) {
+function formatLastChecked(value: string | undefined, now: number | null) {
+  if (now === null) return "Checking date";
   if (!value) {
     return "Not yet checked";
   }
@@ -29,8 +32,9 @@ function formatLastChecked(value?: string) {
     return "Check date unavailable";
   }
 
-  const diffMs = Date.now() - date.getTime();
-  const days = Math.max(0, Math.floor(diffMs / 86_400_000));
+  const diffMs = now - date.getTime();
+  if (diffMs < 0) return "Check date unavailable";
+  const days = Math.floor(diffMs / 86_400_000);
 
   if (days === 0) {
     return "Checked today";
@@ -56,6 +60,14 @@ export default function StationTrustRow({
 }: {
   trust?: StationTrust;
 }) {
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    const update = () => setNow(Date.now());
+    const initial = setTimeout(update, 0);
+    const interval = setInterval(update, 60_000);
+    return () => { clearTimeout(initial); clearInterval(interval); };
+  }, []);
+
   if (!trust) {
     return (
       <div className="flex flex-wrap items-center gap-2">
@@ -71,6 +83,10 @@ export default function StationTrustRow({
   }
 
   const official = trust.sourceType === "OFFICIAL";
+  // Directory verification expires after 90 days; this never establishes live status.
+  const checkedAt = Date.parse(trust.lastCheckedAt ?? "");
+  const age = now === null ? NaN : now - checkedAt;
+  const recentlyChecked = Number.isFinite(age) && age >= 0 && age <= 90 * 86_400_000;
 
   if (official) {
     return (
@@ -79,23 +95,23 @@ export default function StationTrustRow({
           <Database className="h-3 w-3" />
           Official source
         </span>
-        <span className="text-[9px] font-medium text-slate-500">Status not live</span>
-        {trust.lastCheckedAt ? <span className="inline-flex items-center gap-1.5 text-[9px] font-medium text-slate-500"><Clock3 className="h-3 w-3" />{formatLastChecked(trust.lastCheckedAt)}</span> : null}
+        <span className="text-[9px] font-medium text-slate-500">{recentlyChecked ? "Status not live" : "Station information not recently verified; status not live"}</span>
+        {trust.lastCheckedAt ? <span className="inline-flex items-center gap-1.5 text-[9px] font-medium text-slate-500"><Clock3 className="h-3 w-3" />{formatLastChecked(trust.lastCheckedAt, now)}</span> : null}
       </div>
     );
   }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {trust.verified ? (
+      {trust.verified && recentlyChecked ? (
         <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-semibold text-emerald-300">
           <BadgeCheck className="h-3 w-3" />
-          Verified
+          Directory information checked
         </span>
       ) : (
         <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-[9px] font-semibold text-amber-200">
           <ShieldCheck className="h-3 w-3" />
-          Verification pending
+          {recentlyChecked ? "Verification pending" : "Station information not recently verified"}
         </span>
       )}
 
@@ -111,10 +127,11 @@ export default function StationTrustRow({
               : "Manual source"}
       </span>
 
+      <span className="text-[9px] font-medium text-slate-500">Status not live</span>
       {trust.lastCheckedAt ? (
         <span className="inline-flex items-center gap-1.5 text-[9px] font-medium text-slate-500">
           <Clock3 className="h-3 w-3" />
-          {formatLastChecked(trust.lastCheckedAt)}
+          {formatLastChecked(trust.lastCheckedAt, now)}
         </span>
       ) : null}
     </div>

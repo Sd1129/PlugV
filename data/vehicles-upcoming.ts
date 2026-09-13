@@ -21,6 +21,20 @@ export type UpcomingVehicle = {
 
 export const upcomingVehicleCandidates: UpcomingVehicle[] = [
   {
+    brand: "Vayve Mobility",
+    name: "Eva",
+    segment: "Electric city car",
+    launch: "Phased deliveries targeted from 2027",
+    note: "Manufacturer says deliveries are scheduled for 2027 in phases across cities. Pre-bookings are currently closed. This is a delivery target, not current vehicle availability.",
+    slug: "vayve-mobility-eva",
+    status: "Manufacturer target",
+    launchYear: 2027,
+    features: ["City-wise delivery rollout planned"],
+    sourceName: "Vayve Mobility",
+    sourceUrl: "https://evayve.com/login",
+    verifiedAt: "2026-09-13",
+  },
+  {
     brand: "Hyundai",
     name: "India-focused A-segment EV",
     segment: "Compact electric SUV",
