@@ -1,7 +1,13 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import LegalPage from "@/components/legal/LegalPage";
 
-export const metadata: Metadata = { title: "EV Information Disclaimer", description: "Important limitations for PlugV vehicle, charging, route, cost and EV Assistant information.", alternates: { canonical: "/disclaimer" } };
+export const metadata: Metadata = {
+  ...pageSocialMetadata("EV Information Disclaimer", "Important limitations for PlugV vehicle, charging, route, cost and EV Assistant information.", "/disclaimer"),
+  title: "EV Information Disclaimer",
+  description: "Important limitations for PlugV vehicle, charging, route, cost and EV Assistant information.",
+  alternates: { canonical: "/disclaimer" },
+};
 
 export default function DisclaimerPage() {
   return <LegalPage eyebrow="Important information" title="Disclaimer" summary="PlugV is designed to reduce EV confusion, but important vehicle, charging and travel decisions must still be confirmed with the responsible manufacturer or operator.">

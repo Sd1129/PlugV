@@ -17,6 +17,7 @@
     "audit:site": "node scripts/site-health-audit.mjs",
     "audit:sources": "node scripts/source-link-audit.mjs",
     "audit:content": "node scripts/content-freshness-audit.mjs",
+    "audit:seo-render": "node scripts/seo-render-audit.mjs",
     "audit:seo-authority": "node scripts/seo-authority-audit.mjs",
     "audit:automation": "node scripts/automation-config-audit.mjs",
     "audit:security": "node scripts/security-audit.mjs",

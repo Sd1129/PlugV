@@ -1,3 +1,4 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
@@ -6,6 +7,7 @@ import SiteFooter from "@/components/home/SiteFooter";
 import DecisionCalculators from "@/components/calculators/DecisionCalculators";
 
 export const metadata: Metadata = {
+  ...pageSocialMetadata("EV Calculators India — EMI, Running Cost, Range & Battery Capacity", "Transparent EV planning calculators using your own values, with visible formulas and no predicted subsidies, battery diagnosis or resale promises.", "/calculators"),
   title: "EV Calculators India — EMI, Running Cost, Range & Battery Capacity",
   description: "Transparent EV planning calculators using your own values, with visible formulas and no predicted subsidies, battery diagnosis or resale promises.",
   alternates: { canonical: "/calculators" },

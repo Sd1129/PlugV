@@ -1,3 +1,4 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${vehicle.brand} ${vehicle.name} India Launch: Official Updates`;
   const description = `Check the verified India launch status, expected timing, range and official manufacturer information for the upcoming ${vehicle.brand} ${vehicle.name} EV.`;
   return {
+    ...pageSocialMetadata(title, description, `/upcoming/${vehicle.slug}`),
     title,
     description,
     alternates: { canonical: `/upcoming/${vehicle.slug}` },
@@ -53,7 +55,7 @@ export default async function UpcomingVehiclePage({ params }: PageProps) {
         vehicleConfiguration: vehicle.segment,
         description: vehicle.note,
         url: pageUrl,
-        image: absoluteUrl("/images/vehicles/plugv-generic-ev-visual.webp"),
+
         additionalProperty: [
           { "@type": "PropertyValue", name: "India launch status", value: vehicle.status },
           { "@type": "PropertyValue", name: "Launch information", value: vehicle.launch },

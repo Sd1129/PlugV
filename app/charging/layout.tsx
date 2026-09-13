@@ -1,9 +1,11 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import { absoluteUrl, safeJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...pageSocialMetadata("EV Charging Stations in India", "Find EV charging stations in Indian cities with connector, charging speed, distance and status-verification information.", "/charging"),
   title: "EV Charging Stations in India",
-  description: "Find EV charging stations in Indian cities with connector, charging speed, distance and availability information.",
+  description: "Find EV charging stations in Indian cities with connector, charging speed, distance and status-verification information.",
   alternates: { canonical: "/charging" },
 };
 

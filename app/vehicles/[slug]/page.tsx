@@ -1,3 +1,4 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${vehicle.brand} ${vehicle.name} Price, Range & Specs`;
   const description = `Explore ${vehicle.brand} ${vehicle.name} price in India, claimed range, available specifications and comparison tools on PlugV.`;
   return {
+    ...pageSocialMetadata(title, description, `/vehicles/${vehicle.slug}`),
     title,
     description,
     alternates: { canonical: `/vehicles/${vehicle.slug}` },
@@ -129,7 +131,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
   const vehicleVisual = getVehicleVisual(vehicle.slug);
   const vehicleImage = vehicleVisual.src;
   const buyingSpecs = getBuyingSpecs(vehicle.slug);
-  const startingPrice = startingPriceRupees(vehicle.price);
+
   const compareInsights = getCompareInsights(vehicles);
   const vehicleSchema = {
     "@context": "https://schema.org",
@@ -138,24 +140,16 @@ export default async function VehicleDetailPage({ params }: PageProps) {
         "@type": "Product",
         "@id": `${absoluteUrl(`/vehicles/${vehicle.slug}`)}#product`,
         name: `${vehicle.brand} ${vehicle.name}`,
-        image: absoluteUrl(vehicleImage),
+
         sku: vehicle.slug,
         brand: { "@type": "Brand", name: vehicle.brand },
         category: `Electric ${vehicle.type}`,
         description: `${vehicle.brand} ${vehicle.name} electric vehicle in India with ${vehicle.range ?? "range information"}.`,
         url: absoluteUrl(`/vehicles/${vehicle.slug}`),
-        ...(startingPrice ? {
-          offers: {
-            "@type": "Offer",
-            url: absoluteUrl(`/vehicles/${vehicle.slug}`),
-            priceCurrency: "INR",
-            price: startingPrice,
-          },
-        } : {}),
         additionalProperty: [
           { "@type": "PropertyValue", name: "Claimed range", value: vehicle.range ?? "Not listed" },
           { "@type": "PropertyValue", name: "Listed ex-showroom price", value: vehicle.price ?? "Not listed" },
-          { "@type": "PropertyValue", name: "Power or battery specification", value: vehicle.charging ?? "Not listed" },
+          { "@type": "PropertyValue", name: "Charging information", value: vehicle.charging ?? "Not listed" },
         ],
       },
       {

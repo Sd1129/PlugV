@@ -1,8 +1,10 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  ...pageSocialMetadata("EV Assistant India — Find the Right Electric Car", "Tell PlugV your budget and driving needs to get an explainable shortlist of electric cars listed in India.", "/assistant"),
   title: "EV Assistant India — Find the Right Electric Car",
-  description: "Tell PlugV your budget and driving needs to get an explainable shortlist of electric cars available in India.",
+  description: "Tell PlugV your budget and driving needs to get an explainable shortlist of electric cars listed in India.",
   alternates: { canonical: "/assistant" },
 };
 

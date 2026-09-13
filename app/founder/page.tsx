@@ -1,3 +1,4 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Compass, Mail, ShieldCheck, Sparkles } from "lucide-react";
@@ -6,6 +7,7 @@ import SiteHeader from "@/components/home/SiteHeader";
 import { absoluteUrl, safeJsonLd, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...pageSocialMetadata("Founder — Syed Manjoor Ahmed", "Meet Syed Manjoor Ahmed, Founder of PlugV, and learn why he is building a trusted EV discovery and ownership platform for India.", "/founder"),
   title: "Founder — Syed Manjoor Ahmed",
   description: "Meet Syed Manjoor Ahmed, Founder of PlugV, and learn why he is building a trusted EV discovery and ownership platform for India.",
   alternates: { canonical: "/founder" },

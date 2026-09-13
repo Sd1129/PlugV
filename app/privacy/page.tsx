@@ -1,7 +1,13 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import LegalPage from "@/components/legal/LegalPage";
 
-export const metadata: Metadata = { title: "Privacy Policy", description: "How PlugV handles information when you use its EV discovery, charging, travel and ownership tools.", alternates: { canonical: "/privacy" } };
+export const metadata: Metadata = {
+  ...pageSocialMetadata("Privacy Policy", "How PlugV handles information when you use its EV discovery, charging, travel and ownership tools.", "/privacy"),
+  title: "Privacy Policy",
+  description: "How PlugV handles information when you use its EV discovery, charging, travel and ownership tools.",
+  alternates: { canonical: "/privacy" },
+};
 
 export default function PrivacyPage() {
   return <LegalPage eyebrow="Your privacy" title="Privacy Policy" summary="This policy explains what information PlugV may process, why it is used, and the choices available to you when using plugv.in.">

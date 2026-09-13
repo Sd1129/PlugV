@@ -1,3 +1,4 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, BatteryCharging, Calculator, Clock3, ExternalLink, ShieldCheck } from "lucide-react";
@@ -5,6 +6,7 @@ import SiteFooter from "@/components/home/SiteFooter";
 import SiteHeader from "@/components/home/SiteHeader";
 
 export const metadata: Metadata = {
+  ...pageSocialMetadata("Data Methodology and Verification", "Learn how PlugV sources, labels, verifies and updates electric vehicle, charging and trip-planning information for India.", "/methodology"),
   title: "Data Methodology and Verification",
   description: "Learn how PlugV sources, labels, verifies and updates electric vehicle, charging and trip-planning information for India.",
   alternates: { canonical: "/methodology" },

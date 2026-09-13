@@ -1,3 +1,4 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeIndianRupee, ShieldCheck } from "lucide-react";
@@ -8,6 +9,7 @@ import { vehicles } from "@/data/vehicles";
 import { absoluteUrl, safeJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...pageSocialMetadata("Best EV Cars Under ₹25 Lakh in India (2026)", "Compare the best electric cars under ₹25 lakh in India by price, claimed range, charging information and body type. Updated PlugV buyer shortlist.", "/best-ev-cars-under-25-lakh"),
   title: "Best EV Cars Under ₹25 Lakh in India (2026)",
   description:
     "Compare the best electric cars under ₹25 lakh in India by price, claimed range, charging information and body type. Updated PlugV buyer shortlist.",
@@ -18,12 +20,6 @@ export const metadata: Metadata = {
     "EV cars price India",
   ],
   alternates: { canonical: "/best-ev-cars-under-25-lakh" },
-  openGraph: {
-    title: "Best EV Cars Under ₹25 Lakh in India",
-    description: "A clear, comparison-ready PlugV shortlist for Indian EV buyers.",
-    url: "/best-ev-cars-under-25-lakh",
-    images: ["/images/plugv-owned/plugv-compare-hero-2026-08.webp"],
-  },
 };
 
 function startingPriceLakh(price?: string) {

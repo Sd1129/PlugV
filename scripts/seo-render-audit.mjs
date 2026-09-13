@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+const base=(process.env.PLUGV_BASE_URL||'https://plugv.in').replace(/\/$/,'');
+const read=async(path,options={})=>{const r=await fetch(base+path,{signal:AbortSignal.timeout(20000),...options});return {r,body:await r.text()};};
+const attr=(tag,name)=>tag?.match(new RegExp('\\b'+name+'="([^"]*)"','i'))?.[1];
+const meta=(html,name)=>attr((html.match(/<meta\b[^>]*>/gi)||[]).find(t=>attr(t,'property')===name||attr(t,'name')===name),'content');
+const sitemap=await read('/sitemap.xml');
+const paths=[...sitemap.body.matchAll(/<loc>(.*?)<\/loc>/g)].map(m=>new URL(m[1]).pathname);
+let count=0,index=0;
+await Promise.all(Array.from({length:4},async()=>{while(index<paths.length){const path=paths[index++];const {r,body}=await read(path);assert.equal(r.status,200,path);assert.match(body,/<h1\b/i,`${path}: server-rendered heading`);assert.ok(meta(body,'og:image'),`${path}: share image`);assert.ok(meta(body,'twitter:title'),`${path}: X title`);const ogUrl=meta(body,'og:url');assert.equal(new URL(ogUrl).pathname,path,`${path}: OG URL`);if(path!=='/')assert.notEqual(meta(body,'twitter:title'),"PlugV.in — India&#x27;s EV Platform",`${path}: inherited X title`);count++;}}));
+const old=await read('/vehicles/vayve-mobility-eva',{redirect:'manual'});assert.equal(old.r.status,308);assert.ok(old.r.headers.get('location')?.includes('/upcoming/vayve-mobility-eva'));
+const product=await read('/vehicles/mg-hector-tomahawk-ev');const schemas=[...product.body.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map(m=>JSON.parse(m[1]));assert.ok(!JSON.stringify(schemas).includes('"offers"'),'Unverified offers must not be published');assert.ok(!JSON.stringify(schemas).includes('CollectionPage'),'Directory schema must not leak onto product pages');
+console.log(`PASS SEO: ${count} sitemap pages with server headings and page-specific social metadata; Eva redirect; truthful product markup.`);

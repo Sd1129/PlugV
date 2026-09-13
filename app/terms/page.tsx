@@ -1,7 +1,13 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import LegalPage from "@/components/legal/LegalPage";
 
-export const metadata: Metadata = { title: "Terms of Use", description: "Terms governing access to and use of PlugV.in and its EV information and planning tools.", alternates: { canonical: "/terms" } };
+export const metadata: Metadata = {
+  ...pageSocialMetadata("Terms of Use", "Terms governing access to and use of PlugV.in and its EV information and planning tools.", "/terms"),
+  title: "Terms of Use",
+  description: "Terms governing access to and use of PlugV.in and its EV information and planning tools.",
+  alternates: { canonical: "/terms" },
+};
 
 export default function TermsPage() {
   return <LegalPage eyebrow="Using PlugV" title="Terms of Use" summary="These terms govern access to PlugV.in. By using the platform, you agree to use it responsibly and to verify important decisions with the relevant manufacturer, operator or professional.">

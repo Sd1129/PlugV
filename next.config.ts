@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      { source: "/:path*", has: [{ type: "host", value: "plugv.vercel.app" }], destination: "https://plugv.in/:path*", permanent: true },
+      { source: "/vehicles/vayve-mobility-eva", destination: "/upcoming/vayve-mobility-eva", permanent: true },
+    ];
+  },
   async headers() {
     return [{
       source: "/(.*)",

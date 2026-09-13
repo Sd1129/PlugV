@@ -1,7 +1,9 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import { absoluteUrl, safeJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...pageSocialMetadata("Compare Electric Cars in India", "Compare EV prices, range, DC charging speed and estimated electricity cost side by side with PlugV.", "/compare"),
   title: "Compare Electric Cars in India",
   description: "Compare EV prices, range, DC charging speed and estimated electricity cost side by side with PlugV.",
   alternates: { canonical: "/compare" },

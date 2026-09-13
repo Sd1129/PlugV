@@ -1,3 +1,4 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -13,7 +14,7 @@ import { absoluteUrl, safeJsonLd, SITE_URL } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 export function generateStaticParams() { return knowledgeArticles.map(({ slug }) => ({ slug })); }
-export async function generateMetadata({ params }: Props): Promise<Metadata> { const article = getKnowledgeArticle((await params).slug); if (!article) return {}; return { title: article.title, description: article.description, keywords: article.targetKeyword ? [article.targetKeyword, "electric cars India", "PlugV"] : undefined, alternates: { canonical: `/knowledge/${article.slug}` }, openGraph: { type: "article", title: article.title, description: article.description, url: `/knowledge/${article.slug}`, publishedTime: article.updatedAt, modifiedTime: article.updatedAt, images: [{ url: "/brand/plugv-social-card.png", width: 1200, height: 630 }] } }; }
+export async function generateMetadata({ params }: Props): Promise<Metadata> { const article = getKnowledgeArticle((await params).slug); if (!article) return {}; return { ...pageSocialMetadata(article.title, article.description, `/knowledge/${article.slug}`), title: article.title, description: article.description, keywords: article.targetKeyword ? [article.targetKeyword, "electric cars India", "PlugV"] : undefined, alternates: { canonical: `/knowledge/${article.slug}` }, openGraph: { type: "article", title: article.title, description: article.description, url: `/knowledge/${article.slug}`, publishedTime: article.updatedAt, modifiedTime: article.updatedAt, images: [{ url: "/brand/plugv-social-card.png", width: 1200, height: 630 }] } }; }
 
 export default async function KnowledgeArticlePage({ params }: Props) {
   const article = getKnowledgeArticle((await params).slug); if (!article) notFound();

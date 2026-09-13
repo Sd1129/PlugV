@@ -1,8 +1,10 @@
+import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import { absoluteUrl, safeJsonLd } from "@/lib/seo";
 import { knowledgeArticles } from "@/data/knowledge-articles";
 
 export const metadata: Metadata = {
+  ...pageSocialMetadata("EV Knowledge Hub India — Guides, Calculators & Facts", "Understand electric cars in India with practical buying guides, charging advice, cost calculators, policy explainers and category comparisons from PlugV.", "/knowledge"),
   title: "EV Knowledge Hub India — Guides, Calculators & Facts",
   description: "Understand electric cars in India with practical buying guides, charging advice, cost calculators, policy explainers and category comparisons from PlugV.",
   alternates: { canonical: "/knowledge" },
