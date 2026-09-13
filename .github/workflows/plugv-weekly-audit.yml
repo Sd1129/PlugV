@@ -23,6 +23,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Check EV assistant answers and prompt handling
+        run: npm run audit:assistant
       - run: npm run lint
       - run: npm run build
       - run: npm run audit:maintenance

@@ -1,5 +1,6 @@
 import { vehicles, upcomingEVs } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
+import { cleanPrompt, containsPhrase } from "./promptText";
 
 type LaunchedVehicle = (typeof vehicles)[number];
 type UpcomingVehicle = (typeof upcomingEVs)[number];
@@ -13,6 +14,8 @@ export type AssistantPreferences = {
   useCase?: string;
   keywords?: string[];
   scope?: "launched" | "upcoming" | "both";
+  brands?: string[];
+  excludedBrands?: string[];
 };
 
 export type AssistantRecommendation = {
@@ -89,21 +92,23 @@ function getPriceLakh(vehicle: CatalogVehicle): number {
 function matchesBodyType(vehicle: CatalogVehicle, requested: string) {
   const actual = safeText(getVehicleType(vehicle));
   const desired = safeText(requested).replace(/^electric\s+/, "");
-  return actual.includes(desired) || desired.includes(actual);
+  return Boolean(actual && desired) && (actual.includes(desired) || desired.includes(actual));
 }
 
 function extractBudgetLakh(input: string): number | undefined {
-  const match = input.match(
-    /(?:(?:budget|price|cost)\s*(?:of|is|around|under|below|within|up to|upto|less than|max(?:imum)?)?\s*|(?:under|below|within|up to|upto|less than|max(?:imum)?)\s*)₹?\s*(\d+(?:\.\d+)?)\s*(lakh|lakhs|l|crore|cr|k)?/i
-  );
+  const text = input.replace(/,/g, "");
+  const match = text.match(/(?:budget\s*(?:of|is|around|under|below|within|up to|upto|max(?:imum)?)?\s*|(?:under|below|within|up to|upto|less than|max(?:imum)?)\s*)(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(lakh|crore|cr|l|k|rupees)?\b(?!\s*(?:km|kw|kwh|%))/i)
+    ?? text.match(/(?:₹|rs\.?|inr)\s*(\d+(?:\.\d+)?)\s*(lakh|crore|cr|l|k|rupees)?\b/i)
+    ?? text.match(/\b(\d+(?:\.\d+)?)\s*(lakh|crore|cr)\b/i);
 
   if (!match) return undefined;
 
   const amount = Number(match[1]);
-  const unit = (match[2] ?? "lakh").toLowerCase();
+  const unit = (match[2] ?? (amount >= 1000 ? "rupees" : "lakh")).toLowerCase();
 
   if (unit === "crore" || unit === "cr") return amount * 100;
   if (unit === "k") return amount / 100;
+  if (unit === "rupees") return amount / 100000;
   return amount;
 }
 
@@ -163,13 +168,12 @@ function extractScope(input: string): AssistantPreferences["scope"] {
   if (
     q.includes("upcoming") ||
     q.includes("coming soon") ||
-    q.includes("launch") ||
     q.includes("future")
   ) {
     return "upcoming";
   }
 
-  if (/\b(?:both|all)\b/.test(q)) {
+  if (/\bboth\b/.test(q)) {
     return "both";
   }
 
@@ -210,7 +214,7 @@ function scoreVehicle(
   if (prefs.budgetLakh && price > 0) {
     if (price <= prefs.budgetLakh) {
       score += 24;
-      reasons.push(`Fits within the ₹${prefs.budgetLakh} lakh budget`);
+      reasons.push(`Catalogue starting price within ₹${prefs.budgetLakh} lakh; confirm variant and on-road quote`);
 
       const headroom = prefs.budgetLakh - price;
       if (headroom >= 5) {
@@ -238,7 +242,7 @@ function scoreVehicle(
   if (prefs.rangeMinKm && range > 0) {
     if (range >= prefs.rangeMinKm) {
       score += 18;
-      reasons.push(`Offers ${range} km of range`);
+      reasons.push(`Catalogue claimed range up to ${range} km; variant and test cycle vary`);
     } else {
       score -= 6;
     }
@@ -263,7 +267,7 @@ function scoreVehicle(
     case "family":
       if (vehicleType.includes("suv") || vehicleType.includes("mpv")) {
         score += 10;
-        reasons.push("Good fit for family use");
+        reasons.push("SUV or MPV body style; confirm seating and family requirements");
       }
       if (range >= 400) score += 5;
       break;
@@ -283,7 +287,7 @@ function scoreVehicle(
     case "highway":
       if (range >= 450) {
         score += 14;
-        reasons.push("Strong range confidence for highway trips");
+        reasons.push("Higher claimed range; highway range needs a separate estimate");
       }
       if (charging >= 100) {
         score += 8;
@@ -307,7 +311,7 @@ function scoreVehicle(
   // General signals
   if (vehicleStatus.includes("launched")) {
     score += 6;
-    reasons.push("Available now");
+    reasons.push("Listed as launched; dealer stock is not checked");
   } else if (vehicleStatus.includes("upcoming") || "launch" in vehicle) {
     score += 2;
     reasons.push("Upcoming model");
@@ -355,6 +359,7 @@ function buildSummary(
 }
 
 export function parseAssistantPrompt(prompt: string): AssistantPreferences {
+  prompt = cleanPrompt(prompt);
   const budgetLakh = extractBudgetLakh(prompt);
   const bodyType = extractBodyType(prompt);
   const useCase = extractUseCase(prompt);
@@ -362,6 +367,13 @@ export function parseAssistantPrompt(prompt: string): AssistantPreferences {
   const rangeMinKm = extractRangeMinKm(prompt);
   const chargingMinKw = extractChargingMinKw(prompt);
   const q = safeText(prompt);
+  const brandNames = Array.from(new Set([...vehicles, ...upcomingEVs].map((vehicle) => vehicle.brand)));
+  const excludedClauses = [...q.matchAll(/\b(?:do not want|don't want|not|no|exclude|excluding|except|avoid|without)\s+(.+?)(?=\b(?:but|instead|with|under|below|budget)\b|$)/g)].map((match) => match[1]);
+  const excludedBrands = brandNames.filter((brand) => {
+    const name = safeText(brand);
+    return excludedClauses.some((clause) => containsPhrase(clause, name));
+  });
+  const brands = brandNames.filter((brand) => containsPhrase(q, brand) && !excludedBrands.includes(brand));
 
   const keywords: string[] = [];
   if (q.includes("awd")) keywords.push("awd");
@@ -385,6 +397,8 @@ export function parseAssistantPrompt(prompt: string): AssistantPreferences {
     chargingMinKw,
     keywords,
     scope,
+    brands,
+    excludedBrands,
   };
 }
 
@@ -406,6 +420,8 @@ export function getRecommendations(prompt: string, limit = 3): AssistantResponse
     : catalog;
 
   const requirementMatches = eligible.filter((vehicle) => {
+    if (prefs.excludedBrands?.includes(vehicle.brand)) return false;
+    if (prefs.brands?.length && !prefs.brands.includes(vehicle.brand)) return false;
     if (prefs.bodyType && !matchesBodyType(vehicle, prefs.bodyType)) return false;
     const range = parseMaxNumeric(getVehicleRange(vehicle));
     if (prefs.rangeMinKm && (range === 0 || range < prefs.rangeMinKm)) return false;
