@@ -741,7 +741,6 @@ function StationCard({ station }: { station: NearbyStation }) {
     station.connectors.acType2 ? "Type 2" : null,
     station.connectors.gbt ? "GB/T" : null,
   ].filter(Boolean) as string[];
-  const availability = station.availability?.status ?? "unknown";
   const availabilityStyle = "border-white/10 text-slate-400";
   const availabilityLabel = stationStatus(station).label;
   const confidence = getChargerConfidence(station, { compatible: true });

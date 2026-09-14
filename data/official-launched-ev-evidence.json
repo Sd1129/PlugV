@@ -1,5 +1,13 @@
 [
   {
+    "slug": "tesla-model-y",
+    "brand": "Tesla",
+    "model": "Model Y",
+    "sourceUrl": "https://www.tesla.com/sites/default/files/downloads/TSLA-Q2-2025-Update.pdf#page=7",
+    "verifiedOn": "2026-09-14",
+    "verificationScope": "Historical India launch only. Tesla Q2 2025 update, page 7, confirms the Model Y launched in India in July 2025. Current availability, prices and variants require separate review."
+  },
+  {
     "slug": "mahindra-be-6",
     "brand": "Mahindra",
     "model": "BE 6 SPORTEQ series",
