@@ -92,7 +92,7 @@ export default function HomeEvMatcher() {
             <Link key={vehicle.slug} href={`/vehicles/${vehicle.slug}`} className="rounded-xl border border-white/10 bg-slate-950/55 p-3 transition hover:border-sky-300/30">
               <p className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-sky-300">{vehicle.brand}</p>
               <p className="mt-1 truncate text-xs font-semibold text-white">{vehicle.name}</p>
-              <p className="mt-1 truncate text-[10px] text-slate-500">{vehicle.range ?? "Range not listed"}</p>
+              <p className="mt-1 truncate text-[10px] text-slate-400">{vehicle.range ?? "Range not listed"}</p>
             </Link>
           )) : <p className="text-xs leading-5 text-amber-100 sm:col-span-3">No exact match yet. Increase the budget or reduce the daily travel distance.</p>}
         </div>
@@ -102,9 +102,9 @@ export default function HomeEvMatcher() {
 }
 
 function ProfileNumber({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void }) {
-  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</span><input type="number" value={value} min={min} max={max} onChange={(event) => onChange(Math.min(max, Math.max(min, Number(event.target.value) || min)))} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/40" /></label>;
+  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{label}</span><input type="number" value={value} min={min} max={max} onChange={(event) => onChange(Math.min(max, Math.max(min, Number(event.target.value) || min)))} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/40" /></label>;
 }
 
 function ProfileSelect({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {
-  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/40">{options.map((option) => <option key={option}>{option}</option>)}</select></label>;
+  return <label><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 text-sm font-semibold text-white outline-none focus:border-sky-300/40">{options.map((option) => <option key={option}>{option}</option>)}</select></label>;
 }

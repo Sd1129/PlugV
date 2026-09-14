@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import VehiclesHero from "@/components/vehicles/VehiclesHero";
@@ -135,6 +136,14 @@ export default function VehiclesClient({ initialQuery }: { initialQuery: string 
           embedded
         />
       </VehiclesHero>
+
+      <div className="mx-auto max-w-7xl px-4 pt-6 text-sm text-slate-300 sm:px-6 lg:px-8">
+        Shopping by budget?{" "}
+        <Link href="/best-ev-cars-under-25-lakh" className="text-sky-300 underline underline-offset-4 hover:text-sky-200">
+          Explore EVs with listed starting prices up to ₹25 lakh
+        </Link>
+        . Confirm the selected variant and current price with the manufacturer.
+      </div>
 
       <VehicleGrid vehicles={filteredVehicles} />
 

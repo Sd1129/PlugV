@@ -182,7 +182,7 @@ export default function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} PlugV. All rights reserved.</span>
           <a href="mailto:support@plugv.in?subject=PlugV%20data%20correction" className="transition hover:text-white">Report incorrect information</a>
         </div>

@@ -85,7 +85,7 @@ function isActiveLink(href: string) {
 
           <div>
             <p className="text-xl font-semibold tracking-[-0.035em] text-white">Plug<span className="text-sky-300">V</span></p>
-            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
               India&apos;s EV platform
             </p>
           </div>
@@ -136,7 +136,7 @@ function isActiveLink(href: string) {
           <Gauge className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
           <span>
             <span className="block text-sm font-semibold">My EV Dashboard</span>
-            <span className="mt-0.5 block text-xs leading-5 text-slate-500">Ownership tools, trips and reminders</span>
+            <span className="mt-0.5 block text-xs leading-5 text-slate-400">Ownership tools, trips and reminders</span>
           </span>
         </Link>
         <Link
@@ -146,12 +146,12 @@ function isActiveLink(href: string) {
           <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
           <span>
             <span className="block text-sm font-semibold">Knowledge Hub</span>
-            <span className="mt-0.5 block text-xs leading-5 text-slate-500">EV guides, facts and calculators</span>
+            <span className="mt-0.5 block text-xs leading-5 text-slate-400">EV guides, facts and calculators</span>
           </span>
         </Link>
         <Link href="/calculators" className="flex items-start gap-3 rounded-xl px-3 py-3 text-slate-300 transition hover:bg-white/5 hover:text-white focus:bg-white/5 focus:text-white focus:outline-none">
           <Calculator className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
-          <span><span className="block text-sm font-semibold">EV Calculators</span><span className="mt-0.5 block text-xs leading-5 text-slate-500">EMI, running cost, range and verified records</span></span>
+          <span><span className="block text-sm font-semibold">EV Calculators</span><span className="mt-0.5 block text-xs leading-5 text-slate-400">EMI, running cost, range and verified records</span></span>
         </Link>
       </div>
     </div>
@@ -177,7 +177,7 @@ function isActiveLink(href: string) {
               }}
               placeholder="Search EVs, brands..."
               aria-label="Search EVs"
-              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400"
             />
           </label>
 
@@ -207,7 +207,7 @@ function isActiveLink(href: string) {
                           {vehicle.brand} • {vehicle.type}
                         </p>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-slate-500" />
+                      <ArrowRight className="h-4 w-4 text-slate-400" />
                     </button>
                   ))}
                 </div>
@@ -262,7 +262,7 @@ function isActiveLink(href: string) {
             aria-autocomplete="list"
             aria-expanded={open && query.trim().length > 0}
             aria-controls="mobile-search-suggestions"
-            className="min-w-0 w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
+            className="min-w-0 w-full bg-transparent text-base text-white outline-none placeholder:text-slate-400"
           />
         </label>
         <button
@@ -293,7 +293,7 @@ function isActiveLink(href: string) {
                       <span className="block truncate text-sm font-semibold text-white">{vehicle.name}</span>
                       <span className="mt-1 block truncate text-xs text-slate-400">{vehicle.brand} • {vehicle.type}</span>
                     </span>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-slate-500" />
+                    <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
                   </button>
                 ))}
               </div>
@@ -333,7 +333,7 @@ function isActiveLink(href: string) {
               })}
 
               <div className="mt-1 border-t border-white/10 pt-3">
-                <p className="px-4 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">My EV</p>
+                <p className="px-4 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">My EV</p>
                 <Link
                   href="/my-ev"
                   onClick={() => setMobileOpen(false)}
