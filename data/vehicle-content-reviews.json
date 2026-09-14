@@ -1,0 +1,37 @@
+[
+  {
+    "slug": "hyundai-creta-electric",
+    "reviewedAt": "2026-09-14",
+    "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/creta-electric/specification",
+    "supported": "42/51.4 kWh batteries, 420/510 km MIDC range, CCS2 and DC 10–80% in 39 minutes using a >100 kW / 400 V charger. AC 10–100% takes 6 hr / 7 hr 15 min with 7.4 kW.",
+    "pending": "Current trim prices and complete variant availability remain under review. Test charger power does not establish vehicle peak DC power. Trip planning uses an estimated fallback."
+  },
+  {
+    "slug": "mg-cyberster",
+    "reviewedAt": "2026-09-14",
+    "sourceUrl": "https://www.mgselect.co.in/cyberster",
+    "supported": "The current product page lists a starting ex-showroom price of ₹82,49,800, a 77 kWh battery and 580 km claimed range.",
+    "pending": "The full edition price range and charging details are not reverified by this check. The July 2025 introductory price is historical."
+  },
+  {
+    "slug": "tata-tigor-ev",
+    "reviewedAt": "2026-09-14",
+    "sourceUrl": "https://ev.tata.cars/tigor/ev.html",
+    "supported": "The manufacturer page lists a ₹12.49 lakh starting price, 26 kWh battery, 315 km MIDC range and DC 10–80% in 59 minutes under test conditions.",
+    "pending": "Full variant prices and local stock remain unconfirmed. This review used search-indexed manufacturer content; direct retrieval was unavailable."
+  },
+  {
+    "slug": "mahindra-xuv-3xo-ev",
+    "reviewedAt": "2026-09-14",
+    "sourceUrl": "https://auto.mahindra.com/press-release/mahindra-introduces-xuv-3xo-ev-range.html",
+    "supported": "The 6 January 2026 announcement names AX5 and AX7L at ₹13.89/₹14.96 lakh, with a 39.4 kWh battery and DC 0–80% in 50 minutes using a 50 kW charger.",
+    "pending": "These are launch prices, not a current quotation. The 351 km catalogue range is not established by this source, which separately describes up to 285 km real-world range."
+  },
+  {
+    "slug": "bmw-i7",
+    "reviewedAt": "2026-09-14",
+    "sourceUrl": "https://www.bmw.in/en/all-models/bmw-i/i7/bmw-i7-sedan.html",
+    "supported": "BMW India's current model page identifies the i7 eDrive50.",
+    "pending": "The retrieved page did not expose a usable current price. Mixed variant labels and range figures need a variant-specific brochure or quotation before updating catalogue specifications."
+  }
+]

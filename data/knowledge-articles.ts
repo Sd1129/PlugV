@@ -338,10 +338,19 @@ export const knowledgeArticles: KnowledgeArticle[] = [
     title: "Cheapest Electric Cars in India (2026)",
     shortTitle: "Cheapest EVs in India",
     description: "Compare the lowest listed starting prices among launched electric cars in India, with clear cautions for variants, BaaS and on-road costs.",
-    category: "Rankings", readTime: "6 min", updatedAt: "2026-08-29",
+    category: "Rankings", readTime: "6 min", updatedAt: "2026-09-14",
     targetKeyword: "cheapest electric cars in India", refreshCadence: "monthly", vehicleList: "cheapest",
     intro: "Cheapest should mean lowest comparable ownership entry cost—not just the smallest promotional number. PlugV orders launched models by parsed starting price and asks buyers to verify exclusions and conditions.",
-    sections: [{ heading: "What the headline price may omit", bullets: ["Battery rental or subscription", "Insurance and registration", "Home charger installation", "Finance and processing costs", "Accessories and extended warranty"] }],
+    sections: [
+      { heading: "How this list is made", paragraphs: ["The table sorts the starting prices recorded in PlugV's launched-car catalogue. It does not independently establish today's cheapest available car or confirm dealer stock. A content review of this guide does not refresh the price-verification date of every vehicle." ] },
+      { heading: "Compare the same purchase terms", paragraphs: ["Ask for a dated, written quotation naming the trim, battery capacity and whether the battery is included. A Battery-as-a-Service entry price with recurring rental cannot be compared directly with an outright battery-inclusive price. Add the rental over your expected ownership period before comparing." ] },
+      { heading: "What the headline price may omit", bullets: ["Battery rental or subscription", "Insurance and registration", "Home charger installation", "Finance and processing costs", "Accessories and extended warranty"] },
+      { heading: "Check the car as well as the price", paragraphs: ["Confirm seating, usable luggage space, connector compatibility and whether the selected trim supports DC charging. Ask the manufacturer or dealer to explain warranty limits and charging requirements. The lowest purchase price may not suit your normal journeys." ] },
+    ],
+    sources: [
+      { label: "MG Windsor: official prices and BaaS information", url: "https://www.mgmotor.co.in/vehicles/windsor-ev-electric-car-in-india" },
+      { label: "Tata Tigor.ev: official starting price", url: "https://ev.tata.cars/tigor/ev.html" },
+    ],
     faqs: [{ question: "Is the cheapest EV always the lowest-cost EV to own?", answer: "No. Driving, efficiency, insurance, battery arrangements, maintenance and resale assumptions affect total cost." }, { question: "Are promotional offers included?", answer: "Catalogue prices may change. Confirm current eligibility and written terms before relying on an offer." }],
   },
   {

@@ -36,18 +36,9 @@ export const vehicleTripProfiles: Record<string, VehicleTripProfile> = {
     verifiedAt: "2026-08-23",
     confidence: "official",
   },
-  "hyundai-creta-electric": {
-    vehicleSlug: "hyundai-creta-electric",
-    defaultVariant: "Long Range 51.4 kWh",
-    variants: [
-      { name: "42 kWh", batteryCapacityKWh: 42, certifiedRangeKm: 420, practicalRangeKm: 336, maxDcChargeKW: 100, maxAcChargeKW: 7.4, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
-      { name: "Long Range 51.4 kWh", batteryCapacityKWh: 51.4, certifiedRangeKm: 510, practicalRangeKm: 408, maxDcChargeKW: 100, maxAcChargeKW: 7.4, connector: "CCS2", fastChargeFromPercent: 10, fastChargeToPercent: 80, fastChargeMinutes: 39 },
-    ],
-    sourceUrl: "https://www.hyundai.com/in/en/find-a-car/creta-electric/specification",
-    sourceName: "Hyundai Motor India",
-    verifiedAt: "2026-08-21",
-    confidence: "official",
-  },
+  // Creta's official source specifies the test charger (>100 kW / 400 V),
+  // not vehicle peak DC power. Keep sourced times in vehicle-charging-facts;
+  // use the planner's estimated fallback until a complete profile is supported.
   "tata-nexon-ev": {
     vehicleSlug: "tata-nexon-ev",
     defaultVariant: "45 kWh",

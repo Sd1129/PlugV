@@ -8,6 +8,14 @@ export type VehicleChargingFact = {
 };
 
 export const vehicleChargingFacts: Record<string, VehicleChargingFact> = {
+  "hyundai-creta-electric": {
+    dcTime: "10–80% in 39 min using a >100 kW / 400 V DC charger; vehicle peak DC power is not verified",
+    acTime: "10–100% with 7.4 kW AC: 6 hr (42 kWh), 7 hr 15 min (51.4 kWh); actual times vary",
+    sourceUrl: "https://www.hyundai.com/in/en/find-a-car/creta-electric/specification",
+    sourceName: "Hyundai Motor India",
+    verifiedAt: "2026-09-14",
+    confidence: "partial",
+  },
   "maruti-suzuki-e-vitara": {
     dcTime: "10–80% in approximately 45 min with a 70 kW+ DC charger",
     acTime: "7.4 kW AC wallbox; manufacturer does not state a fixed full-charge time",

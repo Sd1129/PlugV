@@ -11,10 +11,16 @@ Module._resolveFilename = function(id, ...args) { return resolve.call(this, id.s
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true }}).outputText, filename);
 const {answerWithPlugV, findMentionedVehicles} = require('../lib/assistant/smartAssistant.ts');
 const {parseAssistantPrompt} = require('../lib/assistant/recommendationEngine.ts');
+const {getVehicleTripProfile} = require('../data/vehicle-trip-profiles.ts');
+const {vehicleChargingFacts} = require('../data/vehicle-charging-facts.ts');
 let passed = 0;
 function check(name, test) { try { test(); passed++; console.log(`PASS ${name}`); } catch(error) { console.error(`FAIL ${name}: ${error.message}`); process.exitCode = 1; } }
 const reply = (q, previous) => answerWithPlugV(q, previous);
 const noPicks = (q) => assert.equal(reply(q).recommendations, undefined);
+check('test charger power is not Creta vehicle peak power', () => {
+  assert.equal(getVehicleTripProfile('hyundai-creta-electric'), undefined);
+  assert.match(vehicleChargingFacts['hyundai-creta-electric'].dcTime, /vehicle peak DC power is not verified/);
+});
 check('short names and typo correction', () => assert.equal(findMentionedVehicles('Comapre Nexon and maindra BE6').length, 2));
 check('no substring collision', () => assert.deepEqual(findMentionedVehicles('BYD Sealion 7').map(v=>v.slug), ['byd-sealion-7']));
 check('short model name i7', () => assert.equal(findMentionedVehicles('BMW i7 price')[0].slug, 'bmw-i7'));

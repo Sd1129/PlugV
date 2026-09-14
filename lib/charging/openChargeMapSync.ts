@@ -99,7 +99,9 @@ async function fetchPage(apiKey: string, greaterThanId: number) {
   url.searchParams.set("output", "json");
   url.searchParams.set("countrycode", "IN");
   url.searchParams.set("maxresults", String(PAGE_SIZE));
-  url.searchParams.set("compact", "true");
+  // We read OperatorInfo, ConnectionType and Level objects below. Compact
+  // responses omit these reference objects and would erase useful details.
+  url.searchParams.set("compact", "false");
   url.searchParams.set("verbose", "false");
   url.searchParams.set("sortby", "id_asc");
   url.searchParams.set("greaterthanid", String(greaterThanId));
