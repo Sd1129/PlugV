@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BatteryCharging, CarFront, CheckCircle2, Gauge, GitCompareArrows, PlugZap, ShieldCheck, Users } from "lucide-react";
 
-type Variant = { name: string; battery?: string; range?: string; practicalRange?: string; dcPower?: string; acPower?: string; dcTime?: string; connector?: string; features?: string[] };
+type Variant = { name: string; seats?: number; battery?: string; range?: string; practicalRange?: string; dcPower?: string; acPower?: string; dcTime?: string; connector?: string; features?: string[] };
 const rows: { label: string; key: keyof Variant }[] = [
   { label: "Battery", key: "battery" }, { label: "Claimed range", key: "range" },
   { label: "Practical range", key: "practicalRange" }, { label: "Maximum DC charging", key: "dcPower" },
@@ -11,13 +11,13 @@ const rows: { label: string; key: keyof Variant }[] = [
   { label: "Connector", key: "connector" },
 ];
 
-export default function VehicleVariantExplorer({ vehicleName, bodyType, seating, listedRange, listedPower, variants }: { vehicleName: string; bodyType: string; seating: number; listedRange: string; listedPower: string; variants: Variant[] }) {
+export default function VehicleVariantExplorer({ vehicleName, bodyType, seating, listedRange, listedPower, variants }: { vehicleName: string; bodyType: string; seating: number | string; listedRange: string; listedPower: string; variants: Variant[] }) {
   const [selectedName, setSelectedName] = useState(variants[0]?.name ?? "All listed configurations");
   const [compareName, setCompareName] = useState(variants[1]?.name ?? variants[0]?.name ?? "");
   const selected = variants.find((variant) => variant.name === selectedName);
   const compared = variants.find((variant) => variant.name === compareName);
   const specifications = [
-    { icon: CarFront, label: "Body type", value: bodyType }, { icon: Users, label: "Seating capacity", value: `${seating} seats` },
+    { icon: CarFront, label: "Body type", value: bodyType }, { icon: Users, label: "Seating capacity", value: `${selected?.seats ?? seating} seats` },
     { icon: Gauge, label: "Claimed range", value: selected?.range ?? listedRange }, { icon: BatteryCharging, label: "Power / battery", value: selected?.battery ?? listedPower },
     { icon: PlugZap, label: "Maximum DC charging", value: selected?.dcPower ?? "See model-wide figure" }, { icon: PlugZap, label: "Maximum AC charging", value: selected?.acPower ?? "Awaiting trim verification" },
     { icon: BatteryCharging, label: "DC charging time", value: selected?.dcTime ?? "Awaiting trim verification" }, { icon: ShieldCheck, label: "Connector", value: selected?.connector ?? "Awaiting trim verification" },

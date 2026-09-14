@@ -1,0 +1,314 @@
+[
+  {
+    "slug": "maruti-suzuki-e-vitara",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "unavailable",
+    "variantStatus": "partial",
+    "sourceUrl": "https://www.nexaexperience.com/e-vitara/price",
+    "note": "The price page requires a dynamic configurator; a complete current price/trim table was not exposed."
+  },
+  {
+    "slug": "tata-punch-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://ev.tata.cars/punch/ev/price.html",
+    "note": "Manufacturer price page supports ₹9.69–12.59 lakh and six 30/40 kWh configurations. Catalogue maximum corrected."
+  },
+  {
+    "slug": "mahindra-be-6",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "partial",
+    "sourceUrl": "https://www.mahindra.com/news-room/press-release/en/mahindra-introduces-the-be-6-sporteq-a-bold-new-expression-of-sport-technology-and-electric-performance",
+    "note": "15 August announcement supports SPORTEQ battery-inclusive prices ₹19.45–26.95 lakh. It does not reverify older Pack variants or the full model price range. BaaS is separate."
+  },
+  {
+    "slug": "tata-tiago-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "supported",
+    "sourceUrl": "https://ev.tata.cars/tiago/ev/price.html",
+    "note": "Price page identifies Smart 19, Pure+19, Pure+24 and Creative+24 and a ₹6.99 lakh starting price; full current prices were not exposed."
+  },
+  {
+    "slug": "mahindra-xev-9e",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "conflicting",
+    "variantStatus": "supported",
+    "sourceUrl": "https://booking.mahindra.com/faq.html",
+    "note": "Search-indexed FAQ supports Pack Two 79 kWh and Cineluxe, now added. Price table omits some editions; direct retrieval failed. Full price ceiling remains unresolved."
+  },
+  {
+    "slug": "kia-syros-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://www.kia.com/in/our-vehicles/syros-ev/specs/compare-trims.html",
+    "note": "Seven trims from HTK ₹13,49,900 to X-Line ER ₹19,99,900. Added missing configurations; display rounds lakh values."
+  },
+  {
+    "slug": "mg-windsor-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://www.mgmotor.co.in/vehicles/windsor-ev-electric-car-in-india",
+    "note": "Five battery-inclusive trims: ₹14,69,800; ₹15,99,800; ₹16,99,800; ₹17,89,800; ₹18,99,800. BaaS quotes are separate and not verified by this price-range check."
+  },
+  {
+    "slug": "tata-sierra-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "partial",
+    "sourceUrl": "https://ev.tata.cars/sierra/ev/price.html",
+    "note": "Page identifies Pure 63 and charger-package configurations, but dynamic prices were not exposed. Full listed trim/battery combinations remain unresolved."
+  },
+  {
+    "slug": "tata-nexon-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "conflicting",
+    "variantStatus": "supported",
+    "sourceUrl": "https://ev.tata.cars/nexon/ev/price.html",
+    "note": "Updated variants from the current price page, including Empowered+ A 45 editions. FAQ quotes ₹12.49–17.49 lakh but mixes old battery references; full current price range remains unresolved."
+  },
+  {
+    "slug": "mg-comet-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "conflicting",
+    "variantStatus": "partial",
+    "sourceUrl": "https://www.mgmotor.co.in/vehicles/comet-ev-electric-car-in-india",
+    "note": "Product page quotes Exclusive FC ₹10,06,800 while the official configurator search result quotes ₹9,99,800. Full price and Blackstorm availability need reconciliation."
+  },
+  {
+    "slug": "tata-harrier-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "partial",
+    "sourceUrl": "https://ev.tata.cars/harrier/ev/price.html",
+    "note": "Price-page title lists ₹21.69–28.99 lakh; complete edition and charger-package totals were not exposed. Do not equate this with the catalogue's full price ceiling."
+  },
+  {
+    "slug": "mg-cyberster",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "partial",
+    "sourceUrl": "https://www.mgselect.co.in/cyberster",
+    "note": "Current starting price ₹82,49,800 supported. Couture edition booking is present, but full edition pricing/availability was not exposed."
+  },
+  {
+    "slug": "hyundai-creta-electric",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "unavailable",
+    "variantStatus": "partial",
+    "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/creta-electric/price",
+    "note": "Current price page requires model/state selection and did not expose a price table. Full trim availability remains unresolved."
+  },
+  {
+    "slug": "tata-curvv-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://ev.tata.cars/curvv/ev/price.html",
+    "note": "Series X: Accomplished X 55 ₹16.99 lakh; Empowered X 55 ₹19.19 lakh; Dark ₹19.49 lakh. Matches listed configurations."
+  },
+  {
+    "slug": "byd-atto-3",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://bydautoindia.com/bydatto3",
+    "note": "Product page lists Dynamic ₹24.99 lakh, Premium ₹30.35 lakh and Superior ₹34.49 lakh."
+  },
+  {
+    "slug": "vinfast-vf7",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "supported",
+    "sourceUrl": "https://vinfastauto.in/en/vf7",
+    "note": "Current starting price ₹22.99 lakh supported. Earth/Wind/Wind Infinity/Sky/Sky Infinity supported by manufacturer launch material; current full price table not exposed."
+  },
+  {
+    "slug": "bmw-i7",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "conflicting",
+    "variantStatus": "conflicting",
+    "sourceUrl": "https://www.bmw.in/en/all-models.html",
+    "note": "Model list shows ₹1.95 crore and 50 xDrive with a mismatched 19% VAT disclaimer; detail page shows eDrive50. Do not replace prices or trim names without a coherent India quotation."
+  },
+  {
+    "slug": "kia-ev6",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "unavailable",
+    "variantStatus": "supported",
+    "sourceUrl": "https://www.kia.com/in/our-vehicles/ev6/showroom.html",
+    "note": "Current page lists one GT-Line AWD trim but does not expose numeric MSRP. Catalogue price remains unconfirmed."
+  },
+  {
+    "slug": "mg-zs-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://www.mgmotor.co.in/vehicles/mgzsev-electric-car-in-india",
+    "note": "Four core trims supported: Executive ₹17,99,000, Excite Pro ₹18,74,600, Exclusive Plus ₹19,99,600, Essence ₹20,74,600. Interior choices exist; rounded range matches."
+  },
+  {
+    "slug": "byd-sealion-7",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://bydautoindia.com/bydsealion7",
+    "note": "Rendered current page: Dynamic ₹41.90 lakh, Premium ₹49.90 lakh, Performance ₹55.90 lakh. Added Dynamic and corrected entry price; cached search text was stale."
+  },
+  {
+    "slug": "byd-seal",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://bydautoindia.com/bydseal",
+    "note": "Rendered current page: Dynamic ₹41.50 lakh, Premium ₹46.20 lakh, Performance ₹53.65 lakh."
+  },
+  {
+    "slug": "vinfast-vf6",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "supported",
+    "sourceUrl": "https://vinfastauto.in/en/vf6",
+    "note": "Current page supports ₹18.19 lakh starting price and Earth/Wind/Wind Infinity names. Full trim price table not exposed."
+  },
+  {
+    "slug": "kia-carens-clavis-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://www.kia.com/in/our-vehicles/carens-clavis-ev/specs/compare-trims.html",
+    "note": "Nine trims ₹18,03,900–24,99,900. Added HTX E, HTX E ER, GTX ER, GTX+ ER and X-Line ER. Display rounds lakh values."
+  },
+  {
+    "slug": "mg-m9",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "partial",
+    "sourceUrl": "https://www.mgselect.co.in/m9",
+    "note": "Current starting price ₹79,94,800 supported. Couture booking exists; its price and complete edition list remain unconfirmed."
+  },
+  {
+    "slug": "mahindra-xuv400-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "unavailable",
+    "variantStatus": "unavailable",
+    "sourceUrl": "https://auto.mahindra.com/own-online/variant-selection?mgc=X400",
+    "note": "Official variant selector did not expose a usable price/variant table. Older launch prices do not establish current stock or availability."
+  },
+  {
+    "slug": "tesla-model-y",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "unavailable",
+    "variantStatus": "unavailable",
+    "sourceUrl": "https://www.tesla.com/en_in/modely/design",
+    "note": "Official India configurator returned no readable price or variant content. No current-price verification claimed."
+  },
+  {
+    "slug": "volvo-ex30",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://www.volvocars.com/in/cars/ex30-electric/",
+    "note": "Current India page lists Ultra Single Motor Extended Range from ₹41 lakh. Optional equipment and local quotation remain separate."
+  },
+  {
+    "slug": "vinfast-vf-mpv-7",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://vinfastauto.in/en/mpv7",
+    "note": "Current page lists VF MPV 7 at ₹24.49 lakh as one configuration. Replaced unsupported Plus/Premium trim names."
+  },
+  {
+    "slug": "tata-tigor-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "unavailable",
+    "sourceUrl": "https://ev.tata.cars/tigor/ev.html",
+    "note": "Search-indexed manufacturer page supports starting price ₹12.49 lakh. Full current trim prices not exposed; direct retrieval unavailable."
+  },
+  {
+    "slug": "mahindra-xev-9s",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "partial",
+    "sourceUrl": "https://booking.mahindra.com/on/demandware.static/-/Library-Sites-eSUVSharedLibrary/default/dwd5b38e6e/XEV-9s/Press_Release_Mahindra_Unveils_XEV_9S.pdf",
+    "note": "Manufacturer launch document identified, but a current full price/variant table was not confirmed. BaaS financing must not be mixed with battery-inclusive pricing."
+  },
+  {
+    "slug": "mahindra-xuv-3xo-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "supported",
+    "sourceUrl": "https://auto.mahindra.com/press-release/mahindra-introduces-xuv-3xo-ev-range.html",
+    "note": "6 January 2026 release lists AX5 ₹13.89 lakh and AX7L ₹14.96 lakh; historical launch pricing only. Charger is extra."
+  },
+  {
+    "slug": "byd-emax-7",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://bydautoindia.com/bydemax7",
+    "note": "Rendered page: Comfort 6/7-seat ₹27.90/28.30 lakh; Superior 6/7-seat ₹29.30/29.90 lakh. Corrected entry price and added configurations."
+  },
+  {
+    "slug": "volvo-ex40",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "unavailable",
+    "variantStatus": "unavailable",
+    "sourceUrl": "https://www.volvocars.com/in/cars/ex40-electric/",
+    "note": "Official model URL returned 404. This does not establish discontinuation; current price/trim availability needs manufacturer confirmation."
+  },
+  {
+    "slug": "volvo-ec40",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://www.volvocars.com/in/cars/ec40-electric/",
+    "note": "Current India page lists model-year 2027 Ultra Twin Motor from ₹59 lakh. Added the listed equipment level; local availability needs quotation."
+  },
+  {
+    "slug": "hyundai-ioniq-5",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "partial",
+    "sourceUrl": "https://www.hyundai.com/in/en/find-a-car/ioniq-5/price",
+    "note": "Current official page supports ₹55,70,600 for the 84 kWh rear-wheel-drive model. Rounded catalogue price matches; full variant nomenclature not exposed."
+  },
+  {
+    "slug": "kia-ev9",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "partial",
+    "sourceUrl": "https://www.kia.com/in/our-vehicles/ev9/showroom.html",
+    "note": "Current FAQ supports starting price ₹1,29,91,312, rounded to ₹1.30 crore. Complete variant naming not confirmed in this check."
+  },
+  {
+    "slug": "bmw-ix1-lwb",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "conflicting",
+    "variantStatus": "partial",
+    "sourceUrl": "https://www.bmw.in/en/all-models.html",
+    "note": "Current model list shows eDrive20L M Sport from ₹52.70 lakh, but includes an inconsistent 19% VAT disclaimer. Current India price requires clarification."
+  },
+  {
+    "slug": "bmw-i5-m60",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "supported",
+    "variantStatus": "supported",
+    "sourceUrl": "https://www.bmw.in/en/all-models.html",
+    "note": "Current model list identifies i5 M60 from ₹1,19,50,000 with India GST/ex-showroom terms. Corrected to ₹1.195 crore."
+  },
+  {
+    "slug": "mg-hector-tomahawk-ev",
+    "reviewedAt": "2026-09-14",
+    "priceStatus": "partial",
+    "variantStatus": "unavailable",
+    "sourceUrl": "https://www.mgmotor.co.in/media-center/newsroom/jsw-mg-motor-india-redefines-the-future-of-mobility-launches-the-mg-hector-tomahawk-in-ev-and-phev",
+    "note": "26 August release supports limited-booking BaaS entry ₹13.99 lakh plus ₹4.90/km. Battery-inclusive price and full variant list are not confirmed."
+  }
+]

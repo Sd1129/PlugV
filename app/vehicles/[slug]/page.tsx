@@ -18,6 +18,7 @@ import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import TrustSummary from "@/components/vehicles/TrustSummary";
 import { vehicles } from "@/data/vehicles";
+import priceReviews from "@/data/vehicle-price-variant-reviews.json";
 import { getVehicleVisual } from "@/data/vehicle-images";
 import { getBuyingSpecs, startingPriceRupees } from "@/data/vehicle-buying-specs";
 import OnRoadPriceEstimator from "@/components/vehicles/OnRoadPriceEstimator";
@@ -131,6 +132,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
   const vehicleVisual = getVehicleVisual(vehicle.slug);
   const vehicleImage = vehicleVisual.src;
   const buyingSpecs = getBuyingSpecs(vehicle.slug);
+  const priceSupported = priceReviews.find((item) => item.slug === vehicle.slug)?.priceStatus === "supported";
 
   const compareInsights = getCompareInsights(vehicles);
   const vehicleSchema = {
@@ -148,7 +150,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
         url: absoluteUrl(`/vehicles/${vehicle.slug}`),
         additionalProperty: [
           { "@type": "PropertyValue", name: "Claimed range", value: vehicle.range ?? "Not listed" },
-          { "@type": "PropertyValue", name: "Listed ex-showroom price", value: vehicle.price ?? "Not listed" },
+          ...(priceSupported ? [{ "@type": "PropertyValue", name: "Listed ex-showroom price", value: vehicle.price ?? "Not listed" }] : []),
           { "@type": "PropertyValue", name: "Charging information", value: vehicle.charging ?? "Not listed" },
         ],
       },
@@ -175,7 +177,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
       icon: <BatteryCharging className="h-4 w-4" />,
     },
     {
-      label: "Price",
+      label: priceSupported ? "Listed price" : "Price · review pending",
       value: vehicle.price ?? "—",
       icon: <Sparkles className="h-4 w-4" />,
     },

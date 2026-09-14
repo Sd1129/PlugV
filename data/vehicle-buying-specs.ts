@@ -9,6 +9,7 @@ const SIX_SEATERS = new Set(["kia-ev9"]);
 const SEVEN_SEATERS = new Set(["mahindra-xev-9s", "mg-m9", "kia-carens-clavis-ev", "vinfast-vf-mpv-7", "mg-hector-tomahawk-ev"]);
 
 export function getSeatingCapacity(slug: string) {
+  if (slug === "byd-emax-7" || slug === "kia-carens-clavis-ev") return "6 or 7";
   if (TWO_SEATERS.has(slug)) return 2;
   if (THREE_SEATERS.has(slug)) return 3;
   if (SIX_SEATERS.has(slug)) return 6;
@@ -34,11 +35,13 @@ export function getBuyingSpecs(slug: string) {
     acTime: acTimes.join(" / ") || chargingFact?.acTime || "Not yet verified by PlugV",
     variants: variantNames,
     variantDetails: variantNames.map((name) => {
+      const seats = /\b6-seater\b/i.test(name) ? 6 : /\b7-seater\b/i.test(name) ? 7 : undefined;
       const variant = detailedVariants.find((item) => item.name === name)
         ?? detailedVariants.find((item) => name.includes(String(item.batteryCapacityKWh)));
       const features = getVariantFeatures(slug, name);
       return variant ? {
         name,
+        seats,
         features,
         battery: `${variant.batteryCapacityKWh} kWh`,
         range: `${variant.certifiedRangeKm} km`,
@@ -47,7 +50,7 @@ export function getBuyingSpecs(slug: string) {
         acPower: variant.maxAcChargeKW ? `${variant.maxAcChargeKW} kW` : "Not yet verified by PlugV",
         dcTime: `${variant.fastChargeFromPercent}–${variant.fastChargeToPercent}% in ${variant.fastChargeMinutes} min`,
         connector: variant.connector,
-      } : { name, features };
+      } : { name, features, seats };
     }),
     sourceUrl: profile?.sourceUrl ?? chargingFact?.sourceUrl,
     sourceName: profile?.sourceName ?? chargingFact?.sourceName,
