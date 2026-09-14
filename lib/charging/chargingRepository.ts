@@ -1,4 +1,5 @@
 import { stationStatus, operatorBookingUrl } from "@/lib/charging/stationStatus";
+import { publishableStations } from "@/lib/charging/stationDataQuality";
 import { chargingStations } from "@/data/charging/stations";
 import type { ChargingStation } from "@/data/charging/types";
 import {
@@ -344,7 +345,7 @@ export async function searchChargingStations(
   } catch (error) {
     console.error("Charging database unavailable; using bundled fallback data.", error);
   }
-  return searchStationCollection(deduplicateStations([...synchronized, ...chargingStations]), query);
+  return searchStationCollection(deduplicateStations(publishableStations([...synchronized, ...chargingStations])), query);
 }
 
 export async function getChargingCoverageAudit() {

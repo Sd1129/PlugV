@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "audit:assistant": "node scripts/assistant-audit.mjs",
+    "audit:charging-quality": "node scripts/station-data-quality-audit.mjs",
     "audit:data": "node scripts/launch-audit.mjs",
     "audit:freshness": "node scripts/data-freshness-audit.mjs",
     "audit:upcoming": "node scripts/upcoming-catalog-audit.mjs",
@@ -22,7 +23,7 @@
     "audit:automation": "node scripts/automation-config-audit.mjs",
     "audit:security": "node scripts/security-audit.mjs",
     "audit:maintenance": "npm run audit:data && npm run audit:freshness && npm run audit:launched && npm run audit:upcoming && npm run audit:transitions",
-    "audit:release": "npm run audit:assistant && npm run lint && npm run build && npm run audit:automation && npm run audit:maintenance && npm run audit:content && npm run audit:seo-authority && npm run audit:security"
+    "audit:release": "npm run audit:assistant && npm run audit:charging-quality && npm run lint && npm run build && npm run audit:automation && npm run audit:maintenance && npm run audit:content && npm run audit:seo-authority && npm run audit:security"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
