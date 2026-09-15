@@ -104,7 +104,7 @@ function VehicleCard({
         <div className="grid grid-cols-2 gap-2">
           <MiniStat label="ARAI / certified range" value={vehicle.range ?? "Not listed"} />
           <MiniStat label="Estimated real-world" value={tripVariant ? `~${tripVariant.practicalRangeKm} km` : "Not estimated"} />
-          <MiniStat label="Battery" value={tripVariant ? `${tripVariant.batteryCapacityKWh} kWh` : "Awaiting data"} />
+          <MiniStat label="Battery options" value={buyingSpecs.batterySpec?.value ?? "Source review pending"} />
           <MiniStat label="Price" value={vehicle.price ?? "—"} />
         </div>
         <p className="mt-2 text-[10px] leading-4 text-slate-500">Practical range is a planning estimate for the displayed default variant—not a guarantee. Speed, weather, traffic, AC, elevation and load matter.</p>

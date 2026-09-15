@@ -13,10 +13,21 @@ const {answerWithPlugV, findMentionedVehicles} = require('../lib/assistant/smart
 const {parseAssistantPrompt} = require('../lib/assistant/recommendationEngine.ts');
 const {getVehicleTripProfile} = require('../data/vehicle-trip-profiles.ts');
 const {vehicleChargingFacts} = require('../data/vehicle-charging-facts.ts');
+const {getBatterySpecification} = require('../data/vehicle-battery-specs.ts');
 let passed = 0;
 function check(name, test) { try { test(); passed++; console.log(`PASS ${name}`); } catch(error) { console.error(`FAIL ${name}: ${error.message}`); process.exitCode = 1; } }
 const reply = (q, previous) => answerWithPlugV(q, previous);
 const noPicks = (q) => assert.equal(reply(q).recommendations, undefined);
+check('battery evidence does not require a trip profile', () => {
+  assert.equal(getVehicleTripProfile('hyundai-creta-electric'), undefined);
+  assert.equal(getBatterySpecification('hyundai-creta-electric').value, '42 / 51.4 kWh');
+  assert.equal(getBatterySpecification('tata-tigor-ev').value, '26 kWh');
+});
+check('battery evidence retains units, basis and unknowns', () => {
+  assert.equal(getBatterySpecification('bmw-i5-m60').value, '81.2 kWh usable');
+  assert.equal(getBatterySpecification('volvo-ec40').value, '82 kWh nominal');
+  assert.equal(getBatterySpecification('not-a-model'), undefined);
+});
 check('test charger power is not Creta vehicle peak power', () => {
   assert.equal(getVehicleTripProfile('hyundai-creta-electric'), undefined);
   assert.match(vehicleChargingFacts['hyundai-creta-electric'].dcTime, /vehicle peak DC power is not verified/);

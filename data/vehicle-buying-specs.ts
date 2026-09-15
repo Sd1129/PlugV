@@ -1,3 +1,4 @@
+import { getBatterySpecification } from "./vehicle-battery-specs";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getCatalogueVariants } from "@/data/vehicle-variant-catalogue";
 import { getVariantFeatures } from "@/data/vehicle-variant-features";
@@ -31,6 +32,7 @@ export function getBuyingSpecs(slug: string) {
 
   return {
     seats: getSeatingCapacity(slug),
+    batterySpec: getBatterySpecification(slug),
     dcTime: dcTimes.join(" / ") || chargingFact?.dcTime || "Not yet verified by PlugV",
     acTime: acTimes.join(" / ") || chargingFact?.acTime || "Not yet verified by PlugV",
     variants: variantNames,
