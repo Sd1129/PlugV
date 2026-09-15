@@ -1,5 +1,6 @@
 import { pageSocialMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
+import BuyerEvidenceGuide from "@/components/vehicles/BuyerEvidenceGuide";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -276,7 +277,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
             </p>
 
             <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-              A premium EV profile built to surface the most important decision details first, so buyers can move from browsing to confidence more quickly.
+              {vehicle.slug === "tata-tiago-ev" ? "Compare Tata Tiago EV variants, review the evidence behind its listed price and claimed range, and check charging needs before choosing this electric hatchback." : "A premium EV profile built to surface the most important decision details first, so buyers can move from browsing to confidence more quickly."}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -567,6 +568,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
         </div>
       </section>
 
+      {vehicle.slug === "tata-tiago-ev" ? <BuyerEvidenceGuide topic="tiago" /> : null}
       <SiteFooter />
     </main>
   );

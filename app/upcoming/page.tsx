@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BuyerEvidenceGuide from "@/components/vehicles/BuyerEvidenceGuide";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, BadgeCheck, Battery, Bell, BellRing, CalendarDays, Filter, Gauge, IndianRupee, Search, ShieldCheck, Sparkles } from "lucide-react";
@@ -129,6 +130,7 @@ export default function UpcomingEVsPage() {
       </section>
 
       <section className="border-t border-white/10 bg-white/[0.02] py-14"><div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">PlugV verification standard</p><h2 className="mt-2 text-2xl font-semibold">Every launch claim needs a source and a date.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">When a concept becomes production-ready—or a vehicle launches in India—it should move to the correct section instead of remaining here.</p></div><ShieldCheck className="h-10 w-10 text-emerald-300" /></div></section>
+      <BuyerEvidenceGuide topic="upcoming" />
       <SiteFooter />
     </main>
   );
