@@ -25,14 +25,14 @@ export const upcomingVehicleCandidates: UpcomingVehicle[] = [
     name: "Eva",
     segment: "Electric city car",
     launch: "Phased deliveries targeted from 2027",
-    note: "Manufacturer says deliveries are scheduled for 2027 in phases across cities. Pre-bookings are currently closed. This is a delivery target, not current vehicle availability.",
+    note: "Manufacturer says deliveries are scheduled for 2027 in phases across cities. Pre-bookings are currently closed. Older product and pre-order pages retain 2026 estimates; this listing follows the current booking notice. This is a delivery target, not current vehicle availability.",
     slug: "vayve-mobility-eva",
     status: "Manufacturer target",
     launchYear: 2027,
     features: ["City-wise delivery rollout planned"],
     sourceName: "Vayve Mobility",
     sourceUrl: "https://evayve.com/login",
-    verifiedAt: "2026-09-13",
+    verifiedAt: "2026-09-15",
   },
   {
     brand: "Hyundai",
@@ -48,7 +48,7 @@ export const upcomingVehicleCandidates: UpcomingVehicle[] = [
     features: ["Designed for India", "Localised programme", "Level 2 driver assistance"],
     sourceName: "Hyundai Motor Company",
     sourceUrl: "https://www.hyundai.com/worldwide/en/newsroom/detail/0000001260",
-    verifiedAt: "2026-09-11",
+    verifiedAt: "2026-09-15",
   },
   {
     brand: "Honda",
@@ -64,7 +64,7 @@ export const upcomingVehicleCandidates: UpcomingVehicle[] = [
     features: ["Production model planned", "Honda 0 Series", "India named as a principal market"],
     sourceName: "Honda Motor Co.",
     sourceUrl: "https://global.honda/en/newsroom/news/2025/4251029aeng.html",
-    verifiedAt: "2026-09-11",
+    verifiedAt: "2026-09-15",
   },
 ];
 
