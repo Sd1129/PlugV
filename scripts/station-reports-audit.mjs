@@ -1,0 +1,32 @@
+// Compile TypeScript in this audit process, without a dev server or external AI.
+import { createRequire } from 'node:module';
+import Module from 'node:module';
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+const require = createRequire(import.meta.url);
+const ts = require('typescript');
+const resolve = Module._resolveFilename;
+Module._resolveFilename = function(id, ...args) { return resolve.call(this, id.startsWith('@/') ? path.join(process.cwd(), id.slice(2)) : id, ...args); };
+require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true }}).outputText, filename);
+const {validateStationReport,publicObservation}=require('../lib/charging/stationReports.ts');
+const base={stationId:'station-1',visitedAt:new Date(Date.now()-60000).toISOString(),connector:'CCS2',outcome:'Successful charge',notes:'I charged here and the connector worked on my visit.',consent:true};
+assert.equal(validateStationReport(base).outcome,'Successful charge');
+for(const patch of [{stationId:'../bad'},{visitedAt:'invalid'},{visitedAt:new Date(Date.now()+600000).toISOString()},{visitedAt:'2020-01-01T00:00:00Z'},{consent:false},{notes:'short'},{connector:'fake'},{connector:'Unknown / not applicable'},{outcome:'available'}])assert.throws(()=>validateStationReport({...base,...patch}));
+const row={id:'r1',status:'APPROVED',reviewedAt:new Date(),payload:base};
+assert.equal(publicObservation({...row,status:'PENDING'}),null);assert.equal(publicObservation({...row,status:'REJECTED'}),null);assert.equal(publicObservation({...row,reviewedAt:null}),null);
+assert.deepEqual(Object.keys(publicObservation(row)).sort(),['connector','id','outcome','reviewedAt','visitedAt'].sort());
+assert.equal(publicObservation({...row,payload:{...base,visitedAt:'2020-01-01T00:00:00Z'}}),null);
+process.env.COMMUNITY_RANGE_SECRET='test-only-station-report-secret-32-characters';
+const records=[];let owner='browser-a';let enabled=true;
+const fake={stationReport:{count:async({where})=>records.filter(r=>(!where.contributor||r.contributor===where.contributor)).length,findUnique:async({where})=>records.find(r=>r.fingerprint===where.fingerprint),create:async({data})=>records.push({...data,status:'PENDING'}),deleteMany:async({where})=>{if(where.contributor)for(let i=records.length-1;i>=0;i--)if(records[i].contributor===where.contributor)records.splice(i,1);}},$executeRaw:async()=>1};fake.$transaction=async fn=>fn(fake);
+const originalLoad=Module._load;
+Module._load=function(id,...args){if(id==='@/lib/prisma')return {prisma:fake};if(id==='@/lib/community-range-server')return {contributor:async()=>owner,digest:x=>x,readBody:r=>r.json()};if(id==='@/lib/charging/stationReportStore')return {reportsEnabled:()=>enabled,findReportStation:async id=>id==='station-1'?{id}:null};return originalLoad.call(this,id,...args)};
+const api=require('../app/api/station-reports/route.ts');
+const request=(payload=base)=>new Request('https://plugv.in/api/station-reports',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+assert.equal((await api.POST(request())).status,201);assert.equal(records[0].status,'PENDING');assert.equal((await api.POST(request())).status,429);
+assert.equal((await api.POST(request({...base,stationId:'missing'}))).status,404);
+owner='browser-b';assert.equal((await api.POST(request())).status,201);await api.DELETE(request({}));assert.equal(records.length,1);assert.equal(records[0].contributor,'browser-a');
+enabled=false;assert.equal((await api.POST(request())).status,503);
+console.log('PASS station-report validation, privacy projection, moderation visibility, duplicate control, owner-scoped withdrawal and disabled collection (mock persistence).');
+

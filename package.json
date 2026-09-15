@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "audit:station-reports": "node scripts/station-reports-audit.mjs",
     "audit:community-range": "node scripts/community-range-audit.mjs",
     "audit:assistant": "node scripts/assistant-audit.mjs",
     "audit:charging-quality": "node scripts/station-data-quality-audit.mjs",
@@ -24,7 +25,7 @@
     "audit:automation": "node scripts/automation-config-audit.mjs",
     "audit:security": "node scripts/security-audit.mjs",
     "audit:maintenance": "npm run audit:data && npm run audit:freshness && npm run audit:launched && npm run audit:upcoming && npm run audit:transitions",
-    "audit:release": "npm run audit:community-range && npm run audit:assistant && npm run audit:charging-quality && npm run lint && npm run build && npm run audit:automation && npm run audit:maintenance && npm run audit:content && npm run audit:seo-authority && npm run audit:security"
+    "audit:release": "npm run audit:station-reports && npm run audit:community-range && npm run audit:assistant && npm run audit:charging-quality && npm run lint && npm run build && npm run audit:automation && npm run audit:maintenance && npm run audit:content && npm run audit:seo-authority && npm run audit:security"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -68,4 +69,5 @@
     "mysql2": "^3.22.0"
   }
 }
+
 

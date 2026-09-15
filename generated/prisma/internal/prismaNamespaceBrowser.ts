@@ -57,7 +57,8 @@ export const ModelName = {
   StationSource: 'StationSource',
   StationVerification: 'StationVerification',
   ReminderSubscriber: 'ReminderSubscriber',
-  EmailReminder: 'EmailReminder'
+  EmailReminder: 'EmailReminder',
+  StationReport: 'StationReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -190,6 +191,21 @@ export const EmailReminderScalarFieldEnum = {
 } as const
 
 export type EmailReminderScalarFieldEnum = (typeof EmailReminderScalarFieldEnum)[keyof typeof EmailReminderScalarFieldEnum]
+
+
+export const StationReportScalarFieldEnum = {
+  id: 'id',
+  stationId: 'stationId',
+  contributor: 'contributor',
+  fingerprint: 'fingerprint',
+  payload: 'payload',
+  status: 'status',
+  createdAt: 'createdAt',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote'
+} as const
+
+export type StationReportScalarFieldEnum = (typeof StationReportScalarFieldEnum)[keyof typeof StationReportScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -403,7 +403,8 @@ export const ModelName = {
   StationSource: 'StationSource',
   StationVerification: 'StationVerification',
   ReminderSubscriber: 'ReminderSubscriber',
-  EmailReminder: 'EmailReminder'
+  EmailReminder: 'EmailReminder',
+  StationReport: 'StationReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "communityTrip" | "city" | "station" | "stationSource" | "stationVerification" | "reminderSubscriber" | "emailReminder"
+    modelProps: "communityTrip" | "city" | "station" | "stationSource" | "stationVerification" | "reminderSubscriber" | "emailReminder" | "stationReport"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -941,6 +942,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    StationReport: {
+      payload: Prisma.$StationReportPayload<ExtArgs>
+      fields: Prisma.StationReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StationReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StationReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload>
+        }
+        findFirst: {
+          args: Prisma.StationReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StationReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload>
+        }
+        findMany: {
+          args: Prisma.StationReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload>[]
+        }
+        create: {
+          args: Prisma.StationReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload>
+        }
+        createMany: {
+          args: Prisma.StationReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StationReportCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload>[]
+        }
+        delete: {
+          args: Prisma.StationReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload>
+        }
+        update: {
+          args: Prisma.StationReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.StationReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StationReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StationReportUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload>[]
+        }
+        upsert: {
+          args: Prisma.StationReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationReportPayload>
+        }
+        aggregate: {
+          args: Prisma.StationReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStationReport>
+        }
+        groupBy: {
+          args: Prisma.StationReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StationReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StationReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StationReportCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1094,6 +1169,21 @@ export const EmailReminderScalarFieldEnum = {
 } as const
 
 export type EmailReminderScalarFieldEnum = (typeof EmailReminderScalarFieldEnum)[keyof typeof EmailReminderScalarFieldEnum]
+
+
+export const StationReportScalarFieldEnum = {
+  id: 'id',
+  stationId: 'stationId',
+  contributor: 'contributor',
+  fingerprint: 'fingerprint',
+  payload: 'payload',
+  status: 'status',
+  createdAt: 'createdAt',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote'
+} as const
+
+export type StationReportScalarFieldEnum = (typeof StationReportScalarFieldEnum)[keyof typeof StationReportScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1426,6 +1516,7 @@ export type GlobalOmitConfig = {
   stationVerification?: Prisma.StationVerificationOmit
   reminderSubscriber?: Prisma.ReminderSubscriberOmit
   emailReminder?: Prisma.EmailReminderOmit
+  stationReport?: Prisma.StationReportOmit
 }
 
 /* Types for Logging */

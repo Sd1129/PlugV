@@ -156,3 +156,18 @@ model EmailReminder {
   @@index([subscriberId, active])
   @@index([dueDate, active])
 }
+
+model StationReport {
+  id          String   @id @default(cuid())
+  stationId   String
+  contributor String
+  fingerprint String   @unique
+  payload     Json
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  reviewedAt  DateTime?
+  reviewNote  String?
+
+  @@index([stationId, status, createdAt])
+  @@index([contributor, createdAt])
+}

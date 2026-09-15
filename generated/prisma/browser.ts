@@ -52,3 +52,8 @@ export type ReminderSubscriber = Prisma.ReminderSubscriberModel
  * 
  */
 export type EmailReminder = Prisma.EmailReminderModel
+/**
+ * Model StationReport
+ * 
+ */
+export type StationReport = Prisma.StationReportModel

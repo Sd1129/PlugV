@@ -236,6 +236,8 @@ export default function StationCard({
           </div>
         </div>
       </div>
+      <a href={`/charging/report?station=${encodeURIComponent(station.id)}`} onClick={event => event.stopPropagation()} className="mx-4 mb-4 rounded border border-cyan-300/30 p-3 text-center text-sm font-semibold text-cyan-200 hover:bg-cyan-300/10">Report / view driver observations</a>
     </article>
   );
 }
+
