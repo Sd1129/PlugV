@@ -12,6 +12,8 @@ for(const maxPowerKW of [1000000, NaN, Infinity, -1, 0]) assert.ok(stationDataIs
 assert.ok(stationDataIssues({...valid,operator:'Operator not listed'}).includes('operator missing'));
 assert.ok(stationDataIssues({...valid,connectors:{ccs2:false}}).includes('connector not identified'));
 assert.ok(stationDataIssues({...valid,latitude:91}).includes('invalid coordinates'));
+for (const operator of ['(Unknown Operator)', ' unknown operator ', '(Business Owner at Location)', 'N/A']) assert.ok(stationDataIssues({...valid,operator}).includes('operator missing'));
+assert.deepEqual(stationDataIssues({...valid,operator:'Chargezone (India)'}), []);
 const out = publishableStations([valid,{...valid,charging:{maxPowerKW:1000000}}]);
 assert.equal(out.length,1);
 assert.equal(out[0],valid);
@@ -56,3 +58,4 @@ try {
   if (oldKey === undefined) delete process.env.OCM_API_KEY;
   else process.env.OCM_API_KEY = oldKey;
 }
+

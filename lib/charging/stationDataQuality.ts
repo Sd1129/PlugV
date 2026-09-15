@@ -3,7 +3,8 @@ import type { ChargingStation } from "../../data/charging/types";
 // Publication policy, not a physical limit: outliers need manual source review.
 export function stationDataIssues(station: ChargingStation): string[] {
   const issues: string[] = [];
-  if (!station.operator?.trim() || /^(operator not listed|unknown|n\/a)$/i.test(station.operator.trim())) issues.push("operator missing");
+  const operator = (station.operator ?? "").toLowerCase().replace(/[()]/g, "").replace(/\s+/g, " ").trim();
+  if (!operator || /^(operator not listed|unknown(?: operator)?|n\/a|business owner at location)$/.test(operator)) issues.push("operator missing");
   if (!Object.values(station.connectors).some(Boolean)) issues.push("connector not identified");
   const power = station.charging.maxPowerKW;
   if (!Number.isFinite(power) || power <= 0 || power > 1000) issues.push("power requires review");
@@ -15,3 +16,4 @@ export function publishableStations(stations: ChargingStation[]) {
   // Keep source records intact; exclude incomplete/outlier records from discovery.
   return stations.filter((station) => stationDataIssues(station).length === 0);
 }
+
