@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  CommunityTrip: 'CommunityTrip',
   City: 'City',
   Station: 'Station',
   StationSource: 'StationSource',
@@ -73,6 +74,20 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const CommunityTripScalarFieldEnum = {
+  id: 'id',
+  contributor: 'contributor',
+  fingerprint: 'fingerprint',
+  payload: 'payload',
+  status: 'status',
+  createdAt: 'createdAt',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote'
+} as const
+
+export type CommunityTripScalarFieldEnum = (typeof CommunityTripScalarFieldEnum)[keyof typeof CommunityTripScalarFieldEnum]
 
 
 export const CityScalarFieldEnum = {
@@ -185,6 +200,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
@@ -201,14 +223,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -216,4 +230,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

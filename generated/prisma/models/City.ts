@@ -339,14 +339,6 @@ export type CityScalarRelationFilter = {
   isNot?: Prisma.CityWhereInput
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
-}
-
 export type CityCreateNestedOneWithoutStationsInput = {
   create?: Prisma.XOR<Prisma.CityCreateWithoutStationsInput, Prisma.CityUncheckedCreateWithoutStationsInput>
   connectOrCreate?: Prisma.CityCreateOrConnectWithoutStationsInput

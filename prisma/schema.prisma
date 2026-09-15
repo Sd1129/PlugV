@@ -7,6 +7,20 @@ datasource db {
   provider = "postgresql"
 }
 
+model CommunityTrip {
+  id          String   @id @default(cuid())
+  contributor String
+  fingerprint String   @unique
+  payload     Json
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  reviewedAt  DateTime?
+  reviewNote  String?
+
+  @@index([status, createdAt])
+  @@index([contributor, createdAt])
+}
+
 enum SourceType {
   MANUAL
   OFFICIAL

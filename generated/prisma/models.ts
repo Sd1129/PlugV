@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/CommunityTrip'
 export type * from './models/City'
 export type * from './models/Station'
 export type * from './models/StationSource'

@@ -18,6 +18,7 @@ const footerLinks = [
 ];
 
 const supportLinks = [
+  { label: "Community EV efficiency", href: "/community-range" },
   { label: "My EV owner hub", href: "/my-ev" },
   { label: "Plan an EV trip", href: "/travel" },
   { label: "Ask the EV Assistant", href: "/assistant" },
@@ -42,6 +43,7 @@ const mobilePrimaryLinks = [
 ];
 
 const mobileTrustLinks = [
+  { label: "Community EV efficiency", href: "/community-range" },
   { label: "Knowledge Hub", href: "/knowledge" },
   { label: "EV Calculators", href: "/calculators" },
   { label: "Data Methodology", href: "/methodology" },
@@ -190,3 +192,4 @@ export default function SiteFooter() {
     </footer>
   );
 }
+

@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.10.0
- * Query Engine version: 0edf323efd1d98336f3f0a68684b56f689b900d3
+ * Prisma Client JS version: 7.9.1
+ * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.10.0",
-  engine: "0edf323efd1d98336f3f0a68684b56f689b900d3"
+  client: "7.9.1",
+  engine: "e922089b7d7502aff4249d5da3420f6fa55fc6ad"
 }
 
 /**
@@ -397,6 +397,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  CommunityTrip: 'CommunityTrip',
   City: 'City',
   Station: 'Station',
   StationSource: 'StationSource',
@@ -418,10 +419,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "city" | "station" | "stationSource" | "stationVerification" | "reminderSubscriber" | "emailReminder"
+    modelProps: "communityTrip" | "city" | "station" | "stationSource" | "stationVerification" | "reminderSubscriber" | "emailReminder"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    CommunityTrip: {
+      payload: Prisma.$CommunityTripPayload<ExtArgs>
+      fields: Prisma.CommunityTripFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommunityTripFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommunityTripFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload>
+        }
+        findFirst: {
+          args: Prisma.CommunityTripFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommunityTripFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload>
+        }
+        findMany: {
+          args: Prisma.CommunityTripFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload>[]
+        }
+        create: {
+          args: Prisma.CommunityTripCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload>
+        }
+        createMany: {
+          args: Prisma.CommunityTripCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CommunityTripCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload>[]
+        }
+        delete: {
+          args: Prisma.CommunityTripDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload>
+        }
+        update: {
+          args: Prisma.CommunityTripUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload>
+        }
+        deleteMany: {
+          args: Prisma.CommunityTripDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommunityTripUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CommunityTripUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload>[]
+        }
+        upsert: {
+          args: Prisma.CommunityTripUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommunityTripPayload>
+        }
+        aggregate: {
+          args: Prisma.CommunityTripAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommunityTrip>
+        }
+        groupBy: {
+          args: Prisma.CommunityTripGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommunityTripGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommunityTripCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommunityTripCountAggregateOutputType> | number
+        }
+      }
+    }
     City: {
       payload: Prisma.$CityPayload<ExtArgs>
       fields: Prisma.CityFieldRefs
@@ -905,6 +980,20 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const CommunityTripScalarFieldEnum = {
+  id: 'id',
+  contributor: 'contributor',
+  fingerprint: 'fingerprint',
+  payload: 'payload',
+  status: 'status',
+  createdAt: 'createdAt',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote'
+} as const
+
+export type CommunityTripScalarFieldEnum = (typeof CommunityTripScalarFieldEnum)[keyof typeof CommunityTripScalarFieldEnum]
+
+
 export const CityScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1015,6 +1104,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
@@ -1031,14 +1127,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -1046,6 +1134,14 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -1065,6 +1161,20 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
  * Reference to a field of type 'String[]'
  */
 export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1142,20 +1252,6 @@ export type EnumSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'SourceType[]'
  */
 export type ListEnumSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SourceType[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1323,6 +1419,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
  */
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
+  communityTrip?: Prisma.CommunityTripOmit
   city?: Prisma.CityOmit
   station?: Prisma.StationOmit
   stationSource?: Prisma.StationSourceOmit

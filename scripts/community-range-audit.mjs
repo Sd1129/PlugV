@@ -1,0 +1,24 @@
+// Compile TypeScript in this audit process, without a dev server or external AI.
+import { createRequire } from 'node:module';
+import Module from 'node:module';
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+const require = createRequire(import.meta.url);
+const ts = require('typescript');
+const resolve = Module._resolveFilename;
+Module._resolveFilename = function(id, ...args) { return resolve.call(this, id.startsWith('@/') ? path.join(process.cwd(), id.slice(2)) : id, ...args); };
+require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true }}).outputText, filename);
+const {validateTrip,summarizeTrips}=require('../lib/community-range.ts');
+const {getCatalogueVariants}=require('../data/vehicle-variant-catalogue.ts');
+const base={slug:'tata-tiago-ev',variant:getCatalogueVariants('tata-tiago-ev')[0],modelYear:2026,date:new Date().toISOString().slice(0,10),road:'City',temperature:'Above 30°C',speed:'Below 30 km/h',ac:'On',passengers:2,terrain:'Mostly flat',distance:100,start:90,end:40,energy:12,method:'Dashboard energy',evidence:'Dashboard read before and after the trip.',consent:true};
+assert.equal(validateTrip(base).energy,12);
+for(const patch of [{distance:NaN},{start:45},{variant:'fake'},{consent:false},{energy:999},{date:'2026-02-31'},{method:'guess'}])assert.throws(()=>validateTrip({...base,...patch}));
+const rows=Array.from({length:5},(_,i)=>({contributor:String(i%3),payload:base}));
+assert.equal(summarizeTrips(rows.slice(0,4)).length,0);
+assert.equal(summarizeTrips(rows.map(r=>({...r,contributor:'one'}))).length,0);
+const result=summarizeTrips(rows)[0];assert.equal(result.median,12);assert.equal(result.conditions.evidence,undefined);assert.equal(result.conditions.distance,undefined);
+assert.equal(summarizeTrips(rows.map((r,i)=>({...r,payload:{...base,method:i===0?'Charger energy':base.method}}))).length,0);
+assert.equal(summarizeTrips(rows.map(r=>({...r,payload:{...base,method:'Battery percentage',energy:null}})))[0].median,200);
+assert.equal(summarizeTrips(rows.map(r=>({...r,payload:{...base,date:'2020-01-01'}}))).length,0);
+console.log('Community range validation, evidence thresholds, privacy and measurement separation passed.');

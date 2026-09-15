@@ -471,10 +471,6 @@ export type ReminderSubscriberScalarRelationFilter = {
   isNot?: Prisma.ReminderSubscriberWhereInput
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type ReminderSubscriberCreateNestedOneWithoutRemindersInput = {
   create?: Prisma.XOR<Prisma.ReminderSubscriberCreateWithoutRemindersInput, Prisma.ReminderSubscriberUncheckedCreateWithoutRemindersInput>
   connectOrCreate?: Prisma.ReminderSubscriberCreateOrConnectWithoutRemindersInput
