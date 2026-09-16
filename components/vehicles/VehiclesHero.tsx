@@ -102,13 +102,13 @@ export default function VehiclesHero({ children }: { children: React.ReactNode }
 
           <div className="mt-6 hidden gap-3 lg:grid lg:grid-cols-3">
             <HeroStat
-              label="Launched EVs"
-              value={`${launchedVehicles.length}+`}
+              label="Models listed"
+              value={`${launchedVehicles.length}`}
               icon={<Zap className="h-4 w-4" />}
             />
             <HeroStat
-              label="Brands"
-              value={`${brandsCount}+`}
+              label="Brands represented"
+              value={`${brandsCount}`}
               icon={<Sparkles className="h-4 w-4" />}
             />
             <HeroStat

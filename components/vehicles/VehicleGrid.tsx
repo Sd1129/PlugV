@@ -84,7 +84,6 @@ function VehicleCard({
           #{index + 1}
         </div>
 
-        {vehicleVisual.plugvConcept ? <div className="absolute right-4 top-4 rounded-full border border-sky-300/20 bg-slate-950/70 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-sky-100 backdrop-blur">PlugV concept</div> : null}
 
         {tripProfile && vehicleVisual.modelSpecific ? <div className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/15 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-emerald-100 backdrop-blur"><BadgeCheck className="h-3.5 w-3.5" />Trip specification source</div> : null}
 
