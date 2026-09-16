@@ -168,11 +168,12 @@ export default function HomePage() {
 
           <div className="divide-y divide-white/10 rounded-[2rem] border border-white/10 bg-white/[0.03] px-6 sm:px-8">
             {upcomingEVs.map((vehicle) => (
-              <Link key={vehicle.slug} href="/upcoming" className="group flex items-center justify-between gap-6 py-6">
+              <Link key={vehicle.slug} href={`/upcoming/${vehicle.slug}`} className="group flex items-center justify-between gap-6 py-6">
                 <div>
                   <p className="text-sm font-medium text-slate-400">{vehicle.brand}</p>
                   <p className="mt-1 text-xl font-semibold tracking-tight text-white">{vehicle.name}</p>
-                  <p className="mt-2 text-sm text-slate-400">{vehicle.launch} · {vehicle.range}</p>
+                  <p className="mt-2 text-sm text-slate-300">Timing: {vehicle.launch}</p>
+                  <p className="mt-1 text-sm text-slate-400">Range: {vehicle.range || "Not announced"}</p>
                 </div>
                 <CalendarClock className="h-5 w-5 shrink-0 text-sky-300 transition group-hover:scale-110" />
               </Link>

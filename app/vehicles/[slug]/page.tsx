@@ -443,11 +443,11 @@ export default async function VehicleDetailPage({ params }: PageProps) {
                 <div className="flex items-center gap-2 text-sky-200">
                   <ShieldCheck className="h-4 w-4" />
                   <p className="text-xs font-semibold uppercase tracking-[0.24em]">
-                    PlugV insight
+                    Before you shortlist
                   </p>
                 </div>
                 <p className="mt-3 text-sm leading-7 text-slate-200">
-                  The detail page should feel like a premium product page: calm, informative, and built to help the buyer move forward with confidence.
+                  Confirm the exact variant, battery size, current price and charging compatibility with the manufacturer or authorised dealer before booking. Check the source notes on this page for any details still awaiting confirmation.
                 </p>
               </div>
             </div>
