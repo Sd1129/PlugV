@@ -1,5 +1,5 @@
 import { vehicles } from "@/data/vehicles";
-import { upcomingEVs } from "@/components/home/homeData";
+import { upcomingVehicles } from "@/data/vehicles-upcoming";
 
 export type SearchCategory = "vehicle" | "upcoming" | "charging" | "company";
 
@@ -29,18 +29,18 @@ export const searchIndex: SearchItem[] = [
       vehicle.charging ?? "",
     ],
   })),
-  ...upcomingEVs.map((item) => ({
-    id: item.name.toLowerCase().replace(/\s+/g, "-"),
+  ...upcomingVehicles.map((item) => ({
+    id: item.slug,
     title: item.name,
     subtitle: item.launch || item.note || "Upcoming EV",
     category: "upcoming" as const,
-    href: "/upcoming",
-    keywords: [item.name, item.launch ?? "", item.note ?? ""],
+    href: `/upcoming/${item.slug}`,
+    keywords: [item.brand, item.name, item.launch ?? "", item.note ?? ""],
   })),
   {
     id: "charging",
     title: "Charging stations",
-    subtitle: "Find premium charging locations across India",
+    subtitle: "Open the charging finder to search by city and connector",
     category: "charging",
     href: "/charging",
     keywords: ["charging", "stations", "map", "connectors", "route planning"],

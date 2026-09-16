@@ -2,9 +2,9 @@ import { pageSocialMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  ...pageSocialMetadata("Search Electric Cars, Charging and EV Tools", "Search PlugV for electric cars in India, vehicle comparisons, charging stations, upcoming EVs and ownership tools.", "/search"),
-  title: "Search Electric Cars, Charging and EV Tools",
-  description: "Search PlugV for electric cars in India, vehicle comparisons, charging stations, upcoming EVs and ownership tools.",
+  ...pageSocialMetadata("Search EV Models and PlugV Pages", "Find listed electric-car models, upcoming EVs and links to PlugV tools by keyword.", "/search"),
+  title: "Search EV Models and PlugV Pages",
+  description: "Find listed electric-car models, upcoming EVs and links to PlugV tools by keyword.",
   alternates: { canonical: "/search" },
 };
 

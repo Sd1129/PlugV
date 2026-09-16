@@ -47,12 +47,15 @@ export default function UniversalSearch() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search EVs, brands, charging stations, or upcoming launches..."
+          aria-label="Search listed EVs and PlugV pages"
+          placeholder="Try Nexon, Tata, or Compare"
           className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500"
         />
         <Sparkles className="h-4 w-4 text-slate-500" />
       </label>
 
+      <div className="mt-3 flex flex-wrap gap-2" aria-label="Example searches">{["Nexon", "Tata", "Compare"].map(example => <button type="button" key={example} onClick={() => setQuery(example)} className="rounded-full border border-white/20 px-3 py-2 text-sm text-sky-200 hover:bg-white/10">{example}</button>)}</div>
+      <p role="status" className="mt-3 text-sm text-slate-300">{query.trim() ? `${results.length} matching results shown` : "Enter a keyword or choose an example."}</p>
       {query.trim() ? (
         <div className="mt-4 grid gap-3">
           {results.length > 0 ? (
@@ -74,7 +77,7 @@ export default function UniversalSearch() {
             ))
           ) : (
             <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-5 text-sm text-slate-400">
-              No matches found. Try another brand, EV model, charging station, or upcoming launch.
+              No matches found. Try a shorter model or brand name. For a city or station, use the charging finder.
             </div>
           )}
         </div>
