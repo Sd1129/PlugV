@@ -16,6 +16,10 @@ import TrustSummary from "@/components/vehicles/TrustSummary";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
 import { getVehicleVisual } from "@/data/vehicle-images";
+import VehiclePicker from "@/components/compare/VehiclePicker";
+import OnRoadBudget from "@/components/compare/OnRoadBudget";
+import TariffContext from "@/components/compare/TariffContext";
+import { getCompareCharging } from "@/data/compare-specs";
 import { getBuyingSpecs } from "@/data/vehicle-buying-specs";
 
 function accentFor(seed: string) {
@@ -141,28 +145,27 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
   const rightTripVariant = defaultTripVariant(rightVehicle?.slug);
   const leftBuyingSpecs = getBuyingSpecs(leftVehicle?.slug ?? "");
   const rightBuyingSpecs = getBuyingSpecs(rightVehicle?.slug ?? "");
-  const leftVariantSpecs = leftBuyingSpecs.variantDetails[0];
-  const rightVariantSpecs = rightBuyingSpecs.variantDetails[0];
+  const leftCharging = getCompareCharging(leftVehicle?.slug ?? "");
+  const rightCharging = getCompareCharging(rightVehicle?.slug ?? "");
   const leftEfficiency = leftTripVariant ? leftTripVariant.batteryCapacityKWh / leftTripVariant.practicalRangeKm : 0.16;
   const rightEfficiency = rightTripVariant ? rightTripVariant.batteryCapacityKWh / rightTripVariant.practicalRangeKm : 0.16;
   const leftEnergyCost = Math.round(annualDistanceKm * ownershipYears * leftEfficiency * electricityRate);
   const rightEnergyCost = Math.round(annualDistanceKm * ownershipYears * rightEfficiency * electricityRate);
   const specificationRows = [
-    { label: "Starting price", left: leftVehicle?.price ?? "Awaiting official specification", right: rightVehicle?.price ?? "Awaiting official specification" },
+    { label: "Ex-showroom price range", left: leftVehicle?.price ?? "Price not confirmed", right: rightVehicle?.price ?? "Price not confirmed" },
     { label: "Body type", left: leftVehicle?.type ?? "—", right: rightVehicle?.type ?? "—" },
     { label: "Seating capacity", left: `${leftBuyingSpecs.seats} seats`, right: `${rightBuyingSpecs.seats} seats` },
-    { label: "Claimed range", left: leftVariantSpecs?.range ?? leftVehicle?.range ?? "Awaiting official specification", right: rightVariantSpecs?.range ?? rightVehicle?.range ?? "Awaiting official specification" },
-    { label: "Listed power / battery", left: leftVariantSpecs?.battery ?? leftVehicle?.charging ?? "Awaiting official specification", right: rightVariantSpecs?.battery ?? rightVehicle?.charging ?? "Awaiting official specification" },
-    { label: "Available variants", left: `${leftBuyingSpecs.variants.length} listed`, right: `${rightBuyingSpecs.variants.length} listed` },
-    { label: "Practical range", left: leftVariantSpecs?.practicalRange ?? "Awaiting trim verification", right: rightVariantSpecs?.practicalRange ?? "Awaiting trim verification" },
-    { label: "Maximum DC charging", left: leftVariantSpecs?.dcPower ?? "Awaiting trim verification", right: rightVariantSpecs?.dcPower ?? "Awaiting trim verification" },
-    { label: "Maximum AC charging", left: leftVariantSpecs?.acPower ?? "Awaiting trim verification", right: rightVariantSpecs?.acPower ?? "Awaiting trim verification" },
-    { label: "DC charging time", left: leftVariantSpecs?.dcTime ?? leftBuyingSpecs.dcTime, right: rightVariantSpecs?.dcTime ?? rightBuyingSpecs.dcTime },
-    { label: "AC charging time", left: leftBuyingSpecs.acTime, right: rightBuyingSpecs.acTime },
-    { label: "Connector", left: leftVariantSpecs?.connector ?? "Awaiting trim verification", right: rightVariantSpecs?.connector ?? "Awaiting trim verification" },
+    { label: "Claimed range (model options)", left: leftVehicle?.range ?? "Range not confirmed", right: rightVehicle?.range ?? "Range not confirmed" },
+    { label: "Battery options", left: leftBuyingSpecs.batterySpec?.value ?? "Battery not confirmed", right: rightBuyingSpecs.batterySpec?.value ?? "Battery not confirmed" },
+    { label: "Listed variants", left: `${leftBuyingSpecs.variants.length} listed`, right: `${rightBuyingSpecs.variants.length} listed` },
+    { label: "DC charging power", left: leftCharging.dcPower, right: rightCharging.dcPower },
+    { label: "AC charging power", left: leftCharging.acPower, right: rightCharging.acPower },
+    { label: "Connector", left: leftCharging.connector, right: rightCharging.connector },
+    { label: "DC charging time", left: leftCharging.dcTime, right: rightCharging.dcTime },
+    { label: "AC charging time", left: leftCharging.acTime, right: rightCharging.acTime },
   ];
-  const leftFeatures = comparisonFeatures(leftVehicle, leftBuyingSpecs, leftVariantSpecs?.features);
-  const rightFeatures = comparisonFeatures(rightVehicle, rightBuyingSpecs, rightVariantSpecs?.features);
+  const leftFeatures = comparisonFeatures(leftVehicle, leftBuyingSpecs);
+  const rightFeatures = comparisonFeatures(rightVehicle, rightBuyingSpecs);
   const sharedFeatures = leftFeatures.filter((feature) => rightFeatures.includes(feature));
   const leftUniqueFeatures = leftFeatures.filter((feature) => !rightFeatures.includes(feature));
   const rightUniqueFeatures = rightFeatures.filter((feature) => !leftFeatures.includes(feature));
@@ -170,12 +173,12 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
   const heroStats = [
     {
       label: "Launched EVs",
-      value: `${launchedVehicles.length}+`,
+      value: `${launchedVehicles.length}`,
       icon: <Zap className="h-4 w-4" />,
     },
     {
       label: "Brands",
-      value: `${new Set(launchedVehicles.map((v) => v.brand)).size}+`,
+      value: `${new Set(launchedVehicles.map((v) => v.brand)).size}`,
       icon: <Sparkles className="h-4 w-4" />,
     },
     {
@@ -262,58 +265,9 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
 
       <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
         
-        {/* LEFT PICK */}
-        <label className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-300">
-            Left pick
-          </span>
-
-          <select
-            value={leftSlug}
-            onChange={(e) => { if (e.target.value !== rightSlug) setLeftSlug(e.target.value); }}
-            className="mt-3 min-h-12 w-full rounded-xl border border-white/10 bg-slate-950/90 px-3 py-3 text-sm font-semibold text-white outline-none [color-scheme:dark]"
-          >
-            {launchedVehicles.map((vehicle) => (
-              <option
-                key={vehicle.slug}
-                value={vehicle.slug}
-                disabled={vehicle.slug === rightSlug}
-                className="bg-slate-950 text-white"
-              >
-                {vehicle.brand} — {vehicle.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {/* VS */}
-        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-sky-400/30 bg-sky-400/10 text-xs font-bold text-sky-300">
-          VS
-        </div>
-
-        {/* RIGHT PICK */}
-        <label className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-300">
-            Right pick
-          </span>
-
-          <select
-            value={rightSlug}
-            onChange={(e) => { if (e.target.value !== leftSlug) setRightSlug(e.target.value); }}
-            className="mt-3 min-h-12 w-full rounded-xl border border-white/10 bg-slate-950/90 px-3 py-3 text-sm font-semibold text-white outline-none [color-scheme:dark]"
-          >
-            {launchedVehicles.map((vehicle) => (
-              <option
-                key={vehicle.slug}
-                value={vehicle.slug}
-                disabled={vehicle.slug === leftSlug}
-                className="bg-slate-950 text-white"
-              >
-                {vehicle.brand} — {vehicle.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <VehiclePicker label="Left pick" vehicles={launchedVehicles} value={leftSlug} excluded={rightSlug} onChange={setLeftSlug} />
+        <div aria-hidden="true" className="mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-sky-400/30 bg-sky-400/10 text-xs font-bold text-sky-300">VS</div>
+        <VehiclePicker label="Right pick" vehicles={launchedVehicles} value={rightSlug} excluded={leftSlug} onChange={setRightSlug} />
       </div>
 
       {/* CURRENT SELECTION */}
@@ -345,7 +299,15 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
       <section className="py-14 sm:py-18">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7">
-            <div className="flex flex-col gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key specifications</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Every important difference, side by side.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Highlighted rows contain different values. Unverified trim-level fields are labelled instead of estimated.</p></div><span className="rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold text-sky-200">{specificationRows.filter((row) => differentValues(row.left, row.right)).length} differences found</span></div>
+            <div className="flex flex-col gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key specifications</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Every important difference, side by side.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Model-wide options and scoped charging figures are shown below. Check the battery version and source notes: the starting price does not necessarily buy the charging profile shown. Unknown values are not counted as differences.</p></div><span className="rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold text-sky-200">{specificationRows.filter((row) => differentValues(row.left, row.right)).length} differences found</span></div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[{ vehicle: leftVehicle, charging: leftCharging, specs: leftBuyingSpecs }, { vehicle: rightVehicle, charging: rightCharging, specs: rightBuyingSpecs }].map(({ vehicle, charging, specs }) => <div key={vehicle?.slug} className="rounded-xl border border-white/15 bg-slate-950/50 p-4 text-xs leading-6 text-slate-300">
+                <p className="font-semibold text-white">{vehicle?.name}</p><p>{charging.scope}</p>
+                {charging.sourceUrl ? <p><a href={charging.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-sky-300 underline">Charging source</a> · checked {charging.checkedAt}</p> : <p>Charging evidence is incomplete.</p>}
+                {charging.acSourceUrl && charging.acSourceUrl !== charging.sourceUrl ? <p><a href={charging.acSourceUrl} target="_blank" rel="noopener noreferrer" className="text-sky-300 underline">Supporting specification source</a> · checked {charging.acCheckedAt}</p> : null}
+                {specs.batterySpec ? <p><a href={specs.batterySpec.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-sky-300 underline">Battery source</a> · checked {specs.batterySpec.checkedAt}. {specs.batterySpec.scope}</p> : null}
+              </div>)}
+            </div>
             <div className="mt-6 space-y-3 sm:hidden">
               {specificationRows.map((row) => { const different = differentValues(row.left, row.right); return <article key={row.label} className={`rounded-2xl border p-4 ${different ? "border-sky-300/20 bg-sky-400/[0.06]" : "border-white/10 bg-slate-950/35"}`}><div className="flex items-center justify-between gap-2"><h3 className="text-sm font-semibold text-slate-300">{row.label}</h3>{different ? <span className="rounded-full bg-sky-400/10 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-sky-300">Different</span> : null}</div><dl className="mt-3 grid grid-cols-2 gap-3"><div><dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{leftVehicle?.name}</dt><dd className="mt-1 text-sm font-semibold leading-5 text-white">{row.left}</dd></div><div className="border-l border-white/10 pl-3"><dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{rightVehicle?.name}</dt><dd className="mt-1 text-sm font-semibold leading-5 text-white">{row.right}</dd></div></dl></article>; })}
             </div>
@@ -356,9 +318,9 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
           </div>
 
           <div className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 sm:p-7">
-            <div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key features</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Unique equipment and shared strengths.</h2></div>
-            <div className="mt-6 grid gap-5 lg:grid-cols-3"><FeatureDifferenceColumn title={`Unique to ${leftVehicle?.name}`} features={leftUniqueFeatures} accent="sky" /><FeatureDifferenceColumn title="Shared features" features={sharedFeatures} accent="emerald" /><FeatureDifferenceColumn title={`Unique to ${rightVehicle?.name}`} features={rightUniqueFeatures} accent="violet" /></div>
-            {(!leftVariantSpecs?.features?.length || !rightVariantSpecs?.features?.length) ? <p className="mt-5 rounded-2xl border border-amber-300/15 bg-amber-400/[0.06] p-4 text-xs leading-6 text-amber-100/80">This comparison includes every model-wide feature currently structured in PlugV. Detailed trim equipment is shown only where it has been checked against the manufacturer catalogue.</p> : null}
+            <div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key features</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Model details at a glance.</h2></div>
+            <div className="mt-6 grid gap-5 lg:grid-cols-3"><FeatureDifferenceColumn title={leftVehicle?.name ?? "Left pick"} features={leftUniqueFeatures} accent="sky" /><FeatureDifferenceColumn title="Shared features" features={sharedFeatures} accent="emerald" /><FeatureDifferenceColumn title={rightVehicle?.name ?? "Right pick"} features={rightUniqueFeatures} accent="violet" /></div>
+            <details className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-400/[0.06] p-4 text-sm leading-6 text-amber-100"><summary className="cursor-pointer font-semibold">What still needs a trim-specific check?</summary><p className="mt-3">Equipment, current trim availability and on-road prices must be checked for your exact variant. Missing information does not mean a feature is absent. Practical range used in the cost estimate is a planning assumption, not a measured owner result. Confirm charging hardware and the state-of-charge window before comparing charging times.</p></details>
           </div>
         </div>
       </section>
@@ -367,19 +329,29 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7">
             <div className="flex flex-col gap-3 border-b border-white/10 pb-6 lg:flex-row lg:items-end lg:justify-between">
-              <div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Ownership cost preview</p><h2 className="mt-2 text-2xl font-semibold sm:text-3xl">Compare the energy cost of living with each EV.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Adjust your expected driving and electricity price. Verified variants use battery-based efficiency; other vehicles use a clearly labelled planning estimate.</p></div>
+              <div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Ownership cost preview</p><h2 className="mt-2 text-2xl font-semibold sm:text-3xl">Compare the energy cost of living with each EV.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Adjust your expected driving and electricity price. Energy intensity uses the named battery profile and an estimated practical range, or a generic assumption where no profile is available.</p></div>
               <div className="grid gap-3 sm:grid-cols-3">
                 <CostInput label="Kilometres / year" value={annualDistanceKm} min={1000} max={100000} step={1000} onChange={setAnnualDistanceKm} />
-                <CostInput label="Electricity ₹ / kWh" value={electricityRate} min={1} max={100} step={1} onChange={setElectricityRate} />
+                <CostInput label="Electricity ₹ / kWh" value={electricityRate} min={0} max={100} step={0.1} onChange={setElectricityRate} />
                 <CostInput label="Ownership years" value={ownershipYears} min={1} max={15} step={1} onChange={setOwnershipYears} />
               </div>
             </div>
+            <TariffContext rate={electricityRate} onChange={setElectricityRate} />
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
-              <OwnershipCostCard vehicleName={`${leftVehicle?.brand ?? ""} ${leftVehicle?.name ?? ""}`} energyCost={leftEnergyCost} efficiency={leftEfficiency} verified={Boolean(leftTripVariant)} years={ownershipYears} />
-              <OwnershipCostCard vehicleName={`${rightVehicle?.brand ?? ""} ${rightVehicle?.name ?? ""}`} energyCost={rightEnergyCost} efficiency={rightEfficiency} verified={Boolean(rightTripVariant)} years={ownershipYears} />
+              <OwnershipCostCard vehicleName={`${leftVehicle?.brand ?? ""} ${leftVehicle?.name ?? ""}`} energyCost={leftEnergyCost} efficiency={leftEfficiency} profileName={leftTripVariant?.name} years={ownershipYears} />
+              <OwnershipCostCard vehicleName={`${rightVehicle?.brand ?? ""} ${rightVehicle?.name ?? ""}`} energyCost={rightEnergyCost} efficiency={rightEfficiency} profileName={rightTripVariant?.name} years={ownershipYears} />
             </div>
-            <p className="mt-5 text-xs leading-5 text-slate-500">Planning estimate only. It excludes purchase price, finance, insurance, service, tyres, battery degradation, charging losses and changing tariffs. City-specific total ownership cost will require verified on-road prices and partner quotes.</p>
+            <p className="mt-5 text-xs leading-5 text-slate-500">Planning estimate only. It excludes purchase price, finance, insurance, service, tyres, battery degradation, charging losses and changing tariffs. It is not total ownership cost. Use the separate on-road worksheet for purchase budgeting.</p>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-semibold">Build your city-specific on-road budget</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">Ex-showroom is only the starting point. Add registration, insurance and other quoted costs for the exact trim. We do not assume a state tax exemption or invent a dealer quote.</p>
+        <div className="mt-6 grid gap-5 lg:grid-cols-2">
+          <OnRoadBudget key={`left-${leftSlug}`} name={`${leftVehicle?.brand} ${leftVehicle?.name}`} cataloguePrice={leftVehicle?.price} />
+          <OnRoadBudget key={`right-${rightSlug}`} name={`${rightVehicle?.brand} ${rightVehicle?.name}`} cataloguePrice={rightVehicle?.price} />
         </div>
       </section>
 
@@ -389,7 +361,7 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
             {[leftVehicle, rightVehicle].map((vehicle, idx) => {
               if (!vehicle) return null;
               const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
-              const tripVariant = defaultTripVariant(vehicle.slug);
+              const charging = getCompareCharging(vehicle.slug);
               const vehicleVisual = getVehicleVisual(vehicle.slug);
               const side = idx === 0 ? "Left pick" : "Right pick";
 
@@ -432,8 +404,8 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
                   <div className="space-y-4 p-6">
                     <div className="grid gap-4 sm:grid-cols-3">
                       <MiniStat label="Range" value={vehicle.range ?? "—"} />
-                      <MiniStat label="DC charging" value={tripVariant ? `${tripVariant.maxDcChargeKW} kW` : "Not verified"} />
-                      <MiniStat label="Price" value={vehicle.price ?? "—"} />
+                      <MiniStat label="DC charging" value={charging.dcPower} />
+                      <MiniStat label="Ex-showroom" value={vehicle.price ?? "—"} />
                     </div>
 
                   </div>
@@ -495,7 +467,8 @@ function defaultTripVariant(slug?: string) {
 }
 
 function differentValues(left: string, right: string) {
-  return left.trim().toLowerCase() !== right.trim().toLowerCase();
+  const unknown = /not confirmed|not verified|awaiting|not yet verified/i;
+  return !unknown.test(left) && !unknown.test(right) && left.trim().toLowerCase() !== right.trim().toLowerCase();
 }
 
 function comparisonFeatures(vehicle: (typeof vehicles)[number] | undefined, specs: ReturnType<typeof getBuyingSpecs>, variantFeatures?: string[]) {
@@ -515,10 +488,11 @@ function FeatureDifferenceColumn({ title, features, accent }: { title: string; f
 }
 
 function CostInput({ label, value, min, max, step, onChange }: { label: string; value: number; min: number; max: number; step: number; onChange: (value: number) => void }) {
-  return <label className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2"><span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</span><input type="number" value={value} min={min} max={max} step={step} onChange={(event) => onChange(Math.min(max, Math.max(min, Number(event.target.value) || min)))} className="mt-1 w-full bg-transparent text-sm font-semibold text-white outline-none" /></label>;
+  const [draft, setDraft] = useState<string | null>(null);
+  return <label className="rounded-xl border border-white/20 bg-slate-950/60 px-3 py-2"><span className="text-xs font-semibold text-slate-300">{label}</span><input type="number" inputMode="decimal" value={draft ?? value} min={min} max={max} step={step} onChange={event => { const text = event.target.value; setDraft(text); const number = Number(text); if (text !== "" && Number.isFinite(number) && number >= min && number <= max) onChange(number); }} onBlur={() => { if (draft !== null && draft !== "" && Number.isFinite(Number(draft))) onChange(Math.min(max, Math.max(min, Number(draft)))); setDraft(null); }} className="mt-1 min-h-10 w-full bg-transparent text-base font-semibold text-white focus:outline-sky-300" /></label>;
 }
 
-function OwnershipCostCard({ vehicleName, energyCost, efficiency, verified, years }: { vehicleName: string; energyCost: number; efficiency: number; verified: boolean; years: number }) {
-  return <article className="rounded-2xl border border-white/10 bg-slate-950/60 p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-sm font-semibold text-white">{vehicleName}</p><p className="mt-1 text-xs text-slate-500">{verified ? "Battery profile with estimated practical range" : "Estimated efficiency profile"}</p></div><span className={`rounded-full border px-3 py-1 text-[10px] font-semibold border-amber-300/20 bg-amber-400/10 text-amber-100`}>Energy cost estimate</span></div><div className="mt-5 grid grid-cols-2 gap-3"><MiniStat label={`${years}-year energy`} value={`₹${energyCost.toLocaleString("en-IN")}`} /><MiniStat label="Energy intensity" value={`${(efficiency * 100).toFixed(1)} kWh / 100 km`} /></div></article>;
+function OwnershipCostCard({ vehicleName, energyCost, efficiency, profileName, years }: { vehicleName: string; energyCost: number; efficiency: number; profileName?: string; years: number }) {
+  return <article className="rounded-2xl border border-white/10 bg-slate-950/60 p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-sm font-semibold text-white">{vehicleName}</p><p className="mt-1 text-xs text-slate-500">{profileName ? `${profileName}: estimated practical range` : "Generic assumption: 0.16 kWh/km"}</p></div><span className={`rounded-full border px-3 py-1 text-[10px] font-semibold border-amber-300/20 bg-amber-400/10 text-amber-100`}>Energy cost estimate</span></div><div className="mt-5 grid grid-cols-2 gap-3"><MiniStat label={`${years}-year energy`} value={`₹${energyCost.toLocaleString("en-IN")}`} /><MiniStat label="Energy intensity" value={`${(efficiency * 100).toFixed(1)} kWh / 100 km`} /></div></article>;
 }
 
