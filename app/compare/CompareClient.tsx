@@ -4,64 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import {
-  CheckCircle2,
-  Gauge,
-  Sparkles,
-  Zap,
-} from "lucide-react";
 import SiteHeader from "@/components/home/SiteHeader";
 import SiteFooter from "@/components/home/SiteFooter";
 import TrustSummary from "@/components/vehicles/TrustSummary";
 import { vehicles } from "@/data/vehicles";
 import { getVehicleTripProfile } from "@/data/vehicle-trip-profiles";
-import { getVehicleVisual } from "@/data/vehicle-images";
 import VehiclePicker from "@/components/compare/VehiclePicker";
 import OnRoadBudget from "@/components/compare/OnRoadBudget";
 import TariffContext from "@/components/compare/TariffContext";
 import { getCompareCharging } from "@/data/compare-specs";
-import { getBuyingSpecs } from "@/data/vehicle-buying-specs";
-
-function accentFor(seed: string) {
-  const accents = [
-    "from-sky-400/25 via-cyan-400/10 to-transparent",
-    "from-fuchsia-400/25 via-rose-400/10 to-transparent",
-    "from-emerald-400/25 via-teal-400/10 to-transparent",
-    "from-amber-300/25 via-orange-400/10 to-transparent",
-    "from-violet-400/25 via-indigo-400/10 to-transparent",
-  ];
-
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-
-  return accents[hash % accents.length];
-}
-
-function StatCard({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/10 backdrop-blur">
-      <div className="flex items-center gap-2 text-sky-200/80">
-        {icon}
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em]">
-          {label}
-        </p>
-      </div>
-      <p className="mt-3 text-2xl font-semibold tracking-tight text-white">
-        {value}
-      </p>
-    </div>
-  );
-}
+import { getBuyingSpecs, startingPriceRupees } from "@/data/vehicle-buying-specs";
 
 function MiniStat({
   label,
@@ -78,33 +30,6 @@ function MiniStat({
       <p className="mt-2 text-sm font-semibold text-white">{value}</p>
     </div>
   );
-}
-
-function Pill({
-  children,
-  active = false,
-  onClick,
-}: {
-  children: string;
-  active?: boolean;
-  onClick?: () => void;
-}) {
-  const classes = [
-    "inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition",
-    active
-      ? "border-sky-400/25 bg-sky-400 text-slate-950"
-      : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white",
-  ].join(" ");
-
-  if (onClick) {
-    return (
-      <button type="button" onClick={onClick} className={classes}>
-        {children}
-      </button>
-    );
-  }
-
-  return <span className={classes}>{children}</span>;
 }
 
 export default function CompareClient({ initialVehicle, initialWith }: { initialVehicle: string; initialWith: string }) {
@@ -164,34 +89,13 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
     { label: "DC charging time", left: leftCharging.dcTime, right: rightCharging.dcTime },
     { label: "AC charging time", left: leftCharging.acTime, right: rightCharging.acTime },
   ];
-  const leftFeatures = comparisonFeatures(leftVehicle, leftBuyingSpecs);
-  const rightFeatures = comparisonFeatures(rightVehicle, rightBuyingSpecs);
-  const sharedFeatures = leftFeatures.filter((feature) => rightFeatures.includes(feature));
-  const leftUniqueFeatures = leftFeatures.filter((feature) => !rightFeatures.includes(feature));
-  const rightUniqueFeatures = rightFeatures.filter((feature) => !leftFeatures.includes(feature));
-
-  const heroStats = [
-    {
-      label: "Launched EVs",
-      value: `${launchedVehicles.length}`,
-      icon: <Zap className="h-4 w-4" />,
-    },
-    {
-      label: "Brands",
-      value: `${new Set(launchedVehicles.map((v) => v.brand)).size}`,
-      icon: <Sparkles className="h-4 w-4" />,
-    },
-    {
-      label: "Decision focus",
-      value: "Premium",
-      icon: <Gauge className="h-4 w-4" />,
-    },
-  ];
-
-
+  const leftPrice = startingPriceRupees(leftVehicle?.price);
+  const rightPrice = startingPriceRupees(rightVehicle?.price);
+  const priceGap = Math.abs(leftPrice - rightPrice);
+  const headline = !leftPrice || !rightPrice ? "Price comparison needs confirmed prices" : priceGap === 0 ? "Same starting ex-showroom price" : `${leftPrice < rightPrice ? leftVehicle?.name : rightVehicle?.name} starts ₹${priceGap.toLocaleString("en-IN")} lower`;
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
+    <main className="min-h-screen overflow-x-clip bg-slate-950 text-white">
       <SiteHeader />
       {/* HERO */}
 <section className="relative isolate overflow-hidden border-b border-white/10 bg-slate-950">
@@ -199,13 +103,13 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
   <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,rgba(2,6,23,0.12)_0%,rgba(2,6,23,0.88)_34%,rgba(2,6,23,0.98)_58%)] sm:bg-[linear-gradient(90deg,rgba(2,6,23,0.96)_0%,rgba(2,6,23,0.84)_38%,rgba(2,6,23,0.32)_68%,rgba(2,6,23,0.16)_100%)]" />
   <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_left,rgba(56,189,248,0.16),transparent_38%)]" />
 
-  <div className="mx-auto flex min-h-[580px] w-full max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+  <div className="mx-auto flex min-h-[260px] w-full max-w-7xl items-center px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
     <div className="max-w-3xl">
       <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200">
         Compare EVs
       </div>
 
-      <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-[4.35rem]">
+      <h1 className="mt-6 text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
         Compare EVs the premium way.
       </h1>
 
@@ -230,16 +134,7 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
         </Link>
       </div>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-3">
-        {heroStats.map((item) => (
-          <StatCard
-            key={item.label}
-            label={item.label}
-            value={item.value}
-            icon={item.icon}
-          />
-        ))}
-      </div>
+
     </div>
   </div>
 </section>
@@ -259,7 +154,7 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
         </h2>
 
         <p className="mt-2 text-sm text-slate-400">
-          Select the two vehicles you want to compare side-by-side.
+          Search a model or brand. Price groups use starting ex-showroom prices.
         </p>
       </div>
 
@@ -270,45 +165,40 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
         <VehiclePicker label="Right pick" vehicles={launchedVehicles} value={rightSlug} excluded={leftSlug} onChange={setRightSlug} />
       </div>
 
-      {/* CURRENT SELECTION */}
-      <div className="mt-5 flex flex-col gap-3 rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-            Current comparison
-          </p>
 
-          <h3 className="mt-2 text-lg font-semibold text-white">
-            {leftVehicle?.name}
-            <span className="mx-2 text-sky-400">vs</span>
-            {rightVehicle?.name}
-          </h3>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {["overview", "range", "charging", "value"].map((item) => (
-            <Pill key={item} active={item === "overview"}>
-              {item}
-            </Pill>
-          ))}
-        </div>
-      </div>
     </div>
   </div>
 </section>
 
-      <section className="py-14 sm:py-18">
+      <aside aria-label="Comparison headline" className="sticky top-36 z-40 border-y border-sky-400/20 bg-slate-950/95 px-4 py-3 shadow-lg backdrop-blur lg:top-20">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div><p className="text-xs text-slate-300">{leftVehicle?.name} vs {rightVehicle?.name} · ex-showroom</p><p className="mt-1 text-sm font-semibold text-sky-200 sm:text-base">{headline}</p></div>
+          <nav aria-label="Comparison sections" className="flex gap-4 text-sm font-semibold text-sky-300"><a href="#on-road" className="py-2 underline">On-road</a><a href="#specifications" className="py-2 underline">Specs</a><a href="#energy" className="py-2 underline">Running cost</a></nav>
+        </div>
+      </aside>
+
+      <section id="on-road" className="mx-auto max-w-7xl scroll-mt-72 px-4 py-7 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-semibold">Your starting on-road estimate</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">Estimates are prefilled. Choose a state scenario, then adjust only what differs in your quote.</p>
+        <div className="mt-6 grid gap-5 lg:grid-cols-2">
+          <OnRoadBudget key={`left-${leftSlug}`} name={`${leftVehicle?.brand} ${leftVehicle?.name}`} cataloguePrice={leftVehicle?.price} />
+          <OnRoadBudget key={`right-${rightSlug}`} name={`${rightVehicle?.brand} ${rightVehicle?.name}`} cataloguePrice={rightVehicle?.price} />
+        </div>
+      </section>
+
+      <section id="specifications" className="scroll-mt-72 py-7 sm:py-10">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7">
-            <div className="flex flex-col gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key specifications</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Every important difference, side by side.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Model-wide options and scoped charging figures are shown below. Check the battery version and source notes: the starting price does not necessarily buy the charging profile shown. Unknown values are not counted as differences.</p></div><span className="rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold text-sky-200">{specificationRows.filter((row) => differentValues(row.left, row.right)).length} differences found</span></div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {[{ vehicle: leftVehicle, charging: leftCharging, specs: leftBuyingSpecs }, { vehicle: rightVehicle, charging: rightCharging, specs: rightBuyingSpecs }].map(({ vehicle, charging, specs }) => <div key={vehicle?.slug} className="rounded-xl border border-white/15 bg-slate-950/50 p-4 text-xs leading-6 text-slate-300">
+            <div className="flex flex-col gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key specifications</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Every important difference, side by side.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Model options, not one exact trim. Starting prices may apply to a different battery version than the charging figures.</p></div><span className="rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold text-sky-200">{specificationRows.filter((row) => differentValues(row.left, row.right)).length} differences found</span></div>
+            <details className="mt-4 text-sm leading-6 text-slate-300"><summary className="min-h-11 cursor-pointer py-2 font-semibold text-sky-300">Sources, battery versions and verification dates</summary><div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {[{ vehicle: leftVehicle, charging: leftCharging, specs: leftBuyingSpecs }, { vehicle: rightVehicle, charging: rightCharging, specs: rightBuyingSpecs }].map(({ vehicle, charging, specs }) => <div key={vehicle?.slug} className="rounded-xl border border-white/15 bg-slate-950/50 p-4 text-sm leading-6 text-slate-300">
                 <p className="font-semibold text-white">{vehicle?.name}</p><p>{charging.scope}</p>
                 {charging.sourceUrl ? <p><a href={charging.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-sky-300 underline">Charging source</a> · checked {charging.checkedAt}</p> : <p>Charging evidence is incomplete.</p>}
                 {charging.acSourceUrl && charging.acSourceUrl !== charging.sourceUrl ? <p><a href={charging.acSourceUrl} target="_blank" rel="noopener noreferrer" className="text-sky-300 underline">Supporting specification source</a> · checked {charging.acCheckedAt}</p> : null}
                 {specs.batterySpec ? <p><a href={specs.batterySpec.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-sky-300 underline">Battery source</a> · checked {specs.batterySpec.checkedAt}. {specs.batterySpec.scope}</p> : null}
               </div>)}
-            </div>
-            <div className="mt-6 space-y-3 sm:hidden">
+            </div><p className="mt-3">Unknown values are not counted as differences. Missing information does not mean a feature is absent. Practical range is an estimate, not an owner test.</p></details>
+            <div className="mt-4 space-y-3 sm:hidden">
               {specificationRows.map((row) => { const different = differentValues(row.left, row.right); return <article key={row.label} className={`rounded-2xl border p-4 ${different ? "border-sky-300/20 bg-sky-400/[0.06]" : "border-white/10 bg-slate-950/35"}`}><div className="flex items-center justify-between gap-2"><h3 className="text-sm font-semibold text-slate-300">{row.label}</h3>{different ? <span className="rounded-full bg-sky-400/10 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-sky-300">Different</span> : null}</div><dl className="mt-3 grid grid-cols-2 gap-3"><div><dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{leftVehicle?.name}</dt><dd className="mt-1 text-sm font-semibold leading-5 text-white">{row.left}</dd></div><div className="border-l border-white/10 pl-3"><dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{rightVehicle?.name}</dt><dd className="mt-1 text-sm font-semibold leading-5 text-white">{row.right}</dd></div></dl></article>; })}
             </div>
             <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-white/10 sm:block"><div className="min-w-[700px]">
@@ -317,15 +207,11 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
             </div></div>
           </div>
 
-          <div className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 sm:p-7">
-            <div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">Key features</p><h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Model details at a glance.</h2></div>
-            <div className="mt-6 grid gap-5 lg:grid-cols-3"><FeatureDifferenceColumn title={leftVehicle?.name ?? "Left pick"} features={leftUniqueFeatures} accent="sky" /><FeatureDifferenceColumn title="Shared features" features={sharedFeatures} accent="emerald" /><FeatureDifferenceColumn title={rightVehicle?.name ?? "Right pick"} features={rightUniqueFeatures} accent="violet" /></div>
-            <details className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-400/[0.06] p-4 text-sm leading-6 text-amber-100"><summary className="cursor-pointer font-semibold">What still needs a trim-specific check?</summary><p className="mt-3">Equipment, current trim availability and on-road prices must be checked for your exact variant. Missing information does not mean a feature is absent. Practical range used in the cost estimate is a planning assumption, not a measured owner result. Confirm charging hardware and the state-of-charge window before comparing charging times.</p></details>
-          </div>
+
         </div>
       </section>
 
-      <section className="py-14 sm:py-18">
+      <section id="energy" className="scroll-mt-72 py-7 sm:py-10">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7">
             <div className="flex flex-col gap-3 border-b border-white/10 pb-6 lg:flex-row lg:items-end lg:justify-between">
@@ -341,101 +227,20 @@ export default function CompareClient({ initialVehicle, initialWith }: { initial
               <OwnershipCostCard vehicleName={`${leftVehicle?.brand ?? ""} ${leftVehicle?.name ?? ""}`} energyCost={leftEnergyCost} efficiency={leftEfficiency} profileName={leftTripVariant?.name} years={ownershipYears} />
               <OwnershipCostCard vehicleName={`${rightVehicle?.brand ?? ""} ${rightVehicle?.name ?? ""}`} energyCost={rightEnergyCost} efficiency={rightEfficiency} profileName={rightTripVariant?.name} years={ownershipYears} />
             </div>
-            <p className="mt-5 text-xs leading-5 text-slate-500">Planning estimate only. It excludes purchase price, finance, insurance, service, tyres, battery degradation, charging losses and changing tariffs. It is not total ownership cost. Use the separate on-road worksheet for purchase budgeting.</p>
+            <p className="mt-5 text-sm leading-6 text-slate-300">Energy estimate only. It excludes purchase price, finance, insurance, service, tyres, battery degradation, charging losses and changing tariffs. It is not total ownership cost. Use the separate on-road worksheet for purchase budgeting.</p>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-semibold">Build your city-specific on-road budget</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">Ex-showroom is only the starting point. Add registration, insurance and other quoted costs for the exact trim. We do not assume a state tax exemption or invent a dealer quote.</p>
-        <div className="mt-6 grid gap-5 lg:grid-cols-2">
-          <OnRoadBudget key={`left-${leftSlug}`} name={`${leftVehicle?.brand} ${leftVehicle?.name}`} cataloguePrice={leftVehicle?.price} />
-          <OnRoadBudget key={`right-${rightSlug}`} name={`${rightVehicle?.brand} ${rightVehicle?.name}`} cataloguePrice={rightVehicle?.price} />
-        </div>
-      </section>
 
-      <section className="border-y border-white/10 bg-white/[0.02] py-16 sm:py-20">
+
+      <section className="py-7 sm:py-10">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 lg:grid-cols-2">
-            {[leftVehicle, rightVehicle].map((vehicle, idx) => {
-              if (!vehicle) return null;
-              const accent = accentFor(`${vehicle.brand}-${vehicle.name}`);
-              const charging = getCompareCharging(vehicle.slug);
-              const vehicleVisual = getVehicleVisual(vehicle.slug);
-              const side = idx === 0 ? "Left pick" : "Right pick";
-
-              return (
-                <article
-                  key={`${side}-${vehicle.slug}`}
-                  className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 shadow-[0_24px_80px_-28px_rgba(0,0,0,0.72)] backdrop-blur"
-                >
-                  <div
-                    className={`relative h-[260px] overflow-hidden bg-gradient-to-br ${accent}`}
-                  >
-                    <Image
-                        src={vehicleVisual.src}
-                        alt={`PlugV concept visual representing the ${vehicle.type} category; actual ${vehicle.brand} ${vehicle.name} may differ`}
-                        fill
-                        sizes="(min-width: 1024px) 50vw, 100vw"
-                        className="object-cover"
-                      />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-slate-950/10" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
-                    <div className="absolute left-6 top-6 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200 backdrop-blur">
-                      {side}
-                    </div>
-
-                    <div className="absolute inset-x-0 bottom-6 px-6">
-                      <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-300/80">
-                          Spotlight
-                        </p>
-                        <h3 className="mt-2 text-2xl font-semibold tracking-tight text-white">
-                          {vehicle.name}
-                        </h3>
-                        <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">
-                          {vehicle.brand} • {vehicle.type} • {vehicle.status}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 p-6">
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <MiniStat label="Range" value={vehicle.range ?? "—"} />
-                      <MiniStat label="DC charging" value={charging.dcPower} />
-                      <MiniStat label="Ex-showroom" value={vehicle.price ?? "—"} />
-                    </div>
-
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 sm:py-24">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300/80">
-                Trust & intelligence
-              </p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Check the evidence for each model.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-slate-400">
-                Review recorded manufacturer sources and the limits of the ongoing catalogue audit.
-              </p>
-            </div>
-          </div>
-
+          <details className="rounded-2xl border border-white/15 p-5"><summary className="min-h-11 cursor-pointer py-2 text-base font-semibold text-sky-300">Full catalogue evidence and review limits</summary>
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <TrustSummary vehicle={leftVehicle} />
             <TrustSummary vehicle={rightVehicle} />
-          </div>
+          </div></details>
         </div>
       </section>
 
@@ -469,22 +274,6 @@ function defaultTripVariant(slug?: string) {
 function differentValues(left: string, right: string) {
   const unknown = /not confirmed|not verified|awaiting|not yet verified/i;
   return !unknown.test(left) && !unknown.test(right) && left.trim().toLowerCase() !== right.trim().toLowerCase();
-}
-
-function comparisonFeatures(vehicle: (typeof vehicles)[number] | undefined, specs: ReturnType<typeof getBuyingSpecs>, variantFeatures?: string[]) {
-  if (!vehicle) return [];
-  return Array.from(new Set([
-    ...(variantFeatures ?? []),
-    `${vehicle.type} body style`,
-    `${specs.seats}-seat configuration`,
-    vehicle.range ? `Claimed range: ${vehicle.range}` : null,
-    specs.variants.length ? `${specs.variants.length} listed variant${specs.variants.length === 1 ? "" : "s"}` : null,
-  ].filter(Boolean) as string[]));
-}
-
-function FeatureDifferenceColumn({ title, features, accent }: { title: string; features: string[]; accent: "sky" | "emerald" | "violet" }) {
-  const style = { sky: "text-sky-300 border-sky-300/15 bg-sky-400/[0.05]", emerald: "text-emerald-300 border-emerald-300/15 bg-emerald-400/[0.05]", violet: "text-violet-300 border-violet-300/15 bg-violet-400/[0.05]" }[accent];
-  return <div className={`rounded-2xl border p-5 ${style}`}><h3 className="text-sm font-semibold text-white">{title}</h3>{features.length ? <ul className="mt-4 space-y-3">{features.map((feature) => <li key={feature} className="flex gap-2 text-xs leading-5 text-slate-300"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />{feature}</li>)}</ul> : <p className="mt-4 text-xs leading-5 text-slate-500">No verified difference is currently recorded.</p>}</div>;
 }
 
 function CostInput({ label, value, min, max, step, onChange }: { label: string; value: number; min: number; max: number; step: number; onChange: (value: number) => void }) {

@@ -16,7 +16,14 @@ export default function TariffContext({ rate, onChange }: { rate: number; onChan
         <option value="">Custom rate / use my current bill</option>{examples.map(e => <option key={e.id} value={e.id}>{e.label}</option>)}
       </select>
     </label>
-    <p className="mt-3 text-sm leading-6 text-slate-300">{example ? <>{example.basis} <a className="text-sky-300 underline" href={example.source} target="_blank" rel="noopener noreferrer">Official published schedule</a>. {rate !== example.rate ? "You have edited the example rate. " : ""}</> : "The starting ₹10/kWh is a planning assumption, not a city tariff. Replace it with the rate for additional electricity on your current bill. "}These dated examples are not current tariff quotations or state averages. Charging can move your household into a higher slab.</p>
-    <p className="mt-2 text-xs leading-5 text-slate-400">Base energy only: excludes fixed charges, fuel adjustments, duties, subsidies and public-charging service fees. Check your DISCOM’s current schedule before budgeting. Source examples checked 17 September 2026.</p>
+    <p className="mt-3 text-sm leading-6 text-slate-300">{example ? `${example.basis} ${rate !== example.rate ? "Rate edited. " : ""}Dated example, not a current tariff quote.` : "₹10/kWh is a planning assumption. Use your current bill’s rate for a closer estimate."}</p>
+    <details className="mt-2 text-sm leading-6 text-slate-300"><summary className="min-h-11 cursor-pointer py-2 text-sky-300">Tariff sources and assumptions</summary>
+      <ul className="mt-2 space-y-3">
+        {example ? <li><a className="text-sky-300 underline" href={example.source} target="_blank" rel="noopener noreferrer">Official published schedule</a> · source checked 17 September 2026.</li> : null}
+        <li>Examples are not state averages. Extra charging may move your household into a higher slab.</li>
+        <li>Base energy only: fixed charges, fuel adjustments, duties, subsidies and public-charging service fees are excluded.</li>
+        <li>Check your DISCOM’s current schedule before budgeting.</li>
+      </ul>
+    </details>
   </div>;
 }

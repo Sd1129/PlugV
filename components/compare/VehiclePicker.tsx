@@ -48,6 +48,5 @@ export default function VehiclePicker({ label, vehicles, value, excluded, onChan
         </Combobox.Popup>
       </Combobox.Positioner></Combobox.Portal>
     </Combobox.Root>
-    <p className="mt-2 text-xs leading-5 text-slate-400">Type to search. Groups use indicative starting ex-showroom prices, not every trim’s price.</p>
   </div>;
 }
